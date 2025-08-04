@@ -73,7 +73,7 @@ const Signin = () => {
       const { data, error } = await supabaseBrowser.auth.signInWithOAuth({
         provider: "google",
         options: {
-          redirectTo: `${window.location.origin}/`,
+          redirectTo: `${window.location.origin}/dashboard`,
         },
       });
       console.log("Google sign-in data:", data);

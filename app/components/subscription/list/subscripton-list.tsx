@@ -18,21 +18,28 @@ type planState = {
 const subscriptionPlans: planState[] = [
   {
     id: "plan_1",
-    plan_name: "Free Trial",
+    plan_name: "Trial Run",
     type: "trial",
     amount: "0.00",
     duration: "For 2days",
   },
   {
     id: "plan_2",
-    plan_name: "Basic Plan",
+    plan_name: "Foundation Pack",
     type: "monthly",
     amount: "30.00",
-    duration: "For 1Week",
+    duration: "For 1 Week",
   },
   {
     id: "plan_3",
-    plan_name: "Premium Plan",
+    plan_name: "Growth Engine",
+    type: "monthly",
+    amount: "100.00",
+    duration: "For 1 Month",
+  },
+   {
+    id: "plan_3",
+    plan_name: "Ultimate Advantage",
     type: "monthly",
     amount: "100.00",
     duration: "For 1 Month",

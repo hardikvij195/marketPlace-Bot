@@ -1,6 +1,5 @@
 "use client";
 
-import { PayPalScriptProvider, PayPalButtons } from "@paypal/react-paypal-js";
 
 import { getSubscriptionDetails } from "../../../lib/data";
 import { selectCurrentUser } from "../../../store/reducers/userSlice";
