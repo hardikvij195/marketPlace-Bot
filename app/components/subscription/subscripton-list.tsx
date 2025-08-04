@@ -1,0 +1,44 @@
+// app/subscription/page.tsx or any route you prefer
+"use client";
+
+import React, { useState } from "react";
+import SubscriptionListPage from "./list/subscripton-list";
+import SubscriptionPayment from "./list/subscription-payment";
+import { fa } from "zod/v4/locales";
+type planState = {
+  plan_name: string;
+  commission: string;
+  id: string;
+  type: string;
+  hst_tax?: string;
+  amount: string;
+  basic_amount?: string;
+};
+export default function SubscriptionListMainPage() {
+  const [selectedSubscription, setSelectedSubscription] =
+    useState<planState | null>(null);
+
+  const [paymentMethod, setPaymentMethod] = useState<boolean>(false);
+
+  const handleCancelPayment = () => {
+    setSelectedSubscription(null);
+    setPaymentMethod(false);
+  };
+  const handleShowPayment = (plan: planState) => {
+    setSelectedSubscription(plan);
+    setPaymentMethod(true);
+  };
+  return (
+    <>
+      {paymentMethod ? (
+        <SubscriptionPayment
+          selectedSubscription={selectedSubscription}
+          handleCancelPayment={handleCancelPayment}
+          setPaymentMethod={setPaymentMethod}
+        />
+      ) : (
+        <SubscriptionListPage handleShowPayment={handleShowPayment} />
+      )}
+    </>
+  );
+}
