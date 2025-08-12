@@ -1,0 +1,222 @@
+"use client";
+
+import Link from "next/link";
+import { usePathname, useRouter } from "next/navigation";
+import {
+  LayoutDashboard,
+  Calculator,
+  FileText,
+  User,
+  Settings,
+  LogOut,
+  PenTool,
+  Car,
+  Video,
+  History,
+  Bot
+} from "lucide-react";
+import { Button } from "../../components/ui/button";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "../../components/ui/tooltip";
+import { cn } from "../../../lib/utils";
+import { supabaseBrowser } from "../../../lib/supabaseBrowser";
+import { clearUser } from "../../../store/reducers/userSlice";
+import { useDispatch, useSelector } from "react-redux";
+import Image from "next/image";
+import { useEffect, useState } from "react";
+
+interface SidebarProps {
+  collapsed: boolean;
+  setCollapsed: (collapsed: boolean) => void;
+}
+
+export default function Sidebar({ collapsed, setCollapsed }: SidebarProps) {
+  const pathname = usePathname();
+  const router = useRouter();
+  const user = useSelector((state: any) => state.user.user);
+  const dispatch = useDispatch();
+
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const handleResize = () => {
+      setIsMobile(window.innerWidth < 768);
+    };
+    handleResize();
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
+
+  // Prevent background scroll when sidebar open on mobile
+  useEffect(() => {
+    // This effect should only apply when the sidebar *overlays* content on mobile,
+    // which it will if it's 'open' (not collapsed) as a drawer.
+    // If it's always visible and pushing content, this might not be needed or needs adjustment.
+    if (isMobile && !collapsed) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "";
+    }
+  }, [isMobile, collapsed]);
+
+  const activePlan = user?.subscriptionPlan?.find((w: any) => w?.is_active);
+
+ const navItems = [
+  { href: "/dashboard", icon: LayoutDashboard, label: "Dashboard" },
+  { href: "/dashboard/subscription", icon: Settings, label: "Subscription" },
+   { href: "/dashboard/profile", icon: User, label: "Profile" },
+  // Tools (conditional)
+  ...(activePlan
+    ? [{ href: "/dashboard/user-tools", icon: PenTool, label: "Tools" }]
+    : []),
+  // Calculator (conditional)
+  ...(activePlan
+    ? [{ href: "/dashboard/calculator", icon: Calculator, label: "Calculator" }]
+    : []),
+
+  // Invoices (conditional)
+  ...(activePlan
+    ? [{ href: "/dashboard/invoices", icon: FileText, label: "Invoices" }]
+    : []),
+  // Inventory (conditional)
+  ...(activePlan
+    ? [{ href: "/dashboard/inventory", icon: Car, label: "Inventory" }]
+    : []),
+  // Training Videos (conditional)
+  ...(activePlan
+    ? [
+        {
+          href: "/dashboard/training-videos",
+          icon: Video,
+          label: " Videos",
+        },
+      ]
+    : []),
+];
+
+
+  const handleLogout = async () => {
+    try {
+      sessionStorage.removeItem("modal_shown");
+      const { error } = await supabaseBrowser.auth.signOut();
+      if (error) throw error;
+      setTimeout(() => dispatch(clearUser()), 5000);
+      router.push("/");
+    } catch (err) {
+      console.error("Logout error:", err);
+    }
+  };
+
+
+  return (
+    <>
+      {/* Mobile backdrop - only show when sidebar is OPEN on mobile */}
+      {isMobile && !collapsed && (
+        <div
+          className="fixed inset-0 bg-black/20 z-40"
+          onClick={() => setCollapsed(true)} // Click backdrop to collapse (show icons)
+        />
+      )}
+
+      <aside
+       className={cn(
+        "fixed inset-y-0 left-0 z-50 flex flex-col bg-white border-r border-gray-200 transition-all duration-300",
+        // Apply width based on collapsed state universally
+        // On mobile, if collapsed is true, it will be w-16 (icons visible)
+        // If collapsed is false, it will be w-64 (full sidebar visible)
+        collapsed ? "w-16" : "w-56"
+      )}
+      >
+        <div className="flex flex-col h-full">
+          {/* Logo */}
+          <div className="px-3 py-2 border-b border-gray-300 flex items-center justify-start">
+            <Bot
+              // Show smaller logo when collapsed (desktop or mobile)
+              width={collapsed ? 32 : 60}
+              height={collapsed ? 32 : 60}
+              className="object-contain max-h-[50px] text-[#2563EB]"
+            />
+            {/* Show text only when not collapsed (desktop or mobile) */}
+            {!collapsed && (
+              <span className="ml-3 text-md font-semibold text-gray-800">
+               MarketPlaceBot
+              </span>
+            )}
+          </div>
+
+          {/* Navigation */}
+          <nav className="flex-1 mt-6">
+            {navItems.map((item) => {
+              const isActive = pathname === item.href;
+              // Render tooltip/icon-only version when collapsed is true
+              return collapsed ? (
+                <Tooltip key={item.href} delayDuration={0}>
+                  <TooltipTrigger asChild>
+                    <Link href={item.href}>
+                      <Button
+                        variant={isActive ? "secondary" : "ghost"}
+                        size="icon"
+                        className={cn(
+                          "cursor-pointer w-full h-12",
+                          isActive && "bg-blue-50"
+                        )}
+                      >
+                        <item.icon className="h-5 w-5" />
+                      </Button>
+                    </Link>
+                  </TooltipTrigger>
+                  <TooltipContent side="right">{item.label}</TooltipContent>
+                </Tooltip>
+              ) : (
+                // Render full button when not collapsed
+                <Link key={item.href} href={item.href}>
+                  <Button
+                    variant={isActive ? "secondary" : "ghost"}
+                    className={cn(
+                      "cursor-pointer w-full justify-start h-12",
+                      isActive && "bg-blue-50 border-l-4 border-blue-600"
+                    )}
+                  >
+                    <item.icon className="mr-3 h-5 w-5" />
+                    {item.label}
+                  </Button>
+                </Link>
+              );
+            })}
+          </nav>
+
+          {/* Logout */}
+          <div className="px-2 py-2 border-t border-gray-300">
+            {collapsed ? (
+              <Tooltip delayDuration={0}>
+                <TooltipTrigger asChild>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="w-full h-12 text-red-600 hover:text-red-800"
+                    onClick={handleLogout}
+                  >
+                    <LogOut className="h-5 w-5" />
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent side="right">Log out</TooltipContent>
+              </Tooltip>
+            ) : (
+              <Button
+                variant="ghost"
+                className="w-full justify-start h-12 text-red-600 hover:text-red-800"
+                onClick={handleLogout}
+              >
+                <LogOut className="mr-3 h-5 w-5" />
+                Log out
+              </Button>
+            )}
+          </div>
+        </div>
+      </aside>
+    </>
+  );
+}
