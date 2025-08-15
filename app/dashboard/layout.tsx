@@ -71,7 +71,7 @@ export default function DashboardLayout({
     <>
       {loading ? (
         <div className="flex flex-col items-center justify-center gap-2 min-h-screen">
-          <Loader className="h-8 w-8 animate-spin text-primary" />
+          <Loader className="h-8 w-8 animate-spin text-primary text-blue-600" />
           <p>Please wait…</p>
         </div>
       ) : (

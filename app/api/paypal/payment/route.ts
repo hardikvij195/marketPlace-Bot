@@ -1,7 +1,7 @@
 // src/app/api/paypal/payment/route.ts
 import { NextRequest, NextResponse } from "next/server";
 import axios from "axios";
-import { getAccessToken, PAYPAL_API } from "@/lib/paypal/paypal";
+import { getAccessToken, PAYPAL_API } from "../../../../lib/paypal/paypal";
 
 interface Item {
   price: number;

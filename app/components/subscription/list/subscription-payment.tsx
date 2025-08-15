@@ -106,15 +106,14 @@ export default function SubscriptionPayment({
       endDate.setMonth(endDate.getMonth() + 1);
 
       const payload = {
-        user_id: user?.id,
         subscription_id: selectedSubscription?.id,
         start_date: start_date,
         end_date: endDate.toISOString(),
         status: "payment_pending",
-        hst_tax: selectedSubscription?.hst_tax,
         amount: selectedSubscription?.amount,
-        basic_amount: selectedSubscription?.basic_amount,
+
       };
+
       const { data, error } = await supabaseBrowser
         .from("user_subscription")
         .insert([payload])

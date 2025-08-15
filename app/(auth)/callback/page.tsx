@@ -28,22 +28,77 @@ export default function AuthCallbackPage() {
       console.log("[callback] server result:", result);
 
       if (result.status === 200 && result.user) {
+        const userId = result.user.id;
+        const email = result.user.email ?? "";
+        const fullName = result.user.user_metadata.full_name ?? "";
+        const phone = result.user.phone ?? "";
+        const role = "user";
+        const status = "active";
+
+        console.log(result.user);
+        const { data: existingUser, error: fetchError } = await supabaseBrowser
+          .from("users")
+          .select("id")
+          .eq("id", userId)
+          .maybeSingle();
+
+        if (!existingUser) {
+          const { error: insertError } = await supabaseBrowser
+            .from("users")
+            .insert([
+              {
+                id: userId,
+                email,
+                name: fullName,
+                phone,
+                role,
+                status,
+              },
+            ]);
+
+          if (insertError) {
+            console.error("Error inserting user:", insertError);
+          }
+        }
+
+        // Always ensure subscription exists
+        const { data: existingSubscription, error: fetchSubError } =
+          await supabaseBrowser
+            .from("user_subscription")
+            .select("id")
+            .eq("user_id", userId)
+            .maybeSingle();
+
+        if (!existingSubscription) {
+          const { error: subInsertError } = await supabaseBrowser
+            .from("user_subscription")
+            .insert([
+              {
+                user_id: userId,
+              },
+            ]);
+
+          if (subInsertError) {
+            console.error(
+              "Error inserting into user_subscription:",
+              subInsertError
+            );
+          }
+        }
+
         await supabaseBrowser
           .from("users")
-          .update({
-            updated_at: new Date().toISOString(), // e.g., "2025-07-05T15:41:23.123Z"
-          })
-          .eq("id", result.user?.id)
-          .select()
-          .single();
-        
+          .update({ updated_at: new Date().toISOString() })
+          .eq("id", userId);
+
         const { data } = await supabaseBrowser
           .from("user_subscription")
           .select("*")
-          .eq("user_id", result.user?.id);
-        
-        console.log(data)
-        dispatch(setUser({ ...result.user, subscriptionPlan : data}));
+          .eq("user_id", userId);
+
+        console.log(data);
+
+        dispatch(setUser({ ...result.user, subscriptionPlan: data }));
         router.replace("/dashboard");
       } else {
         router.replace("/");
@@ -55,8 +110,8 @@ export default function AuthCallbackPage() {
 
   if (loading) {
     return (
-      <div className="flex flex-col items-center gap-2 mt-20">
-        <Loader className="h-8 w-8 animate-spin text-primary" />
+      <div className="flex flex-col items-center justify-center gap-2 mt-20">
+        <Loader className="h-8 w-8 animate-spin text-primary text-blue-600" />
         <p>Please wait…</p>
       </div>
     );

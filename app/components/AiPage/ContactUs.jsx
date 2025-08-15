@@ -173,7 +173,7 @@ const ContactUs = () => {
           </div>
 
           {/* Right Column: Other Ways to Reach Us */}
-          <div>
+          <div >
             <h2 className="text-2xl font-semibold mb-6">Other Ways to reach us</h2>
             <div className="space-y-6">
               {/* E-mail Support */}

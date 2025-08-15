@@ -50,11 +50,9 @@ export default function Sidebar({ collapsed, setCollapsed }: SidebarProps) {
     return () => window.removeEventListener("resize", handleResize);
   }, []);
 
-  // Prevent background scroll when sidebar open on mobile
+
   useEffect(() => {
-    // This effect should only apply when the sidebar *overlays* content on mobile,
-    // which it will if it's 'open' (not collapsed) as a drawer.
-    // If it's always visible and pushing content, this might not be needed or needs adjustment.
+
     if (isMobile && !collapsed) {
       document.body.style.overflow = "hidden";
     } else {
@@ -67,33 +65,11 @@ export default function Sidebar({ collapsed, setCollapsed }: SidebarProps) {
  const navItems = [
   { href: "/dashboard", icon: LayoutDashboard, label: "Dashboard" },
   { href: "/dashboard/subscription", icon: Settings, label: "Subscription" },
+   
    { href: "/dashboard/profile", icon: User, label: "Profile" },
-  // Tools (conditional)
-  ...(activePlan
-    ? [{ href: "/dashboard/user-tools", icon: PenTool, label: "Tools" }]
-    : []),
-  // Calculator (conditional)
-  ...(activePlan
-    ? [{ href: "/dashboard/calculator", icon: Calculator, label: "Calculator" }]
-    : []),
 
-  // Invoices (conditional)
   ...(activePlan
     ? [{ href: "/dashboard/invoices", icon: FileText, label: "Invoices" }]
-    : []),
-  // Inventory (conditional)
-  ...(activePlan
-    ? [{ href: "/dashboard/inventory", icon: Car, label: "Inventory" }]
-    : []),
-  // Training Videos (conditional)
-  ...(activePlan
-    ? [
-        {
-          href: "/dashboard/training-videos",
-          icon: Video,
-          label: " Videos",
-        },
-      ]
     : []),
 ];
 
@@ -113,30 +89,27 @@ export default function Sidebar({ collapsed, setCollapsed }: SidebarProps) {
 
   return (
     <>
-      {/* Mobile backdrop - only show when sidebar is OPEN on mobile */}
+     
       {isMobile && !collapsed && (
         <div
           className="fixed inset-0 bg-black/20 z-40"
-          onClick={() => setCollapsed(true)} // Click backdrop to collapse (show icons)
+          onClick={() => setCollapsed(true)} 
         />
       )}
 
       <aside
        className={cn(
         "fixed inset-y-0 left-0 z-50 flex flex-col bg-white border-r border-gray-200 transition-all duration-300",
-        // Apply width based on collapsed state universally
-        // On mobile, if collapsed is true, it will be w-16 (icons visible)
-        // If collapsed is false, it will be w-64 (full sidebar visible)
         collapsed ? "w-16" : "w-56"
       )}
       >
         <div className="flex flex-col h-full">
           {/* Logo */}
-          <div className="px-3 py-2 border-b border-gray-300 flex items-center justify-start">
+          <div className="px-3 py-1.5 border-b border-gray-300 flex items-center justify-start">
             <Bot
               // Show smaller logo when collapsed (desktop or mobile)
-              width={collapsed ? 32 : 60}
-              height={collapsed ? 32 : 60}
+              width={collapsed ? 50 : 60}
+              height={collapsed ? 50 : 60}
               className="object-contain max-h-[50px] text-[#2563EB]"
             />
             {/* Show text only when not collapsed (desktop or mobile) */}
@@ -151,7 +124,7 @@ export default function Sidebar({ collapsed, setCollapsed }: SidebarProps) {
           <nav className="flex-1 mt-6">
             {navItems.map((item) => {
               const isActive = pathname === item.href;
-              // Render tooltip/icon-only version when collapsed is true
+            
               return collapsed ? (
                 <Tooltip key={item.href} delayDuration={0}>
                   <TooltipTrigger asChild>

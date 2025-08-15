@@ -15,7 +15,7 @@ import { Button } from "../../../components/ui/button";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
-import { Loader2, Bot } from "lucide-react";
+import { Loader2, Bot,} from "lucide-react";
 import PasswordInput from "../../../components/ui/password-input"; // ⬅️ new
 import { supabaseBrowser } from "../../../../lib/supabaseBrowser";
 
@@ -76,31 +76,6 @@ const Signup = () => {
     },
   });
 
-  // const handleSignUp = async (values: SignUpFormValues) => {
-  //   if (!isLoaded) return;
-  //   setIsLoading(true);
-  //   setError("");
-
-  //   try {
-  //     await signUp.create({
-  //       emailAddress: values.email,
-  //       password: values.password,
-  //       firstName: values.fullName.split(" ")[0],
-  //       lastName: values.fullName.split(" ")[1] || "",
-  //     });
-
-  //     // Send verification email
-  //     await signUp.prepareEmailAddressVerification({ strategy: "email_code" });
-
-  //     // Move to verification step
-  //     setEmailForVerification(values.email);
-  //     setVerificationStep("verify");
-  //   } catch (err: any) {
-  //     setError(err.errors[0]?.message || "An error occurred during sign up");
-  //   } finally {
-  //     setIsLoading(false);
-  //   }
-  // };
 
   const handleSignUp = async (values) => {
     setIsLoading(true);
@@ -113,7 +88,7 @@ const Signup = () => {
         data: {
           full_name: values.fullName,
         },
-        emailRedirectTo: `${location.origin}/`,
+        emailRedirectTo: `${location.origin}/callback`,
       },
     });
     console.log(data.user)
@@ -136,7 +111,7 @@ const Signup = () => {
               data: {
                 full_name: values.fullName,
               },
-              emailRedirectTo: `${location.origin}`,
+              emailRedirectTo: `${location.origin}/callback`,
             },
             user_details: data.user,
           }),
@@ -148,7 +123,7 @@ const Signup = () => {
           ? r.json()
           : r.text();
       const resParsed = await parse(ressponse);
-      router.push("/");
+      router.push("/sign-in");
     }
     setIsLoading(false);
   };
@@ -157,7 +132,7 @@ const Signup = () => {
       const { data, error } = await supabaseBrowser.auth.signInWithOAuth({
         provider: "google",
         options: {
-          redirectTo: `${window.location.origin}/`,
+          redirectTo: `${window.location.origin}/callback`,
         },
       });
       console.log("Google sign-in data:", data);
@@ -173,24 +148,15 @@ const Signup = () => {
   };
 
   return (
-    <div className="flex flex-col lg:flex-row items-center justify-center min-h-screen px-4 gap-10 bg-white">
-      {/* Left side image (always visible) */}
-      {/* <div className="hidden lg:block w-[400px] h-[85vh] overflow-hidden rounded-xl shadow-md">
-        <Image
-          src="/signup.png"
-          alt="Signup Image"
-          fill
-          className="object-cover"
-          priority
-        />
-      </div> */}
-      <div className="hidden lg:block">
+    <div className="flex flex-col lg:flex-row items-center justify-center min-h-screen px-4 gap-10 bg-white lg:mx-20">
+      
+      <div className="hidden w-[40%] lg:block md:block relative">
         <Image
           src="/signup.png"
           alt="signup Image"
           width={450}
           height={800} // ← Increased height here
-          className="h-[400px] flex items-center"
+          className="h-[550px] w-[100%] object-cover rounded-md shadow-md"
           priority
         />
       </div>
@@ -205,14 +171,13 @@ const Signup = () => {
           <div className="max-w-md w-full space-y-6">
              
             <div>
-              <h1 className="text-3xl font-bold text-gray-900">
+              <h1 className="text-2xl font-bold mb-2">
                 Create an Account
               </h1>
-              <p className="mt-2 text-gray-600">
+              <p className="text-gray-600 mb-6">
                 Start your journey in car sales and begin earning commissions.
               </p>
             </div>
-
             {error && (
               <div className="bg-red-50 text-red-700 p-3 rounded-md text-sm">
                 {error}
@@ -293,7 +258,7 @@ const Signup = () => {
 
                 <Button
                   type="submit"
-                  className="w-full cursor-pointer"
+                  className="w-full cursor-pointer bg-blue-600 text-white"
                   disabled={isLoading}
                 >
                   {isLoading ? (

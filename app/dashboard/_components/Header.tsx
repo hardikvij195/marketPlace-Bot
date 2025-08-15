@@ -34,9 +34,7 @@ const pathName: any = {
   "/dashboard": "Dashboard",
   "/dashboard/calculator": "Calculator",
   "/dashboard/user-tools": "Tools",
-  "/dashboard/inventory": "Inventory",
-  "/dashboard/training-videos": "Training Videos",
-  "/dashboard/history": "Calculator History",
+  "/dashboard/invoices": "Invoices",
 
 };
 
@@ -68,11 +66,8 @@ const Header = ({ collapsed, setCollapsed }: HeaderProps) => {
   };
 
   return (
-    <header className="bg-white shadow-sm border-b border-b-gray-200 sticky top-0 z-10">
-  <div className="container px-4 sm:px-6 lg:px-4">
-    <div className="flex items-center justify-between h-16">
-      <div className="flex items-center gap-2">
-        <div className=" md:flex">
+    <header className="h-16 bg-white border-b border-gray-200 flex items-center justify-between px-6">
+        <div className="flex items-center space-x-2">
           <Button
             variant="ghost"
             size="icon"
@@ -85,15 +80,15 @@ const Header = ({ collapsed, setCollapsed }: HeaderProps) => {
               <ChevronLeft className="h-6 w-6" />
             )}
           </Button>
-        </div>
-        <span className="text-lg sm:text-xl font-bold text-gray-700 truncate max-w-[180px] sm:max-w-none">
+           <span className="lg:text-lg md:text-md text-sm font-bold text-gray-800">
           {pathName[pathname] || "Dashboard"}
         </span>
-      </div>
+        </div>
+       
 
       {/* Right Section: Icons */}
-      <div className="flex items-center gap-2">
-        <Link href="/">
+      <div className="flex items-center space-x-2">
+        <Link href="/dashboard">
           <Button
             variant="default"
             size="icon"
@@ -113,8 +108,7 @@ const Header = ({ collapsed, setCollapsed }: HeaderProps) => {
         </Button>
         
       </div>
-    </div>
-  </div>
+ 
 </header>
 
   );

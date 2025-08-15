@@ -51,7 +51,7 @@ export default function SubscriptionPage() {
           <Loader className="animate-spin h-8 w-8 text-blue-600" />
         </div>
       ) : (
-        <main className="bg-[#F9FAFB] text-[#111827] min-h-screen flex">
+        <main className="bg-white text-[#111827] min-h-screen flex">
           <section className="flex-1 flex flex-col p-4 sm:px-8 sm:py-4 space-y-8 overflow-auto lg:w-full md:w-full w-[320px]  max-w-[1600px] mx-auto">
             {/* <h2 className="text-lg font-semibold text-gray-900">
               My Subscription

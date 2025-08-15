@@ -90,7 +90,7 @@ const Signin = () => {
 
   return (
     <>
-      <div className="flex flex-col lg:flex-row items-center justify-center min-h-screen px-4 gap-10 bg-white lg:mx-40">
+      <div className="flex flex-col lg:flex-row items-center justify-center min-h-screen px-4 gap-10 bg-white lg:mx-20">
         {/* Left Image Section */}
         {/* <div className="hidden lg:flex items-center justify-center w-full max-w-md h-[83vh] rounded-xl overflow-hidden shadow-md">
           <Image

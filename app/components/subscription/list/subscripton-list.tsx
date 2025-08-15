@@ -14,7 +14,7 @@ type planState = {
   basic_amount?: string;
 };
 
-// Array of subscription plans.
+
 const subscriptionPlans: planState[] = [
   {
     id: "plan_1",
@@ -41,7 +41,7 @@ const subscriptionPlans: planState[] = [
     id: "plan_4",
     plan_name: "Ultimate Advantage",
     type: "monthly",
-    amount: "100.00",
+    amount: "300.00",
     duration: "For 1 Month",
   },
 ];

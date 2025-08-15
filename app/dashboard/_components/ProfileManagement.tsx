@@ -187,7 +187,7 @@ const ProfileManagement = () => {
   if (loading) {
     return (
       <div className="flex flex-col items-center justify-center gap-2 min-h-screen">
-        <Loader className="h-8 w-8 animate-spin text-primary" />
+        <Loader className="h-8 w-8 animate-spin text-primary text-blue-600" />
         <p>Please wait…</p>
       </div>
     );
@@ -225,7 +225,7 @@ const ProfileManagement = () => {
   };
 
   return (
-    <div className="space-y-6 lg:p-6 md:p-6 p-2">
+    <div className="space-y-6 lg:p-6 md:p-6 p-2 bg-white">
       <Card>
         <CardHeader>
           <CardTitle className="space-x-1">

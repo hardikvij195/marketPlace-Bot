@@ -1,12 +1,7 @@
 // app/dashboard/page.tsx
 "use client";
 
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-} from "../components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "../components/ui/card";
 import Link from "next/link";
 import {
   Table,
@@ -348,15 +343,15 @@ export default function DashboardPage() {
           </div>
         </div>
       ) : !paymentMethod ? (
-        <div className="space-y-6 p-6">
+        <div className="space-y-6 p-6 bg-white">
           {/* Stats Cards */}
-          <div className="grid gap-4 md:grid-cols-4">
-            <Card>
+          <div className="grid gap-4 md:grid-cols-3">
+            <Card className="border-gray-300">
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                 <CardTitle className="text-sm font-medium">
-                  Total Leads
+                  Total Invoice
                 </CardTitle>
-                <Handshake className="h-5 w-5 text-gray-500" />
+                <Handshake className="h-5 w-5 text-blue-500" />
               </CardHeader>
               <CardContent>
                 <div className="text-2xl font-bold">
@@ -371,12 +366,12 @@ export default function DashboardPage() {
               </CardContent>
             </Card>
 
-            <Card>
+            <Card className="border-gray-300">
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                 <CardTitle className="text-sm font-medium">
-                  Total Chats
+                  Total Profit
                 </CardTitle>
-                <DollarSign className="h-5 w-5 text-gray-500" />
+                <DollarSign className="h-5 w-5 text-blue-500" />
               </CardHeader>
               <CardContent>
                 <div className="text-2xl font-bold">
@@ -391,12 +386,12 @@ export default function DashboardPage() {
               </CardContent>
             </Card>
 
-            <Card>
+            <Card className="border-gray-300">
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                 <CardTitle className="text-sm font-medium">
-                  Total Messages
+                  Total Commission
                 </CardTitle>
-                <CreditCard className="h-5 w-5 text-gray-500" />
+                <CreditCard className="h-5 w-5 text-blue-500" />
               </CardHeader>
               <CardContent>
                 <div className="text-2xl font-bold">
@@ -426,20 +421,20 @@ export default function DashboardPage() {
           </div>
 
           {/* Graph Section */}
-          <Card>
+          <Card className="border-gray-100">
             <CardHeader>
               <div className="flex justify-between items-center">
-                <CardTitle>Graph of last 7 days Lead</CardTitle>
+                <CardTitle>Commission Overview</CardTitle>
                 <Select
                   value={filter}
                   onValueChange={(e) => {
                     setFilter(e);
                   }}
                 >
-                  <SelectTrigger className="w-[180px]">
+                  <SelectTrigger className="w-[180px] border-gray-300">
                     <SelectValue placeholder="Select period" />
                   </SelectTrigger>
-                  <SelectContent>
+                  <SelectContent className="border-gray-300 bg-white">
                     <SelectItem value="3months">Last 3 months</SelectItem>
                     <SelectItem value="6months">Last 6 months</SelectItem>
                     <SelectItem value="12months">Last 12 months</SelectItem>
@@ -490,27 +485,28 @@ export default function DashboardPage() {
           </Card>
 
           {/* Recent Deals Table */}
-          <Card className="lg:w-[100%] md:w-[100%] w-[320px]">
+          <Card className="lg:w-[100%] md:w-[100%] w-[320px] border-gray-300">
             <CardHeader>
               <div className="flex justify-between items-center">
-                <CardTitle>Recent Leads Added</CardTitle>
+                <CardTitle>Recent Invoice Added</CardTitle>
                 <Link
                   href="/dashboard/invoices"
                   className="text-sm text-blue-600 hover:underline"
                 >
-                  View Details
+                  View Invoice
                 </Link>
               </div>
             </CardHeader>
             <CardContent>
               <Table>
                 <TableHeader>
-                  <TableRow>
-                    <TableHead>User ID</TableHead>
+                  <TableRow className="border-b border-gray-300">
+                    <TableHead>Invoice ID</TableHead>
                     <TableHead>Username</TableHead>
-                    <TableHead>Plan Name</TableHead>
-                    <TableHead>Plan Status</TableHead>
-                    <TableHead>Google Sheet link</TableHead>
+                    <TableHead>Car Model</TableHead>
+                    <TableHead className="text-right">Amount(CAD)</TableHead>
+                    <TableHead className="text-right">Vin number</TableHead>
+                    <TableHead className="text-right">Commission</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -518,7 +514,6 @@ export default function DashboardPage() {
                     <TableRow key={deal?.invoiceId}>
                       <TableCell>{deal?.invoiceId}</TableCell>
                       <TableCell>
-                        {" "}
                         {deal?.users?.full_name ||
                           deal?.users?.display_name ||
                           deal?.users?.email ||
@@ -547,9 +542,6 @@ export default function DashboardPage() {
           handleCancelPayment={() => {
             setSelectedSubscription(null);
             setPaymentMethod(false);
-          }}
-          setPaymentMethod={function (value: boolean): void {
-            throw new Error("Function not implemented.");
           }}
         />
       )}
