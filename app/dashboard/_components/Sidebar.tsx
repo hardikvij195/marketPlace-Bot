@@ -141,7 +141,7 @@ export default function Sidebar({ collapsed, setCollapsed }: SidebarProps) {
                       </Button>
                     </Link>
                   </TooltipTrigger>
-                  <TooltipContent side="right">{item.label}</TooltipContent>
+                  <TooltipContent side="right" className="bg-gray-800 text-white">{item.label}</TooltipContent>
                 </Tooltip>
               ) : (
                 // Render full button when not collapsed
