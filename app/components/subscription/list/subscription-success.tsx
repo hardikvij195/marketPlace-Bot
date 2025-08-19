@@ -1,49 +1,82 @@
-// pages/payment-success.tsx
 "use client";
 import { supabaseBrowser } from "../../../../lib/supabaseBrowser";
 import { CheckCircle } from "lucide-react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import SomethingWentWrong from "./subscription_not_found";
 
 export default function PaymentSuccess() {
   const searchParams = useSearchParams();
   const subscriptionId = searchParams.get("subscription_id");
+  const ranOnce = useRef(false); // ensure effect runs only once
 
   useEffect(() => {
-    // Log the subscription ID to the console for debugging
-    const updatePaymentStatus = async () => {
-      if (subscriptionId) {
-        if (subscriptionId) {
-          const { data } = await supabaseBrowser
-            .from("user_subscription")
-            .update({
-              is_active: true,
-              status: "payment_successful", // e.g., "2025-07-05T15:41:23.123Z"
-            })
-            .eq("id", subscriptionId)
-            .select("*, subscription(*)")
-            .single();
+  const updatePaymentStatus = async () => {
+    if (!subscriptionId) return;
 
-          if (data) {
-            await supabaseBrowser
-              .from("users")
-              .update({
-                subscription: data?.subscription?.plan_name, 
-                 commission: data?.subscription?.commission , // e.g., "2025-07-05T15:41:23.123Z"
-              })
-              .eq("id", data?.user_id)
-              .select("*")
-              .single();
-          }
-        }
+    try {
+      // 1️⃣ Update subscription status
+      const { data: subscriptionData, error: subscriptionError } =
+        await supabaseBrowser
+          .from("user_subscription")
+          .update({
+            is_active: true,
+            status: "payment_successful",
+          })
+          .eq("id", subscriptionId)
+          .select("*, subscription(*)")
+          .single();
+
+      if (subscriptionError || !subscriptionData) {
+        console.error("Error updating subscription:", subscriptionError);
+        return;
       }
-    };
-    if (subscriptionId) {
+
+      // 2️⃣ Update user's current subscription
+      await supabaseBrowser
+        .from("users")
+        .update({
+          subscription: subscriptionData.subscription?.plan_name,
+        })
+        .eq("id", subscriptionData.user_id);
+
+      // 3️⃣ Insert into invoice table only if it doesn't exist
+      const { data: existingInvoice } = await supabaseBrowser
+        .from("invoice")
+        .select("*")
+        .eq("invoiceId", subscriptionData.payment_id || subscriptionData.id)
+        .maybeSingle();
+
+      if (!existingInvoice) {
+        const invoicePayload = {
+          invoiceId: subscriptionData.payment_id || subscriptionData.id,
+          dateOfSale: new Date().toISOString(),
+          plan_name: subscriptionData.subscription?.plan_name,
+          amount: subscriptionData.amount,
+          salesName: subscriptionData.user_id, // 👈 this is the user id
+        };
+
+        const { data: invoiceData, error: invoiceError } =
+          await supabaseBrowser.from("invoice").insert([invoicePayload]);
+
+        if (invoiceError) console.error("Error creating invoice:", invoiceError);
+        else console.log("Invoice created:", invoiceData);
+      } else {
+        console.log("Invoice already exists for this subscription");
+      }
+    } catch (err) {
+      console.error("PaymentSuccess Error:", err);
+    }
+  };
+
+
+    if (!ranOnce.current) {
+      ranOnce.current = true;
       updatePaymentStatus();
     }
   }, [subscriptionId]);
+
   return (
     <>
       {subscriptionId ? (

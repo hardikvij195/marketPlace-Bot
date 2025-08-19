@@ -13,7 +13,8 @@ import {
   Car,
   Video,
   History,
-  Bot
+  TicketPercent,
+  Bot,
 } from "lucide-react";
 import { Button } from "../../components/ui/button";
 import {
@@ -50,9 +51,7 @@ export default function Sidebar({ collapsed, setCollapsed }: SidebarProps) {
     return () => window.removeEventListener("resize", handleResize);
   }, []);
 
-
   useEffect(() => {
-
     if (isMobile && !collapsed) {
       document.body.style.overflow = "hidden";
     } else {
@@ -62,17 +61,15 @@ export default function Sidebar({ collapsed, setCollapsed }: SidebarProps) {
 
   const activePlan = user?.subscriptionPlan?.find((w: any) => w?.is_active);
 
- const navItems = [
-  { href: "/dashboard", icon: LayoutDashboard, label: "Dashboard" },
-  { href: "/dashboard/subscription", icon: Settings, label: "Subscription" },
-   
-   { href: "/dashboard/profile", icon: User, label: "Profile" },
+  const navItems = [
+    { href: "/dashboard", icon: LayoutDashboard, label: "Dashboard" },
+    { href: "/dashboard/leads", icon: TicketPercent, label: "Leads" },
+    { href: "/dashboard/subscription", icon: Settings, label: "Subscription" },
+   { href: "/dashboard/invoices", icon: FileText, label: "Invoices" },
+     
 
-  ...(activePlan
-    ? [{ href: "/dashboard/invoices", icon: FileText, label: "Invoices" }]
-    : []),
-];
-
+    { href: "/dashboard/profile", icon: User, label: "Profile" },
+  ];
 
   const handleLogout = async () => {
     try {
@@ -86,36 +83,34 @@ export default function Sidebar({ collapsed, setCollapsed }: SidebarProps) {
     }
   };
 
-
   return (
     <>
-     
       {isMobile && !collapsed && (
         <div
           className="fixed inset-0 bg-black/20 z-40"
-          onClick={() => setCollapsed(true)} 
+          onClick={() => setCollapsed(true)}
         />
       )}
 
       <aside
-       className={cn(
-        "fixed inset-y-0 left-0 z-50 flex flex-col bg-white border-r border-gray-200 transition-all duration-300",
-        collapsed ? "w-16" : "w-56"
-      )}
+        className={cn(
+          "fixed inset-y-0 left-0 z-50 flex flex-col bg-white border-r border-gray-200 transition-all duration-300",
+          collapsed ? "w-16" : "w-56"
+        )}
       >
         <div className="flex flex-col h-full">
           {/* Logo */}
-          <div className="px-3 py-1.5 border-b border-gray-300 flex items-center justify-start">
-            <Bot
+          <div className="px-3 py-3 border-b border-gray-300 flex items-center justify-start">
+            <Image src='/Logo.png' alt="No Logo Found"
               // Show smaller logo when collapsed (desktop or mobile)
-              width={collapsed ? 50 : 60}
-              height={collapsed ? 50 : 60}
+              width={collapsed ? 40 : 40}
+              height={collapsed ? 40 : 40}
               className="object-contain max-h-[50px] text-[#2563EB]"
             />
             {/* Show text only when not collapsed (desktop or mobile) */}
             {!collapsed && (
               <span className="ml-3 text-md font-semibold text-gray-800">
-               MarketPlaceBot
+                MarketPlaceBot
               </span>
             )}
           </div>
@@ -124,7 +119,7 @@ export default function Sidebar({ collapsed, setCollapsed }: SidebarProps) {
           <nav className="flex-1 mt-6">
             {navItems.map((item) => {
               const isActive = pathname === item.href;
-            
+
               return collapsed ? (
                 <Tooltip key={item.href} delayDuration={0}>
                   <TooltipTrigger asChild>
@@ -141,7 +136,12 @@ export default function Sidebar({ collapsed, setCollapsed }: SidebarProps) {
                       </Button>
                     </Link>
                   </TooltipTrigger>
-                  <TooltipContent side="right" className="bg-gray-800 text-white">{item.label}</TooltipContent>
+                  <TooltipContent
+                    side="right"
+                    className="bg-gray-800 text-white"
+                  >
+                    {item.label}
+                  </TooltipContent>
                 </Tooltip>
               ) : (
                 // Render full button when not collapsed

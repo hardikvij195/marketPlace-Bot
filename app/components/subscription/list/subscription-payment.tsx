@@ -3,13 +3,11 @@
 import { ArrowLeft, Loader2 } from "lucide-react";
 import Image from "next/image";
 import { useState } from "react";
-import { loadStripe } from "@stripe/stripe-js";
 import { useSelector } from "react-redux";
 import { supabaseBrowser } from "../../../../lib/supabaseBrowser";
 import { showToast } from "../../../../hooks/useToast";
 import Link from "next/link";
 
-const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLIC_KEY!);
 
 export default function SubscriptionPayment({
   selectedSubscription,
@@ -21,7 +19,7 @@ export default function SubscriptionPayment({
   setPaymentMethod: (value: boolean) => void;
 }) {
   const [loading, setLoading] = useState(false);
-  const [selected, setSelected] = useState("stripe");
+  const [selected, setSelected] = useState();
   const { user } = useSelector((state: any) => state?.user);
   const [promoCode, setPromoCode] = useState("");
   const [message, setMessage] = useState("");
@@ -74,126 +72,108 @@ export default function SubscriptionPayment({
       )}:00`;
     }
     return timeStr;
+
   }
 
-  const handlePayment = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setLoading(true);
+  
 
-    try {
-      const supdata = await supabaseBrowser
+const handlePayment = async (e: React.FormEvent) => {
+  e.preventDefault();
+  setLoading(true);
+
+  try {
+
+    
+    // Step 1: deactivate old active subscription if any
+    const supdata = await supabaseBrowser
+      .from("user_subscription")
+      .select("*")
+      .eq("user_id", user.id)
+      .eq("is_active", true)
+      .maybeSingle();
+
+    if (supdata?.data) {
+      await supabaseBrowser
         .from("user_subscription")
-        .select("*")
-        .eq("user_id", user.id)
-        .eq("is_active", true)
+        .update({
+          is_active: false,
+          status: "payment_failed",
+        })
+        .eq("id", supdata?.data?.id)
+        .select()
         .single();
+    }
 
-      if (supdata?.data) {
-        await supabaseBrowser
-          .from("user_subscription")
-          .update({
-            is_active: false,
-            status: "payment_failed",
-          })
-          .eq("id", supdata?.data?.id)
-          .select()
-          .single();
-      }
+    // Step 2: create pending subscription record
+    const start_date = new Date().toISOString();
+    const endDate = new Date();
+    endDate.setMonth(endDate.getMonth() + 1);
 
-      const start_date = new Date().toISOString();
+    const payload = {
+      user_id: user?.id,
+      subscription_id: selectedSubscription?.id,
+      start_date: start_date,
+      end_date: endDate.toISOString(),
+      status: "payment_pending",
+      amount: selectedSubscription?.amount,
+    };
 
-      const endDate = new Date();
-      endDate.setMonth(endDate.getMonth() + 1);
+    const { data, error } = await supabaseBrowser
+      .from("user_subscription")
+      .insert([payload])
+      .select("*");
 
-      const payload = {
-        subscription_id: selectedSubscription?.id,
-        start_date: start_date,
-        end_date: endDate.toISOString(),
-        status: "payment_pending",
+    if (error) throw new Error("Supabase insert failed");
+
+    // Step 3: Call your PayPal API route instead of Stripe
+    const res = await fetch("/api/create-checkout-session", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        plan_id: data?.[0]?.id,
         amount: selectedSubscription?.amount,
+        user_id: user?.id,
+        name: user?.user_metadata?.full_name,
+        email: user?.email,
+      }),
+    });
 
-      };
+    const Subdata = await res.json();
+ 
 
-      const { data, error } = await supabaseBrowser
-        .from("user_subscription")
-        .insert([payload])
-        .select("*");
 
-      if (error) {
-        throw new Error("Something went wrong please try again.");
-      }
+    if (Subdata?.paymentId) {
+  // Update the subscription row with PayPal payment ID
+  await supabaseBrowser
+    .from("user_subscription")
+    .update({ payment_id: Subdata.paymentId })
+    .eq("id", data?.[0]?.id); 
+}
 
-      const ressponse = await fetch(
-        "https://hook.us2.make.com/fgejigk60mjsjim50hdhuqbnoldtiwh3",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            "x-make-apikey": "DriveXAuth",
-          },
-          body: JSON.stringify({
-            ...payload,
-            subscription: selectedSubscription,
-            user: user,
-            discount: discount,
-          }),
-        }
-      );
 
-      const parse = async (r: Response) =>
-        r.headers.get("content-type")?.includes("application/json")
-          ? r.json()
-          : r.text();
-      const resParsed = await parse(ressponse);
-      const res = await fetch("/api/create-checkout-session", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          //   plan_name: selectedSubscription?.plan_name,
-          plan_id: data?.[0]?.id,
-          amount: selectedSubscription?.amount,
-          price_id: selectedSubscription?.price_id,
-          user_id: user?.id,
-          name: user?.user_metadata?.full_name,
-          email: user?.email,
-        }),
-      });
-
-      const Subdata = await res.json();
-
-      console.log("Payment Data:", Subdata);
-
-      if (Subdata?.paymentIntentId && data?.[0]?.id) {
-        await supabaseBrowser
-          .from("user_subscription")
-          .update({
-            payment_id: Subdata?.paymentIntentId,
-          })
-          .eq("id", data?.[0]?.id)
-          .single();
-      }
-      if (Subdata?.url) {
-        const stripe = await stripePromise;
-        window.location.href = Subdata.url; // OR stripe.redirectToCheckout({ sessionId: data.id });
-      } else {
-        showToast({
-          title: "error",
-          description: "Error creating session.",
-        });
-        setLoading(false);
-      }
-    } catch (error) {
-      console.error("Payment Error:", error);
+    // Step 4: Redirect user to PayPal approval page
+    if (Subdata?.approvalUrl) {
+      window.location.href = Subdata.approvalUrl;
+    } else {
       showToast({
         title: "error",
-        description: "Error creating session.",
+        description: "Error creating PayPal order.",
       });
       setLoading(false);
     }
-  };
+  } catch (error) {
+    console.error("Payment Error:", error);
+    showToast({
+      title: "error",
+      description: "Error creating session.",
+    });
+    setLoading(false);
+  }
+};
+
 
   return (
-    <main className="bg-[#F9FAFB] text-[#111827] min-h-screen flex flex-col px-4 sm:px-8 py-6">
+    <main className="bg-white text-[#111827] min-h-screen flex flex-col px-4 sm:px-8 py-6">
       <nav className="text-sm text-gray-500 mb-4 select-none">
         <ArrowLeft className="inline-block cursor-pointer mr-2" size={20} onClick={() => setPaymentMethod(false)} />
         <Link
@@ -224,21 +204,21 @@ export default function SubscriptionPayment({
         <div className="overflow-x-auto mb-6">
           <table className="min-w-full text-sm bg-white shadow-md rounded-xl overflow-hidden border border-gray-200">
             <tbody>
-              <tr className="border-b hover:bg-gray-50 transition">
+              <tr className="border-b border-b-gray-300 hover:bg-gray-50 transition">
                 <td className="px-6 py-4 font-medium text-gray-700">
                   Selected Plan
                 </td>
                 <td className="px-6 py-4 text-right font-semibold text-gray-900">
-                  {selectedSubscription?.plan_name} (
-                  {selectedSubscription?.commission}% Commission Rate)
+                  {selectedSubscription?.plan_name} 
+                 
                 </td>
               </tr>
-              <tr className="border-b hover:bg-gray-50 transition">
+              <tr className="border-b border-b-gray-300 hover:bg-gray-50 transition">
                 <td className="px-6 py-4 font-medium text-gray-700">
                   Amount to Pay
                 </td>
                 <td className="px-6 py-4 text-right text-blue-600 font-bold text-lg">
-                  ${selectedSubscription?.basic_amount}
+                  ${selectedSubscription?.amount}
                 </td>
               </tr>
               <tr className="hover:bg-gray-50 transition">
@@ -255,7 +235,7 @@ export default function SubscriptionPayment({
           </table>
 
           {/* Promo code input + Save button */}
-          <div className="flex items-center gap-2 m-2">
+          {/*<div className="flex items-center gap-2 m-2">
             <input
               type="text"
               placeholder="Enter promo code"
@@ -289,7 +269,8 @@ export default function SubscriptionPayment({
               {message}
             </p>
           )}
-        </div>
+            */}
+        </div> 
 
         <h3 className="text-gray-900 font-semibold text-base mb-4 select-none">
           Select Payment Method
@@ -384,9 +365,9 @@ const paymentOptionsold = [
 
 const paymentOptions = [
   {
-    id: "stripe",
-    label: "Paypal",
-    img: "https://storage.googleapis.com/a1aa/image/207ba434-9bb3-4b65-d147-6d9c1b9bea5d.jpg",
-    alt: "Stripe logo, blue and white icon",
+    id: "paypal",
+    label: "PayPal",
+    img: "https://www.paypalobjects.com/webstatic/icon/pp258.png", // official PayPal icon
+    alt: "PayPal logo",
   },
 ];

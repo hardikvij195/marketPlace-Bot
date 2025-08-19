@@ -1,282 +1,655 @@
 "use client";
-
-import { useEffect, useState, useCallback } from "react";
+import { useState, useEffect, useMemo } from "react";
+import {
+  Calendar,
+  Trash2,
+  Info,
+  Edit,
+  FileText,
+  Search,
+  Plus,
+  Loader2,
+  Loader
+} from "lucide-react";
 import { supabaseBrowser } from "../../../lib/supabaseBrowser";
-import { Info, Trash2, Search, Edit } from "lucide-react";
-import PaginationBar from "../../components/Pagination";
-import DealDetailsModal from "../../components/DealDetailsModal";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+} from "../../components/ui/dialog";
+import { Input } from "../../components/ui/input";
+import { Button } from "../../components/ui/button";
+import Modal from "../_components/Modal";
+import { Card, CardContent } from "../../components/ui/card";
+import { showToast } from "../../../hooks/useToast";
+import PaginationBar from "../_components/Pagination";
+import DeleteModal from "../_components/DeleteModal";
+import { Textarea } from "../../components/ui/textarea";
 
-type Deal = {
+// Define the type for a single lead entry
+type Lead = {
   id: string;
-  created_at: string;
-  deal_data?: {
-    salesPrice?: number;
-    vehicleVin?: string;
-    clientName?: string;
-    [key: string]: any;
-  };
-  client_name?: string; // derived from deal_data.clientName
-  sale_price?: number | string; // derived from deal_data.salesPrice
-  vin_number?: string; // derived from deal_data.vehicleVin
-  [key: string]: any;
+  name: string;
+  email: string;
+  phone: string;
+  convo: string;
+  notes: string;
+  created_date: string;
+  updated_date: string;
 };
 
-export default function DealsPage() {
-  const [deals, setDeals] = useState<Deal[]>([]);
+export default function LeadsPage() {
+  const [leads, setLeads] = useState<Lead[]>([]);
   const [loading, setLoading] = useState(true);
-  const [page, setPage] = useState(1);
-  const [total, setTotal] = useState(0);
+  const [error, setError] = useState<string | null>(null);
+  const [dialogOpen, setDialogOpen] = useState(false);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [saving, setSaving] = useState(false);
+  const [pendingId, setPendingId] = useState<string | null>(null);
+  const confirmOpen = pendingId !== null;
   const [limit, setLimit] = useState(10);
-  const [search, setSearch] = useState("");
-  const [debouncedSearch, setDebouncedSearch] = useState("");
-  const [showModal, setShowModal] = useState(false);
-  const [selectedDeal, setSelectedDeal] = useState<Deal | null>(null);
-  const [showviewModal, setShowViewModal] = useState(false);
+  const [total, setTotal] = useState(0);
+  const [page, setPage] = useState(1);
+  const [isOpen, setIsOpen] = useState(false);
+  const [selectedData, setSelectedData] = useState<any>(null);
+  const totalPages = Math.ceil(total / limit);
 
-  // Debounce search input
-  useEffect(() => {
-    const timer = setTimeout(() => setDebouncedSearch(search), 400);
-    return () => clearTimeout(timer);
-  }, [search]);
+  // State for adding a new lead
+  const [newLead, setNewLead] = useState<Lead>({
+    id: crypto.randomUUID(),
+    name: "",
+    email: "",
+    phone: "",
+    convo: "",
+    notes: "",
+    created_date: "",
+    updated_date: "",
+  });
 
-  const fetchDeals = useCallback(async () => {
+  // State for editing an existing lead
+  const [isEditing, setIsEditing] = useState(false);
+  const [editLead, setEditLead] = useState<Lead>({
+    id: "",
+    name: "",
+    email: "",
+    phone: "",
+    convo: "",
+    notes: "",
+    created_date: "",
+    updated_date: "",
+  });
+  const [isOpenDeleted, setIsOpenDeleted] = useState(false);
+  const [rowData, setRowData] = useState<any>(null);
+  const [deleteRefresh, setDeleteRefresh] = useState<any>(null);
+
+  // Function to refresh the lead list after an action (add, edit, delete)
+  const handleRefresh = () => {
+    setPage(1);
+    setDeleteRefresh(Math.random());
+  };
+
+  // Function to fetch leads from Supabase
+  const handleFetchLeads = async () => {
     setLoading(true);
     try {
-      const {
-        data: { session },
-      } = await supabaseBrowser.auth.getSession();
-
-      const userId = session?.user?.id;
-      if (!userId) {
-        setLoading(false);
-        return;
-      }
+      let query = supabaseBrowser
+        .from("leads")
+        .select("*", { count: "exact" })
+        .order("created_date", { ascending: false });
 
       const from = (page - 1) * limit;
       const to = from + limit - 1;
-
-      let query = supabaseBrowser
-        .from("calculations")
-        .select("*", { count: "exact" })
-        .eq("user_id", userId)
-        .order("created_at", { ascending: false })
-        .range(from, to);
-
-      if (debouncedSearch.trim()) {
-        query = query.ilike(
-          "deal_data->>clientName",
-          `%${debouncedSearch.trim()}%`
-        );
-      }
+      query = query.range(from, to);
 
       const { data, error, count } = await query;
 
       if (error) {
-        console.error("Supabase error:", error.message);
+        console.error(error);
+        setError(error.message);
       } else {
-        const transformed = data.map((item: any) => ({
-          ...item,
-          client_name: item.deal_data?.clientName || "Unknown",
-          sale_price: item.deal_data?.salesPrice || "0",
-          vin_number: item.deal_data?.vehicleVin || "N/A",
-        }));
-
-        setDeals(transformed);
+        setLeads(data || []);
         setTotal(count || 0);
       }
-    } catch (err) {
-      console.error("Unexpected error:", err);
+    } catch (error) {
+      console.error(error);
+      setError("Failed to fetch lead data");
     } finally {
       setLoading(false);
     }
-  }, [page, limit, debouncedSearch]);
+  };
 
+  // Fetch leads whenever the page, limit, or a refresh signal changes
   useEffect(() => {
-    fetchDeals();
-  }, [fetchDeals]);
+    handleFetchLeads();
+  }, [page, deleteRefresh, limit]);
 
-  const handleDelete = async (id: string) => {
-    if (!confirm("Are you sure you want to delete this deal?")) return;
-    const { error } = await supabaseBrowser
-      .from("calculations")
-      .delete()
-      .eq("id", id);
-    if (!error) {
-      fetchDeals();
-    } else {
-      console.error("Delete error:", error.message);
+  // Filter leads based on the search term
+  const filteredLeads = useMemo(() => {
+    if (!searchTerm.trim()) {
+      return leads;
     }
-  };
+    const lowercasedSearchTerm = searchTerm.toLowerCase();
+    return leads.filter(
+      (lead) =>
+        lead.name.toLowerCase().includes(lowercasedSearchTerm) ||
+        lead.email.toLowerCase().includes(lowercasedSearchTerm)
+    );
+  }, [leads, searchTerm]);
 
-  const handleView = (deal: Deal) => {
-    setSelectedDeal(deal);
-    setShowModal(true);
-  };
+  if (loading) {
+    return (
+     <div className="space-y-6 animate-pulse flex justify-center items-center h-screen"><Loader className="h-10 w-10 animate-spin text-blue-500"/></div>
+    );
+  }
 
-  const handleSave = async (updated: { id: string; deal_data: any }) => {
-    const { id, deal_data } = updated;
+  if (error) {
+    return (
+      <div className="space-y-6 p-4 md:p-6 text-center text-red-500">
+        <h2 className="text-lg font-semibold">Error: {error}</h2>
+        <p>There was an issue loading the data. Please try again later.</p>
+      </div>
+    );
+  }
 
-    const { error } = await supabaseBrowser
-      .from("calculations")
-      .update({ deal_data })
-      .eq("id", id);
+  // Handle lead deletion
+  async function confirmDelete() {
+    if (!pendingId) return;
+
+    const id = pendingId;
+    setPendingId(null);
+
+    const { error } = await supabaseBrowser.from("leads").delete().eq("id", id);
 
     if (error) {
-      console.error("Save error:", error.message);
+      showToast({
+        title: "Error",
+        description: "Something went wrong while deleting!",
+      });
+      handleRefresh();
     } else {
-      fetchDeals();
+      showToast({
+        title: "Success",
+        description: "Lead deleted successfully!",
+      });
+      handleRefresh();
     }
+  }
+
+  // Populate the edit form with selected lead data
+  const handleEditForm = (lead: Lead) => {
+    setEditLead(lead);
+    setIsEditing(true);
   };
 
-  const handleShowViewModal = (deal: Deal) => {
-    setSelectedDeal(deal);
-    setShowViewModal(true);
+  // Handle adding a new lead
+  const handleAddLead = async () => {
+    setSaving(true);
+    const now = new Date().toISOString();
+    const payload = {
+      ...newLead,
+      created_date: now,
+      updated_date: now,
+    };
+
+    const { error } = await supabaseBrowser.from("leads").insert(payload);
+
+    if (error) {
+      showToast({
+        title: "Error",
+        description: `Save failed: ${error.message}`,
+      });
+    } else {
+      setDialogOpen(false);
+      setNewLead({
+        id: crypto.randomUUID(),
+        name: "",
+        email: "",
+        phone: "",
+        convo: "",
+        notes: "",
+        created_date: "",
+        updated_date: "",
+      });
+      showToast({
+        title: "Success",
+        description: "Lead added successfully!",
+      });
+      handleRefresh();
+    }
+    setSaving(false);
   };
 
-  const totalPages = Math.ceil(total / limit);
+  // Handle saving edits to an existing lead
+  const handleEditLead = async () => {
+    setSaving(true);
+    const now = new Date().toISOString();
+    const payload = {
+      ...editLead,
+      updated_date: now,
+    };
 
-  console.log(selectedDeal);
+    const { error } = await supabaseBrowser
+      .from("leads")
+      .update(payload)
+      .eq("id", editLead.id)
+      .select()
+      .single();
+
+    if (error) {
+      showToast({
+        title: "Error",
+        description: "Something went wrong!",
+      });
+    } else {
+      showToast({
+        title: "Success",
+        description: "Lead updated successfully!",
+      });
+      handleRefresh();
+      setIsEditing(false);
+      setEditLead({
+        id: "",
+        name: "",
+        email: "",
+        phone: "",
+        convo: "",
+        notes: "",
+        created_date: "",
+        updated_date: "",
+      });
+    }
+    setSaving(false);
+  };
 
   return (
-    <div className="p-6">
-  
-
-      {/* Search Bar */}
-      <div className="mb-4 flex items-center gap-2">
-        <div className="relative w-full max-w-full">
-          <input
-            type="text"
-            placeholder="Search by client name"
-            value={search}
-            onChange={(e) => {
-              setPage(1);
-              setSearch(e.target.value);
-            }}
-            className="w-full border border-gray-300 rounded-md py-2 px-4 pl-10 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+    <>
+      <div className="min-h-screen bg-white p-4">
+        <div className="relative flex-1 mb-5">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+          <Input
+            placeholder="Search by Lead Name or Email..."
+            className="pl-9 border-gray-300" // Updated border color here
+            value={searchTerm}
+            disabled={loading}
+            onChange={(e) => setSearchTerm(e.target.value)}
           />
-          <Search className="absolute left-3 top-2.5 h-4 w-4 text-gray-400" />
         </div>
-      </div>
 
-      {loading ? (
-        <p>Loading...</p>
-      ) : deals.length === 0 ? (
-        <p>No Leads found.</p>
-      ) : (
-        <div className=" overflow-x-auto bg-white border border-gray-200 rounded-xl lg:w-[100%] md:w-[100%] w-[320px]">
-          <table className="min-w-full text-sm text-gray-700">
-            <thead className="text-left bg-gray-50 border-b border-gray-200">
-              <tr>
-                <th className="px-6 py-4 font-semibold">Client Name</th>
-                <th className="px-6 py-4 font-semibold">Date</th>
-                <th className="px-6 py-4 font-semibold">Sale Price</th>
-                <th className="px-6 py-4 font-semibold">VIN Number</th>
-                <th className="px-6 py-4 font-semibold">Action</th>
-              </tr>
-            </thead>
-            <tbody>
-              {deals.map((deal) => (
-                <tr
-                  key={deal.id}
-                  className="border-b border-gray-100 hover:bg-gray-50 transition"
-                >
-                  <td className="px-6 py-4">{deal.client_name}</td>
-                  <td className="px-6 py-4">
-                    {new Date(deal.created_at).toLocaleDateString(undefined, {
-                      year: "numeric",
-                      month: "short",
-                      day: "numeric",
-                    })}
-                  </td>
-                  <td className="px-6 py-4">₹{deal.sale_price}</td>
-                  <td className="px-6 py-4">{deal.vin_number}</td>
-                  <td className="px-6 py-4 flex gap-2">
-                    <button
-                      onClick={() => handleView(deal)}
-                      className="p-2 rounded-full bg-gray-100 hover:bg-gray-200 transition"
-                      title="View"
-                    >
-                      <Edit size={18} className="text-gray-700" />
-                    </button>
-                    <button
-                      onClick={() => handleShowViewModal(deal)}
-                      className="p-2 rounded-full bg-gray-100 hover:bg-gray-200 transition"
-                      title="View"
-                    >
-                      <Info size={18} className="text-gray-700" />
-                    </button>
-                    <button
-                      onClick={() => handleDelete(deal.id)}
-                      className="p-2 rounded-full bg-gray-100 hover:bg-red-100 transition"
-                      title="Delete"
-                    >
-                      <Trash2 size={18} className="text-red-600" />
-                    </button>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+        <div className="bg-white">
+          <button
+            onClick={() => setDialogOpen(true)}
+            className="fixed bottom-6 right-6 z-50 rounded-full p-4 bg-blue-600 text-white shadow-lg hover:bg-blue-700 focus:ring-4 focus:ring-blue-300"
+            title="Add a new lead"
+          >
+            <Plus className="h-6 w-6" />
+          </button>
+        </div>
 
-          {selectedDeal && (
-            <DealDetailsModal
-              open={showModal}
-              onClose={() => setShowModal(false)}
-              deal={selectedDeal}
-              onSave={handleSave}
-            />
-          )}
-
-          <div className="mt-4">
-            <PaginationBar
-              page={page}
-              setPage={setPage}
-              totalPage={totalPages}
-              totalRecord={total}
-              limit={limit}
-              setLimit={setLimit}
-            />
+        {filteredLeads.length === 0 && !loading ? (
+          <div className="flex flex-col justify-center items-center text-gray-900 p-6">
+            <FileText className="w-16 h-16 text-gray-400 mb-4" />
+            <h2 className="text-2xl font-semibold mb-2">
+              {searchTerm
+                ? "No results found for your search."
+                : "No Leads Found"}
+            </h2>
+            {searchTerm && (
+              <p className="text-sm text-gray-500">
+                Try adjusting your search term or clearing it.
+              </p>
+            )}
           </div>
-        </div>
-      )}
-      {showviewModal && selectedDeal && (
-  <div className="fixed inset-0 z-50 flex items-center justify-center bg-blend-color-burn bg-opacity-40 backdrop-blur-sm">
-    <div className="relative w-full max-w-2xl bg-white rounded-xl shadow-lg p-6 text-sm">
-      {/* Close Button */}
-      <button
-        onClick={() => setShowViewModal(false)}
-        className="absolute top-3 right-3 text-gray-500 hover:text-gray-700 text-xl"
-        title="Close"
-      >
-        &times;
-      </button>
-
-      <h3 className="text-lg font-semibold mb-4">Deal Details</h3>
-
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-        <div><strong>Client Name:</strong> {selectedDeal.deal_data?.clientName}</div>
-        <div><strong>Vehicle Make:</strong> {selectedDeal.deal_data?.vehicleMake}</div>
-        <div><strong>Vehicle Model:</strong> {selectedDeal.deal_data?.vehicleModel}</div>
-        <div><strong>Vehicle Year:</strong> {selectedDeal.deal_data?.vehicleYear}</div>
-        <div><strong>Vehicle VIN:</strong> {selectedDeal.deal_data?.vehicleVin}</div>
-        <div><strong>Vehicle Price:</strong> ${selectedDeal.deal_data?.vehicleCost}</div>
-        <div><strong>Sale Price:</strong> ${selectedDeal.deal_data?.salesPrice}</div>
-        <div><strong>Warranty Cost:</strong> ${selectedDeal.deal_data?.warrantyCost}</div>
-        <div><strong>Warranty Sold:</strong> ${selectedDeal.deal_data?.warrantySold}</div>
-        <div><strong>Gap Cost:</strong> ${selectedDeal.deal_data?.gapCost}</div>
-        <div><strong>Gap Sold:</strong> ${selectedDeal.deal_data?.gapSold}</div>
-        <div><strong>Admin Fee:</strong> ${selectedDeal.deal_data?.adminFee}</div>
-        <div><strong>Admin Cost:</strong> ${selectedDeal.deal_data?.adminCost}</div>
-        <div><strong>Lien Owed:</strong> ${selectedDeal.deal_data?.lienOwed}</div>
-        <div><strong>Lot Pack:</strong> ${selectedDeal.deal_data?.lotPack}</div>
-        <div><strong>Reserve:</strong> ${selectedDeal.deal_data?.reserve}</div>
-        <div><strong>Referral:</strong> ${selectedDeal.deal_data?.referral}</div>
-        <div><strong>Miscellaneous:</strong> ${selectedDeal.deal_data?.miscellaneous}</div>
+        ) : (
+          <div className="overflow-x-auto bg-white rounded-lg  lg:w-full md:w-full w-[320px]">
+            <table className="min-w-full divide-y divide-gray-200">
+              <thead className="bg-gray-50">
+                <tr>
+                  <th
+                    scope="col"
+                    className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                  >
+                    Name
+                  </th>
+                  <th
+                    scope="col"
+                    className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                  >
+                    Email
+                  </th>
+                  <th
+                    scope="col"
+                    className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                  >
+                    Phone
+                  </th>
+                  <th
+                    scope="col"
+                    className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                  >
+                    Conversation
+                  </th>
+                  <th
+                    scope="col"
+                    className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                  >
+                    Created At
+                  </th>
+                  <th
+                    scope="col"
+                    className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                  >
+                    Actions
+                  </th>
+                </tr>
+              </thead>
+              <tbody className="bg-white divide-y divide-gray-200">
+                {filteredLeads.map((lead) => (
+                  <tr key={lead.id} className="hover:bg-gray-50">
+                    <td className="break-words px-6 py-4 text-sm font-medium text-gray-900">
+                      {lead?.name}
+                    </td>
+                    <td className="px-6 py-4 break-words text-sm text-gray-900">
+                      {lead?.email}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                      {lead?.phone}
+                    </td>
+                    <td className="px-6 py-4 break-words text-sm text-gray-900 max-w-[200px]">
+                      {lead?.convo}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                      {new Date(lead?.created_date).toLocaleDateString()}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                      <div className="flex items-center gap-4">
+                        <button
+                          disabled={loading}
+                          onClick={() => setPendingId(lead.id)}
+                          className="cursor-pointer p-2 rounded-md bg-gray-100 text-red-500 hover:bg-gray-200"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </button>
+                        <button
+                          disabled={loading}
+                          onClick={() => {
+                            handleEditForm(lead);
+                          }}
+                          className="cursor-pointer p-2 rounded-md bg-gray-100 text-gray-600 hover:bg-gray-200"
+                        >
+                          <Edit className="w-4 h-4" />
+                        </button>
+                        <button
+                          disabled={loading}
+                          onClick={() => {
+                            setSelectedData(lead);
+                            setIsOpen(true);
+                          }}
+                          className="cursor-pointer p-2 rounded-md bg-gray-100 text-gray-600 hover:bg-gray-200"
+                        >
+                          <Info className="w-4 h-4" />
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+            <div className="mt-auto">
+              <PaginationBar
+                page={page}
+                setPage={setPage}
+                totalPage={totalPages}
+                totalRecord={total}
+                limit={limit}
+                setLimit={setLimit}
+              />
+            </div>
+          </div>
+        )}
+        <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
+          <DialogContent className="sm:max-w-lg bg-white">
+            <DialogHeader>
+              <DialogTitle className="flex items-center gap-2">
+                Create New Lead
+              </DialogTitle>
+            </DialogHeader>
+            <div className="space-y-4">
+              <div className="space-y-1">
+                <label className="text-sm font-medium">Name</label>
+                <Input
+                  value={newLead.name}
+                  onChange={(e) =>
+                    setNewLead({ ...newLead, name: e.target.value })
+                  }
+                  required
+                />
+              </div>
+              <div className="space-y-1">
+                <label className="text-sm font-medium">Email</label>
+                <Input
+                  type="email"
+                  value={newLead.email}
+                  onChange={(e) =>
+                    setNewLead({ ...newLead, email: e.target.value })
+                  }
+                  required
+                />
+              </div>
+              <div className="space-y-1">
+                <label className="text-sm font-medium">Phone</label>
+                <Input
+                  type="tel"
+                  value={newLead.phone}
+                  onChange={(e) =>
+                    setNewLead({ ...newLead, phone: e.target.value })
+                  }
+                  required
+                />
+              </div>
+              <div className="space-y-1">
+                <label className="text-sm font-medium">Convo</label>
+                <Textarea
+                  value={newLead.convo}
+                  onChange={(e) =>
+                    setNewLead({ ...newLead, convo: e.target.value })
+                  }
+                  required
+                />
+              </div>
+              <div className="space-y-1">
+                <label className="text-sm font-medium">Notes</label>
+                <Textarea
+                  value={newLead.notes}
+                  onChange={(e) =>
+                    setNewLead({ ...newLead, notes: e.target.value })
+                  }
+                />
+              </div>
+            </div>
+            <DialogFooter className="mt-6">
+              <Button
+                variant="outline"
+                onClick={() => setDialogOpen(false)}
+                disabled={saving}
+              >
+                Cancel
+              </Button>
+              <Button disabled={saving} onClick={handleAddLead} className="bg-blue-600 text-white w-24">
+                {saving ? (
+                  <>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" /> Saving...
+                  </>
+                ) : (
+                  "Save"
+                )}
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+        <Dialog
+          open={confirmOpen}
+          onOpenChange={(o) => !o && setPendingId(null)}
+        >
+          <DialogContent className="sm:max-w-sm bg-white">
+            <DialogHeader>
+              <DialogTitle>Delete Lead?</DialogTitle>
+            </DialogHeader>
+            <p className="text-sm text-gray-600">
+              This action can’t be undone. The lead entry will be permanently
+              removed.
+            </p>
+            <DialogFooter className="mt-6">
+              <Button
+                variant="outline"
+                className="cursor-pointer"
+                onClick={() => setPendingId(null)}
+              >
+                Cancel
+              </Button>
+              <Button
+                variant="destructive"
+                onClick={confirmDelete}
+                className="cursor-pointer bg-red-600 text-white"
+              >
+                Delete
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+        {/* Modal to view all details of a single lead */}
+        <Modal isOpen={isOpen} onClose={() => setIsOpen(false)}>
+          <Card className="max-w-md w-full mx-auto shadow-md border mt-5 p-4 rounded-2xl bg-white">
+            <CardContent className="space-y-4">
+              <h2 className="text-xl font-semibold text-gray-800">
+                Lead Details
+              </h2>
+              <div className="grid grid-cols-2 gap-y-3 gap-x-4 text-sm text-gray-700">
+                <div className="font-medium">Name:</div>
+                <div>{selectedData?.name}</div>
+                <div className="font-medium">Email:</div>
+                <div>{selectedData?.email}</div>
+                <div className="font-medium">Phone:</div>
+                <div>{selectedData?.phone}</div>
+                <div className="font-medium">Conversation:</div>
+                <div>{selectedData?.convo}</div>
+                <div className="font-medium">Notes:</div>
+                <div >{selectedData?.notes}</div>
+                <div className="font-medium">Created:</div>
+                <div>
+                  {selectedData?.created_date ? new Date(selectedData.created_date).toLocaleString() : 'N/A'}
+                </div>
+                <div className="font-medium">Updated:</div>
+                <div>
+                  {selectedData?.updated_date ? new Date(selectedData.updated_date).toLocaleString() : 'N/A'}
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </Modal>
+        {/* Dialog for editing an existing lead */}
+        <Dialog open={isEditing} onOpenChange={setIsEditing}>
+          <DialogContent className="sm:max-w-lg bg-white">
+            <DialogHeader>
+              <DialogTitle className="flex items-center gap-2">
+                Edit Lead
+              </DialogTitle>
+            </DialogHeader>
+            <div className="space-y-4">
+              <div className="space-y-1">
+                <label className="text-sm font-medium">Name</label>
+                <Input
+                  value={editLead?.name}
+                  onChange={(e) =>
+                    setEditLead({ ...editLead, name: e.target.value })
+                  }
+                  required
+                />
+              </div>
+              <div className="space-y-1">
+                <label className="text-sm font-medium">Email</label>
+                <Input
+                  type="email"
+                  value={editLead?.email}
+                  onChange={(e) =>
+                    setEditLead({ ...editLead, email: e.target.value })
+                  }
+                  required
+                />
+              </div>
+              <div className="space-y-1">
+                <label className="text-sm font-medium">Phone</label>
+                <Input
+                  type="tel"
+                  value={editLead?.phone}
+                  onChange={(e) =>
+                    setEditLead({ ...editLead, phone: e.target.value })
+                  }
+                  required
+                />
+              </div>
+              <div className="space-y-1">
+                <label className="text-sm font-medium">Conversation</label>
+                <Textarea
+                  value={editLead.convo}
+                  onChange={(e) =>
+                    setEditLead({ ...editLead, convo: e.target.value })
+                  }
+                  required
+                />
+              </div>
+              <div className="space-y-1">
+                <label className="text-sm font-medium">Notes</label>
+                <Textarea
+                  value={editLead.notes}
+                  onChange={(e) =>
+                    setEditLead({ ...editLead, notes: e.target.value })
+                  }
+                />
+              </div>
+            </div>
+            <DialogFooter className="mt-6">
+              <Button
+                variant="outline"
+                onClick={() => {
+                  setIsEditing(false);
+                  setEditLead({
+                    id: "",
+                    name: "",
+                    email: "",
+                    phone: "",
+                    convo: "",
+                    notes: "",
+                    created_date: "",
+                    updated_date: "",
+                  });
+                }}
+                disabled={saving}
+              >
+                Cancel
+              </Button>
+              <Button disabled={saving} onClick={handleEditLead}>
+                {saving ? (
+                  <>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" /> Saving...
+                  </>
+                ) : (
+                  "Save"
+                )}
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+        <DeleteModal
+          rowData={rowData}
+          isOpen={isOpenDeleted}
+          setIsOpen={setIsOpenDeleted}
+          setRowData={setRowData}
+          name="leads"
+          handleRefresh={handleRefresh}
+        />
       </div>
-    </div>
-  </div>
-)}
-
-    </div>
+    </>
   );
 }

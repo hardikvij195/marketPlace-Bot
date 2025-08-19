@@ -110,7 +110,7 @@ const Testimonials = () => {
         {testimonials2.map((testimonial, index) => (
           <SwiperSlide key={index}>
             <div className="bg-gradient-to-b from-[#2563EB] to-[#153885] mb-12 p-6 rounded-lg shadow-lg h-full min-h-[350px] flex flex-col justify-between">
-              <div className='flex justify-end '><Quote className='text-indigo-900' size={30}/></div>
+              <div className='flex justify-end '><Quote className='text-white' size={30}/></div>
               <p className="text-sm md:text-base mb-4 text-white leading-relaxed">
                 {testimonial.message}
               </p>

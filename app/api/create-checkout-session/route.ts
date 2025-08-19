@@ -1,57 +1,48 @@
 // app/api/create-checkout-session/route.ts
-
 import { NextRequest, NextResponse } from "next/server";
-import fetch from "node-fetch";
 
-const PAYPAL_CLIENT_ID = process.env.PAYPAL_CLIENT_ID!;
-const PAYPAL_CLIENT_SECRET = process.env.PAYPAL_CLIENT_SECRET!;
-const PAYPAL_API = process.env.PAYPAL_API!;
-
-interface PayPalAccessTokenResponse {
-  access_token: string;
-  expires_in: number;
-  token_type: string;
-}
-
-interface PayPalOrderLink {
-  href: string;
-  rel: string;
-  method: string;
-}
-
-interface PayPalOrderResponse {
-  id: string;
-  status: string;
-  links: PayPalOrderLink[];
-}
-
-async function generateAccessToken(): Promise<string> {
-  const auth = Buffer.from(`${PAYPAL_CLIENT_ID}:${PAYPAL_CLIENT_SECRET}`).toString("base64");
-
-  const response = await fetch(`${PAYPAL_API}/v1/oauth2/token`, {
-    method: "POST",
-    headers: {
-      Authorization: `Basic ${auth}`,
-      "Content-Type": "application/x-www-form-urlencoded",
-    },
-    body: "grant_type=client_credentials",
-  });
-
-  const data = (await response.json()) as PayPalAccessTokenResponse;
-  return data.access_token;
-}
 
 export async function POST(req: NextRequest) {
-  const body = await req.json();
+
   const origin = req.headers.get("origin") || "http://localhost:3000";
 
   try {
-    const accessToken = await generateAccessToken();
+    const { amount, user_id, plan_id } = await req.json();
 
-    const order = await fetch(`${PAYPAL_API}/v2/checkout/orders`, {
+
+    // Validate request body
+    if (!amount || !user_id || !plan_id) {
+      return NextResponse.json(
+        { error: "Missing required fields: amount, user_id, or plan_id" },
+        { status: 400 }
+      );
+    }
+
+    // Get OAuth token
+    const auth = Buffer.from(
+      `${process.env.PAYPAL_CLIENT_ID}:${process.env.PAYPAL_CLIENT_SECRET}`
+    ).toString("base64");
+
+    const tokenRes = await fetch(`${process.env.PAYPAL_API}/v1/oauth2/token`, {
       method: "POST",
       headers: {
-        Authorization: `Bearer ${accessToken}`,
+        Authorization: `Basic ${auth}`,
+        "Content-Type": "application/x-www-form-urlencoded",
+      },
+      body: "grant_type=client_credentials",
+    });
+
+    const tokenData = await tokenRes.json();
+
+    if (!tokenRes.ok) {
+      throw new Error(`Failed to get PayPal token: ${tokenData.error_description || "Unknown error"}`);
+    }
+
+    // Create PayPal order
+    const orderRes = await fetch(`${process.env.PAYPAL_API}/v2/checkout/orders`, {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${tokenData.access_token}`,
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
@@ -60,27 +51,40 @@ export async function POST(req: NextRequest) {
           {
             amount: {
               currency_code: "USD",
-              value: body.price, // You can dynamically use body.price
+              value: parseFloat(amount).toFixed(2),
             },
-            custom_id: body.user_id,
+            custom_id: `${user_id}_${plan_id}`,
           },
         ],
         application_context: {
-          return_url: `${origin}/dashboard/subscription-buy/success?subscription_id=${body.plan_id}`,
-          cancel_url: `${origin}/dashboard/subscription-buy/cancel?subscription_id=${body.plan_id}`,
+          brand_name: "FB - MARKERPLACE-BOT",
+          landing_page: "LOGIN",
+          user_action: "PAY_NOW",
+          return_url: `${origin}/dashboard/subscription-buy/success?subscription_id=${plan_id}`,
+          cancel_url: `${origin}/dashboard/subscription-buy/cancel?subscription_id=${plan_id}`,
         },
       }),
     });
 
-    const orderData = (await order.json()) as PayPalOrderResponse;
+    const orderData = await orderRes.json();
 
-    const approvalUrl = orderData.links.find(link => link.rel === "approve")?.href;
 
-    return NextResponse.json({
-      url: approvalUrl,
-      orderId: orderData.id,
-    });
+    if (!orderRes.ok) {
+      throw new Error(`Failed to create PayPal order: ${orderData.details?.[0]?.description || "Unknown error"}`);
+    }
+
+    const approvalUrl = orderData.links.find((link: any) => link.rel === "approve")?.href;
+    const paymentId = orderData.id;
+
+    console.log(paymentId)
+
+    if (!approvalUrl) {
+      throw new Error("No approval URL returned from PayPal");
+    }
+
+    return NextResponse.json({ approvalUrl, paymentId });
   } catch (err: any) {
-    return NextResponse.json({ error: err.message || "Something went wrong" }, { status: 500 });
+    console.error("PayPal Error:", err);
+    return NextResponse.json({ error: `Failed to create PayPal order: ${err.message}` }, { status: 500 });
   }
 }

@@ -65,18 +65,18 @@ export default function SubscriptionTable() {
 
   return (
     <>
-      <section className="bg-white lg:w-full md:w-full w-[320px] rounded-lg border border-gray-200 p-6">
-        <h3 className="text-base font-semibold text-gray-900 mb-4">
+      <section className="bg-white lg:w-full md:w-full w-full ml-2 lg:ml-0 md:ml-0  rounded-lg border border-gray-200 ">
+        <h3 className="text-base font-semibold text-gray-900 mb-4 px-6 py-4">
           Subscription History
         </h3>
 
         <form
-          className="flex flex-col sm:flex-row sm:items-center sm:space-x-4 mb-4 gap-4"
+          className="flex flex-col sm:flex-row sm:items-center sm:space-x-4 mb-4 gap-4 px-6"
           onSubmit={(e) => e.preventDefault()}
         >
           <div className="relative flex-1 max-w-md text-gray-400 focus-within:text-gray-600">
             <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-              {loading ? <Loader className="w-4 h-4 animate-spin" /> : null}
+              {loading ? <div></div> : null}
             </div>
             <input
               type="search"
@@ -124,7 +124,7 @@ export default function SubscriptionTable() {
           </div>
         </form>
 
-        <div className="w-full overflow-x-auto">
+        <div className="w-full overflow-x-auto px-4">
         <table className="w-full text-sm text-left text-gray-700 border-collapse">
           <thead className="border-b border-gray-200">
             <tr>
@@ -132,7 +132,7 @@ export default function SubscriptionTable() {
                 "Subscription Id",
                 "Date",
                 "Plan",
-                " HST Tax",
+               
                 "Amount",
                 "Status",
                 "Action",
@@ -148,14 +148,14 @@ export default function SubscriptionTable() {
               <tr>
                 <td colSpan={100} className="py-10">
                   <div className="flex items-center justify-center w-full">
-                    <Loader className="animate-spin h-8 w-8 text-blue-600" />
+                   
                   </div>
                 </td>
               </tr>
             )}
             {!loading && data.length === 0 && (
               <tr>
-                <td colSpan={5} className="py-4 text-center text-gray-400">
+                <td colSpan={6} className="py-4 text-center text-gray-400">
                   No records found.
                 </td>
               </tr>
@@ -163,7 +163,7 @@ export default function SubscriptionTable() {
             {!loading && data.length > 0 && (
               <>
                 {data.map((data: any) => (
-                  <tr key={data.id} className="border-b border-gray-100">
+                  <tr key={data.id} className="border-b border-gray-100 ">
                     <td className="py-3 px-4">{data?.id}</td>
                     <td className="py-3 px-4">
                       {new Date(data.created_at).toLocaleDateString("en-US", {
@@ -175,7 +175,7 @@ export default function SubscriptionTable() {
                     <td className="py-3 px-4">
                       {data?.subscription?.plan_name}
                     </td>
-                    <td className="py-3 px-4">{data?.hst_tax || 13}%</td>
+                  
                     <td className="py-3 px-4">
                       ${data?.amount || data?.subscription?.amount}
                     </td>
@@ -218,27 +218,22 @@ export default function SubscriptionTable() {
       </section>
 
       <Modal isOpen={isOpen} onClose={() => setIsOpen(false)}>
-        <div className="p-4 md:p-6 w-full max-w-md mx-auto">
-          <h2 className="text-xl md:text-2xl font-semibold mb-4 text-gray-800">
+        <div className="p-4  w-full max-w-md mx-auto">
+          <h2 className="text-lg  font-semibold mb-4 text-gray-800">
             Subscription Details
           </h2>
 
           <div className="space-y-3 text-sm md:text-base">
             <div className="flex justify-between">
               <span className="text-gray-600">Subscription Id:</span>
-              <span className="px-2 py-1 rounded-full font-semibold">
+              <span className="px-2 py-1 rounded-full font-semibold text-sm text-gray-600">
                 {selectedData?.id}
               </span>
             </div>
-            <div className="flex justify-between items-start w-full gap-4">
-              <span className="text-gray-600">Payment Id:</span>
-              <span className="px-2 py-1 break-all rounded font-semibold text-right text-sm text-gray-800 max-w-xs">
-                {selectedData?.payment_id}
-              </span>
-            </div>
+            
             <div className="flex justify-between">
               <span className="text-gray-600">Date:</span>
-              <span className="font-medium text-gray-900">
+              <span className="font-semibold  text-sm text-gray-600">
                 {" "}
                 {new Date(selectedData?.created_at).toLocaleDateString(
                   "en-US",
@@ -252,21 +247,20 @@ export default function SubscriptionTable() {
             </div>
             <div className="flex justify-between">
               <span className="text-gray-600">Plan:</span>
-              <span className="font-medium text-gray-900">
-                {" "}
+              <span className="font-semibold  text-sm text-gray-600">
                 {selectedData?.subscription?.plan_name} Monthly
               </span>
             </div>
             <div className="flex justify-between">
               <span className="text-gray-600">Price:</span>
-              <span className="font-medium text-gray-900">
-                {" "}
-                {selectedData?.subscription?.amount}
+              <span className="font-semibold  text-sm text-gray-600">
+              
+                $ {selectedData?.subscription?.amount}
               </span>
             </div>
             <div className="flex justify-between">
               <span className="text-gray-600">Status:</span>
-              <span className="px-2 py-1 rounded-full font-semibold">
+              <span className="font-semibold  text-sm text-gray-600">
                 {statusEnum[selectedData?.status]}
               </span>
             </div>

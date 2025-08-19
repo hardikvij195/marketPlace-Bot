@@ -60,31 +60,7 @@ export default function AuthCallbackPage() {
             console.error("Error inserting user:", insertError);
           }
         }
-
-        // Always ensure subscription exists
-        const { data: existingSubscription, error: fetchSubError } =
-          await supabaseBrowser
-            .from("user_subscription")
-            .select("id")
-            .eq("user_id", userId)
-            .maybeSingle();
-
-        if (!existingSubscription) {
-          const { error: subInsertError } = await supabaseBrowser
-            .from("user_subscription")
-            .insert([
-              {
-                user_id: userId,
-              },
-            ]);
-
-          if (subInsertError) {
-            console.error(
-              "Error inserting into user_subscription:",
-              subInsertError
-            );
-          }
-        }
+        
 
         await supabaseBrowser
           .from("users")
@@ -108,18 +84,12 @@ export default function AuthCallbackPage() {
     })();
   }, [router, dispatch]);
 
-  if (loading) {
-    return (
-      <div className="flex flex-col items-center justify-center gap-2 mt-20">
-        <Loader className="h-8 w-8 animate-spin text-primary text-blue-600" />
-        <p>Please wait…</p>
-      </div>
-    );
-  }
   return (
-    <div className="mt-20 w-full flex justify-center">
+    <div className='flex h-screen w-full items-center justify-center'>
       <div className="flex flex-col items-center gap-2">
-        <p>Redirecting you to the dashboard...</p>
+        <Loader className='h-10 w-10 animate-spin text-blue-600' />
+        <h3 className="text-xl font-bold">Authenticating...</h3>
+        <p>Please wait while we verify your credentials</p>
       </div>
     </div>
   );

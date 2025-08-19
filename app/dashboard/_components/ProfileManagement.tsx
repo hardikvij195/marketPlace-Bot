@@ -245,7 +245,7 @@ const ProfileManagement = () => {
                   </Button>
                   <Button
                     onClick={() => handleSave()}
-                    className="bg-blue-600 hover:bg-blue-700 cursor-pointer"
+                    className="bg-blue-600 hover:bg-blue-700 text-white cursor-pointer"
                   >
                     Save Changes
                   </Button>
@@ -387,7 +387,7 @@ const ProfileManagement = () => {
             </div>
             <div className="space-y-4">
               <Label htmlFor="joinDate">Join Date</Label>
-              <div className="w-full px-3 py-2 border border-input rounded-md bg-muted text-sm text-muted-foreground">
+              <div className="w-full px-3 py-2 border border-input border-gray-200 rounded-md bg-muted text-sm text-muted-foreground">
                 {formData.createdAt
                   ? moment(formData.createdAt)
                       .tz("America/Toronto")
@@ -397,7 +397,7 @@ const ProfileManagement = () => {
             </div>
             <div className="space-y-4">
               <Label htmlFor="lastLogin">Last Login</Label>
-              <div className="w-full px-3 py-2 border border-input rounded-md bg-muted text-sm text-muted-foreground">
+              <div className="w-full px-3 py-2 border border-input border-gray-200 rounded-md bg-muted text-sm text-muted-foreground">
                 {formData.updateAt
                   ? moment(formData.updateAt)
                       .tz("America/Toronto")

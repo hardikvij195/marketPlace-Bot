@@ -3,41 +3,57 @@
 import React, { useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import "react-phone-input-2/lib/style.css";
-import axios from "axios";
 import toast from "react-hot-toast";
 import { Mail, Phone, MessageSquare } from "lucide-react";
+import { supabaseBrowser } from "../../../lib/supabaseBrowser"; // make sure this exists
+
+
 
 const ContactUs = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const { control, handleSubmit, reset, formState: { errors } } = useForm();
+  const [success, setSuccess] = useState("");
 
-  const {
-    handleSubmit,
-    control,
-    formState: { errors },
-    reset,
-  } = useForm();
+  const clientWebhookOne =
+    "https://hook.us2.make.com/f4yiotb8dpbudk2gaqz4bw5x7bfk8vkg";
 
   const onSubmit = async (data) => {
     setIsSubmitting(true);
 
-    const payload = {
-      name: data.name,
-      email: data.email,
-      subject: data.subject,
-      message: data.message,
-    };
-
     try {
-      const response = await axios.post(
-        "https://hook.eu2.make.com/htagucv37o1v4veb4snwwmzeaxrpkcj4",
-        payload
-      );
-      console.log("Webhook response:", response.data);
+      // 1️⃣ Insert into Supabase
+      const { error } = await supabaseBrowser
+        .from("contact_us_messages")
+        .insert([{
+          name: data.name,
+          email: data.email,
+          phone: data.phone,
+          message: data.message,
+        }]);
+
+      if (error) throw new Error("Failed to save message in database");
+
+      // 2️⃣ Send to webhook
+      const res = await fetch(clientWebhookOne, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "x-make-apikey": "DriveXAuth",
+        },
+        body: JSON.stringify({
+          ...data,
+          createdAt: new Date().toISOString(),
+        }),
+      });
+
+      if (!res.ok) {
+        throw new Error("Webhook submission failed");
+      }
+         setSuccess("Submitted successfully.");
+      toast.success("Message submitted successfully!");
       reset();
-      toast.success("Message sent successfully!");
-    } catch (error) {
-      console.error("Error sending message:", error);
-      toast.error("Failed to send message. Please try again.");
+    } catch (err) {
+      toast.error(err.message || "Something went wrong.");
     } finally {
       setIsSubmitting(false);
     }
@@ -46,14 +62,13 @@ const ContactUs = () => {
   return (
     <section className="py-10 px-4 md:px-12 lg:px-24 text-black bg-white">
       <div className="max-w-4xl mx-auto text-center mb-12">
-        <h1 className="text-4xl font-bold text-black mb-4">Contact US</h1>
+        <h1 className="text-4xl font-bold text-black mb-4">Contact Us</h1>
         <p className="text-gray-600 text-lg">
-          Have questions? Need support? We’re here to help you succeed <br/> with
-          MarketplaceBot
+          Have questions? Need support? We’re here to help you succeed <br /> with MarketplaceBot
         </p>
       </div>
 
-      <div className="mx-auto bg-white rounded-lg  p-8 md:p-12">
+      <div className="mx-auto bg-white rounded-lg p-8 md:p-12">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
           {/* Left Column: Form */}
           <div>
@@ -83,7 +98,7 @@ const ContactUs = () => {
                     <p className="text-red-500 text-sm mt-1">{errors.name.message}</p>
                   )}
                 </div>
-                {/* E-Mail */}
+                {/* Email */}
                 <div>
                   <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">
                     E-Mail
@@ -114,27 +129,27 @@ const ContactUs = () => {
                 </div>
               </div>
 
-              {/* Subject */}
+        
               <div>
-                <label htmlFor="subject" className="block text-sm font-medium text-gray-700 mb-1">
-                  Subject
+                <label htmlFor="phone" className="block text-sm font-medium text-gray-700 mb-1">
+                  Phone Number
                 </label>
                 <Controller
-                  name="subject"
+                  name="phone"
                   control={control}
                   defaultValue=""
-                  rules={{ required: "Subject is required" }}
+                  rules={{ required: "Phone Number is required" }}
                   render={({ field }) => (
                     <input
-                      id="subject"
+                      id="phone"
                       type="text"
                       {...field}
                       className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
                     />
                   )}
                 />
-                {errors.subject && (
-                  <p className="text-red-500 text-sm mt-1">{errors.subject.message}</p>
+                {errors.phone && (
+                  <p className="text-red-500 text-sm mt-1">{errors.phone.message}</p>
                 )}
               </div>
 
@@ -151,7 +166,7 @@ const ContactUs = () => {
                   render={({ field }) => (
                     <textarea
                       id="message"
-                      rows="6"
+                      rows={6}
                       {...field}
                       className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500 resize-none"
                     ></textarea>
@@ -160,6 +175,11 @@ const ContactUs = () => {
                 {errors.message && (
                   <p className="text-red-500 text-sm mt-1">{errors.message.message}</p>
                 )}
+                {success && (
+            <p className="text-sm text-green-600 font-medium md:col-span-2">
+              {success}
+            </p>
+          )}
               </div>
 
               <button
@@ -172,12 +192,12 @@ const ContactUs = () => {
             </form>
           </div>
 
-          {/* Right Column: Other Ways to Reach Us */}
-          <div >
+          {/* Right Column: Other Ways */}
+          <div>
             <h2 className="text-2xl font-semibold mb-6">Other Ways to reach us</h2>
             <div className="space-y-6">
               {/* E-mail Support */}
-              <div className="flex items-start p-4  rounded-lg">
+              <div className="flex items-start p-4 rounded-lg">
                 <div className="bg-blue-100 p-2 rounded-full flex-shrink-0 mr-4">
                   <Mail className="w-6 h-6 text-blue-600" />
                 </div>
@@ -188,7 +208,7 @@ const ContactUs = () => {
                 </div>
               </div>
               {/* Phone Support */}
-              <div className="flex items-start p-4  rounded-lg">
+              <div className="flex items-start p-4 rounded-lg">
                 <div className="bg-blue-100 p-2 rounded-full flex-shrink-0 mr-4">
                   <Phone className="w-6 h-6 text-blue-600" />
                 </div>
@@ -199,7 +219,7 @@ const ContactUs = () => {
                 </div>
               </div>
               {/* Live Chat */}
-              <div className="flex items-start p-4  rounded-lg">
+              <div className="flex items-start p-4 rounded-lg">
                 <div className="bg-blue-100 p-2 rounded-full flex-shrink-0 mr-4">
                   <MessageSquare className="w-6 h-6 text-blue-600" />
                 </div>

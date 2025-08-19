@@ -15,7 +15,7 @@ const HeroBanner = () => {
   }, [])
 
   return (
-    <div className="relative bg-gradient-to-br to-[#153885] from-[#2563EB] lg:h-[90vh] md:h-[85vh] h-[80vh] max-h-[800px] w-full flex items-center justify-center px-6 md:px-16 lg:px-24">
+    <div className="relative bg-gradient-to-br to-[#153885] from-[#2563EB] lg:h-[90vh] md:h-[90vh] h-[80vh] max-h-[800px] w-full flex items-center justify-center px-6 md:px-16 lg:px-24">
       <div className="max-w-7xl w-full flex flex-col md:flex-row items-center justify-between space-y-10 md:space-y-0">
         {/* LEFT TEXT SECTION */}
         <div className="flex flex-col max-w-xl text-left">
