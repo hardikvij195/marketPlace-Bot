@@ -449,13 +449,13 @@ export default function LeadsPage() {
                 />
               </div>
               <div className="space-y-1">
-                <label className="text-sm font-medium">Convo</label>
+                <label className="text-sm font-medium">Conversation</label>
                 <Textarea
                   value={newLead.convo}
                   onChange={(e) =>
                     setNewLead({ ...newLead, convo: e.target.value })
                   }
-                  required
+                 
                 />
               </div>
               <div className="space-y-1">
@@ -532,18 +532,19 @@ export default function LeadsPage() {
                 <div>{selectedData?.email}</div>
                 <div className="font-medium">Phone:</div>
                 <div>{selectedData?.phone}</div>
+                <div className="font-medium">Created Date:</div>
+                <div>
+                  {selectedData?.created_date ? new Date(selectedData.created_date).toLocaleString() : 'N/A'}
+                </div>
+                <div className="font-medium">Updated Date:</div>
+                <div>
+                  {selectedData?.updated_date ? new Date(selectedData.updated_date).toLocaleString() : 'N/A'}
+                </div>
                 <div className="font-medium">Conversation:</div>
                 <div>{selectedData?.convo}</div>
                 <div className="font-medium">Notes:</div>
                 <div >{selectedData?.notes}</div>
-                <div className="font-medium">Created:</div>
-                <div>
-                  {selectedData?.created_date ? new Date(selectedData.created_date).toLocaleString() : 'N/A'}
-                </div>
-                <div className="font-medium">Updated:</div>
-                <div>
-                  {selectedData?.updated_date ? new Date(selectedData.updated_date).toLocaleString() : 'N/A'}
-                </div>
+                
               </div>
             </CardContent>
           </Card>
@@ -629,7 +630,7 @@ export default function LeadsPage() {
               >
                 Cancel
               </Button>
-              <Button disabled={saving} onClick={handleEditLead}>
+              <Button disabled={saving} onClick={handleEditLead} className="bg-blue-600 text-white">
                 {saving ? (
                   <>
                     <Loader2 className="mr-2 h-4 w-4 animate-spin" /> Saving...
