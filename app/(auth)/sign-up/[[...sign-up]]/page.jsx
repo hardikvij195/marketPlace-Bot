@@ -1,4 +1,4 @@
-"use client"
+"use client";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import Image from "next/image";
@@ -15,10 +15,10 @@ import { Button } from "../../../components/ui/button";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
-import { Loader2, Bot,} from "lucide-react";
+import { Loader2, Bot } from "lucide-react";
 import PasswordInput from "../../../components/ui/password-input"; // ⬅️ new
 import { supabaseBrowser } from "../../../../lib/supabaseBrowser";
-
+import Header from "../../../components/AiPage/Header";
 
 // Form validation schemas
 const signUpSchema = z
@@ -42,15 +42,12 @@ const otpSchema = z.object({
   otp: z.string().length(6, "Verification code must be 6 digits"),
 });
 
-
 const Signup = () => {
   // const { signIn } = useClerk();
   const router = useRouter();
 
   // Form states
-  const [verificationStep, setVerificationStep] = useState(
-    "signup"
-  );
+  const [verificationStep, setVerificationStep] = useState("signup");
   const [emailForVerification, setEmailForVerification] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
@@ -76,7 +73,6 @@ const Signup = () => {
     },
   });
 
-
   const handleSignUp = async (values) => {
     setIsLoading(true);
     setError("");
@@ -91,7 +87,7 @@ const Signup = () => {
         emailRedirectTo: `${location.origin}/callback`,
       },
     });
-    console.log(data.user)
+    console.log(data.user);
     if (error) {
       setError(error.message);
     } else {
@@ -104,7 +100,7 @@ const Signup = () => {
             "x-make-apikey": "DriveXAuth",
           },
           body: JSON.stringify({
-            user_id:data.user?.id,
+            user_id: data.user?.id,
             email: values.email,
             password: values.password,
             options: {
@@ -149,7 +145,7 @@ const Signup = () => {
 
   return (
     <div className="flex flex-col lg:flex-row items-center justify-center min-h-screen px-4 gap-10 bg-white lg:mx-20">
-      
+      <Header />
       <div className="hidden w-[40%] lg:block md:block relative">
         <Image
           src="/signup.png"
@@ -164,16 +160,13 @@ const Signup = () => {
       {/* Right side content (changes based on step) */}
       <div className="w-full max-w-md">
         <div className="flex flex-col md:flex-row justify-center text-center items-center gap-2 text-xl font-bold text-gray-800 py-10">
-            <Bot className="text-blue-600" size={28} />
-            MarketPlaceBot
-          </div>
+          <Image src='/LOGO.png' alt="No Logo Found" width={28} height={28} />
+          MarketPlaceBot
+        </div>
         {verificationStep === "signup" ? (
           <div className="max-w-md w-full space-y-6">
-             
             <div>
-              <h1 className="text-2xl font-bold mb-2">
-                Create an Account
-              </h1>
+              <h1 className="text-2xl font-bold mb-2">Create an Account</h1>
               <p className="text-gray-600 mb-6">
                 Start your journey in car sales and begin earning commissions.
               </p>
@@ -282,29 +275,14 @@ const Signup = () => {
               </div>
             </div>
 
-            <Button
-              variant="outline"
-              className="w-full flex items-center justify-center gap-2 cursor-pointer"
-              disabled={isGoogleLoading}
+            <button
               onClick={handleGoogleSignIn}
+              type="button"
+              className="w-full flex justify-center items-center gap-2 py-2 px-4 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
             >
-              {isGoogleLoading ? (
-                <>
-                  <Loader2 className="w-4 h-4 animate-spin" />
-                  Redirecting to Google...
-                </>
-              ) : (
-                <>
-                  <Image
-                    src={"/google.svg"}
-                    alt="google"
-                    width={25}
-                    height={25}
-                  />
-                  Sign Up with Google
-                </>
-              )}
-            </Button>
+              <Image src="/google.svg" alt="google" width={25} height={25} />
+              Log in with Google
+            </button>
 
             <div className="text-center text-sm">
               <p className="text-gray-600">

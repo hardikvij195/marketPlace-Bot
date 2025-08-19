@@ -4,6 +4,7 @@ import { supabaseBrowser } from "../../../../lib/supabaseBrowser";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import { Bot } from "lucide-react";
+import Header from "../../../components/AiPage/Header";
 
 
 const ForgotPassword = () => {
@@ -60,14 +61,18 @@ const ForgotPassword = () => {
 
   return (
     <div className="flex gap-10 justify-center items-center min-h-screen ">
+      <Header />
       {/* Left side image */}
+        <div className="hidden w-[35%] lg:block md:block relative">
       <Image
         src="/forgot-password.png"
         alt="forgot password"
-        width={400}
-        height={700}
-        className="hidden lg:block"
+           width={450}
+          height={800} // ← Increased height here
+          className="h-[550px] w-[100%] object-cover rounded-md shadow-md"
+          priority
       />
+      </div>
 
       {/* Right side form */}
       <div className="w-full lg:w-auto px-4 py-8 lg:p-0">

@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { Bot, Menu, X, ArrowUpRight } from "lucide-react";
 import Link from "next/link";
+import Image from "next/image";
 
 // This is a responsive header component built with React and Tailwind CSS.
 // It includes a logo, a navigation menu, and a call-to-action button.
@@ -30,7 +31,7 @@ export default function Header() {
             href="/"
             className="flex items-center gap-2 text-xl font-bold text-gray-800"
           >
-            <Bot className="text-blue-600" size={28} />
+            <Image src='/LOGO.png' height={28} width={28} />
             MarketPlaceBot
           </Link>
 

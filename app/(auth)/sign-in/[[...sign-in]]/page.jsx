@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import Image from "next/image";
 import { supabaseBrowser } from "../../../../lib/supabaseBrowser";
 import { Eye, EyeOff, Bot } from "lucide-react";
+import Header from "../../../components/AiPage/Header";
 
 const Signin = () => {
   const router = useRouter();
@@ -91,6 +92,7 @@ const Signin = () => {
   return (
     <>
       <div className="flex flex-col lg:flex-row items-center justify-center min-h-screen px-4 gap-10 bg-white lg:mx-20">
+        <Header />
         {/* Left Image Section */}
         {/* <div className="hidden lg:flex items-center justify-center w-full max-w-md h-[83vh] rounded-xl overflow-hidden shadow-md">
           <Image
@@ -125,7 +127,7 @@ const Signin = () => {
         {/* Right Form Section */}
         <div className="w-full max-w-md">
           <div className="flex flex-col md:flex-row justify-center text-center items-center gap-2 text-xl font-bold text-gray-800 py-10">
-            <Bot className="text-blue-600" size={28} />
+            <Image src='/LOGO.png' alt="No Logo Found" width={28} height={28} />
             MarketPlaceBot
           </div>
           <h1 className="text-2xl font-bold mb-2">Login to Your Account</h1>
