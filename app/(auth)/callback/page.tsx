@@ -49,7 +49,7 @@ If the Client has already shared his phone number and the last reply is somethin
         const webHook =
           "https://hook.eu2.make.com/dx022ckz4pzpcnhdksgbn277fmf1ca7u";
 
-        const { data: existingUser, error: fetchError } = await supabaseBrowser
+        const { data: existingUser,  } = await supabaseBrowser
           .from("users")
           .select("id")
           .eq("id", userId)
