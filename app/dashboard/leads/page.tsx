@@ -9,7 +9,7 @@ import {
   Search,
   Plus,
   Loader2,
-  Loader
+  Loader,
 } from "lucide-react";
 import { supabaseBrowser } from "../../../lib/supabaseBrowser";
 import {
@@ -140,7 +140,9 @@ export default function LeadsPage() {
 
   if (loading) {
     return (
-     <div className="space-y-6 animate-pulse flex justify-center items-center h-screen"><Loader className="h-10 w-10 animate-spin text-blue-500"/></div>
+      <div className="space-y-6 animate-pulse flex justify-center items-center h-screen">
+        <Loader className="h-10 w-10 animate-spin text-blue-500" />
+      </div>
     );
   }
 
@@ -364,13 +366,16 @@ export default function LeadsPage() {
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
                       <div className="flex items-center gap-4">
-                        <button
+                        <Button
                           disabled={loading}
-                          onClick={() => setPendingId(lead.id)}
+                          onClick={() => {
+                            setIsOpenDeleted(true);
+                            setRowData(lead);
+                          }}
                           className="cursor-pointer p-2 rounded-md bg-gray-100 text-red-500 hover:bg-gray-200"
                         >
                           <Trash2 className="w-4 h-4" />
-                        </button>
+                        </Button>
                         <button
                           disabled={loading}
                           onClick={() => {
@@ -417,7 +422,9 @@ export default function LeadsPage() {
             </DialogHeader>
             <div className="space-y-4">
               <div className="space-y-1">
-                <label className="text-sm font-medium">Name</label>
+                <label className="text-sm font-medium">
+                  Name <sup>*</sup>{" "}
+                </label>
                 <Input
                   value={newLead.name}
                   onChange={(e) =>
@@ -427,7 +434,9 @@ export default function LeadsPage() {
                 />
               </div>
               <div className="space-y-1">
-                <label className="text-sm font-medium">Email</label>
+                <label className="text-sm font-medium">
+                  Email <sup>*</sup>{" "}
+                </label>
                 <Input
                   type="email"
                   value={newLead.email}
@@ -438,7 +447,9 @@ export default function LeadsPage() {
                 />
               </div>
               <div className="space-y-1">
-                <label className="text-sm font-medium">Phone</label>
+                <label className="text-sm font-medium">
+                  Phone <sup>*</sup>{" "}
+                </label>
                 <Input
                   type="tel"
                   value={newLead.phone}
@@ -455,7 +466,6 @@ export default function LeadsPage() {
                   onChange={(e) =>
                     setNewLead({ ...newLead, convo: e.target.value })
                   }
-                 
                 />
               </div>
               <div className="space-y-1">
@@ -476,7 +486,11 @@ export default function LeadsPage() {
               >
                 Cancel
               </Button>
-              <Button disabled={saving} onClick={handleAddLead} className="bg-blue-600 text-white w-24">
+              <Button
+                disabled={saving}
+                onClick={handleAddLead}
+                className="bg-blue-600 text-white w-24"
+              >
                 {saving ? (
                   <>
                     <Loader2 className="mr-2 h-4 w-4 animate-spin" /> Saving...
@@ -534,17 +548,20 @@ export default function LeadsPage() {
                 <div>{selectedData?.phone}</div>
                 <div className="font-medium">Created Date:</div>
                 <div>
-                  {selectedData?.created_date ? new Date(selectedData.created_date).toLocaleString() : 'N/A'}
+                  {selectedData?.created_date
+                    ? new Date(selectedData.created_date).toLocaleString()
+                    : "N/A"}
                 </div>
                 <div className="font-medium">Updated Date:</div>
                 <div>
-                  {selectedData?.updated_date ? new Date(selectedData.updated_date).toLocaleString() : 'N/A'}
+                  {selectedData?.updated_date
+                    ? new Date(selectedData.updated_date).toLocaleString()
+                    : "N/A"}
                 </div>
                 <div className="font-medium">Conversation:</div>
                 <div>{selectedData?.convo}</div>
                 <div className="font-medium">Notes:</div>
-                <div >{selectedData?.notes}</div>
-                
+                <div>{selectedData?.notes}</div>
               </div>
             </CardContent>
           </Card>
@@ -559,7 +576,9 @@ export default function LeadsPage() {
             </DialogHeader>
             <div className="space-y-4">
               <div className="space-y-1">
-                <label className="text-sm font-medium">Name</label>
+                <label className="text-sm font-medium">
+                  Name <sup>*</sup>{" "}
+                </label>
                 <Input
                   value={editLead?.name}
                   onChange={(e) =>
@@ -569,7 +588,9 @@ export default function LeadsPage() {
                 />
               </div>
               <div className="space-y-1">
-                <label className="text-sm font-medium">Email</label>
+                <label className="text-sm font-medium">
+                  Email <sup>*</sup>{" "}
+                </label>
                 <Input
                   type="email"
                   value={editLead?.email}
@@ -580,7 +601,9 @@ export default function LeadsPage() {
                 />
               </div>
               <div className="space-y-1">
-                <label className="text-sm font-medium">Phone</label>
+                <label className="text-sm font-medium">
+                  Phone <sup>*</sup>{" "}
+                </label>
                 <Input
                   type="tel"
                   value={editLead?.phone}
@@ -630,7 +653,11 @@ export default function LeadsPage() {
               >
                 Cancel
               </Button>
-              <Button disabled={saving} onClick={handleEditLead} className="bg-blue-600 text-white">
+              <Button
+                disabled={saving}
+                onClick={handleEditLead}
+                className="bg-blue-600 text-white"
+              >
                 {saving ? (
                   <>
                     <Loader2 className="mr-2 h-4 w-4 animate-spin" /> Saving...

@@ -14,6 +14,8 @@ import {
   Video,
   History,
   TicketPercent,
+  MessageSquareCode,
+  Headset,
   Bot,
 } from "lucide-react";
 import { Button } from "../../components/ui/button";
@@ -66,8 +68,9 @@ export default function Sidebar({ collapsed, setCollapsed }: SidebarProps) {
     { href: "/dashboard/leads", icon: TicketPercent, label: "Leads" },
     { href: "/dashboard/subscription", icon: Settings, label: "Subscription" },
    { href: "/dashboard/invoices", icon: FileText, label: "Invoices" },
-     
-
+    { href: "/dashboard/prompt", icon: MessageSquareCode, label: "Prompt" },
+    { href: "/dashboard/support", icon: Headset, label: "Support" },
+    { href: "/dashboard/tutorials", icon: Video, label: "Tutorials" },
     { href: "/dashboard/profile", icon: User, label: "Profile" },
   ];
 
@@ -175,7 +178,7 @@ export default function Sidebar({ collapsed, setCollapsed }: SidebarProps) {
                     <LogOut className="h-5 w-5" />
                   </Button>
                 </TooltipTrigger>
-                <TooltipContent side="right">Log out</TooltipContent>
+                <TooltipContent side="right" className="bg-gray-800 text-white">Log out</TooltipContent>
               </Tooltip>
             ) : (
               <Button

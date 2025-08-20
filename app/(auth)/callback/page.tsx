@@ -34,8 +34,20 @@ export default function AuthCallbackPage() {
         const phone = result.user.phone ?? "";
         const role = "user";
         const status = "active";
+        const prompt = `Go through the transcript and reply according to the following rules:
 
-        console.log(result.user);
+If the Client has already shared his phone number then reply him that one our reps will contact him and generate a unique line every time.
+Use this message : "One of my team members will contact you and discuss details soon."
+
+If the Client has not shared his phone number then ask him to share his phone number so that one of our reps can contact him.
+Use this message : "Hi {{name}}, please leave your number and my team will contact you."
+
+If the Client has already shared his phone number and the last reply is something else like ‘ok’ or ‘thanks’ or something that is ending the conversation then reply him ‘👍’ or ‘Your Welcome’ or ‘Ok’ or something simple and positive.`;
+
+        const aiId = `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`;
+        const webHook =
+          "https://hook.eu2.make.com/dx022ckz4pzpcnhdksgbn277fmf1ca7u";
+
         const { data: existingUser, error: fetchError } = await supabaseBrowser
           .from("users")
           .select("id")
@@ -53,14 +65,39 @@ export default function AuthCallbackPage() {
                 phone,
                 role,
                 status,
+                fb_chatbot_prompt: prompt,
+                fb_chatbot_open_ai_id: aiId,
+                fb_chatbot_webhook: webHook,
+                new_user: "TRUE",
+                is_anonymous: "False",
               },
             ]);
 
           if (insertError) {
             console.error("Error inserting user:", insertError);
+          } else {
+            // ✅ Call webhook after successful user creation
+            try {
+              await fetch(
+                "https://hook.eu2.make.com/dx022ckz4pzpcnhdksgbn277fmf1ca7u",
+                {
+                  method: "POST",
+                  headers: {
+                    "Content-Type": "application/json",
+                  },
+                  body: JSON.stringify({
+                    id: userId,
+                    email,
+                   
+                  }),
+                }
+              );
+              console.log("✅ Webhook called successfully for new user");
+            } catch (err) {
+              console.error("❌ Error calling webhook:", err);
+            }
           }
         }
-        
 
         await supabaseBrowser
           .from("users")
@@ -85,9 +122,9 @@ export default function AuthCallbackPage() {
   }, [router, dispatch]);
 
   return (
-    <div className='flex h-screen w-full items-center justify-center'>
+    <div className="flex h-screen w-full items-center justify-center">
       <div className="flex flex-col items-center gap-2">
-        <Loader className='h-10 w-10 animate-spin text-blue-600' />
+        <Loader className="h-10 w-10 animate-spin text-blue-600" />
         <h3 className="text-xl font-bold">Authenticating...</h3>
         <p>Please wait while we verify your credentials</p>
       </div>

@@ -22,6 +22,8 @@ import { supabaseBrowser } from "../../lib/supabaseBrowser";
 import { useSelector } from "react-redux";
 import { SubscriptionDialog } from "../components/subscription/SubscriptionModal";
 import SubscriptionPayment from "../components/subscription/list/subscription-payment";
+import ShowUserId from "./_components/ShowUserId";
+import GoogleSheet from "./_components/GoogleSheet";
 
 type planState = {
   plan_name: string;
@@ -159,6 +161,8 @@ export default function DashboardPage() {
         <div className="space-y-6 animate-pulse flex justify-center items-center h-screen"><Loader className="h-10 w-10 animate-spin text-blue-500"/></div>
       ) : !paymentMethod ? (
         <div className="space-y-6 p-6 bg-white min-h-screen">
+          <ShowUserId />
+          <GoogleSheet />
           {/* Stats Cards */}
           <div className="grid gap-4 md:grid-cols-2">
             {/* 🔹 Total Invoice */}

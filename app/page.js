@@ -16,34 +16,7 @@ const AiPage = () => {
   const router = useRouter();
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    const checkUser = async () => {
-      const { data, error } = await supabaseBrowser.auth.getUser();
 
-      if (error) {
-        console.error("Error fetching user:", error.message);
-        setLoading(false);
-        return;
-      }
-
-      if (data.user) {
-        console.log("User already logged in:", data.user);
-        router.replace("/dashboard");
-      } else {
-        setLoading(false);
-      }
-    };
-
-    checkUser();
-  }, [router]);
-
-  if (loading) {
-    return (
-       <div className="flex flex-col items-center justify-center gap-2 mt-20">
-      
-      </div>
-    );
-  }
 
   return (
     <div>

@@ -105,18 +105,25 @@ const handlePayment = async (e: React.FormEvent) => {
     }
 
     // Step 2: create pending subscription record
-    const start_date = new Date().toISOString();
-    const endDate = new Date();
-    endDate.setMonth(endDate.getMonth() + 1);
+   // Step 2: create pending subscription record
+const start_date = new Date();
+const endDate = new Date(start_date);
 
-    const payload = {
-      user_id: user?.id,
-      subscription_id: selectedSubscription?.id,
-      start_date: start_date,
-      end_date: endDate.toISOString(),
-      status: "payment_pending",
-      amount: selectedSubscription?.amount,
-    };
+if (selectedSubscription?.plan_name === "Foundation Pack") {
+  endDate.setDate(endDate.getDate() + 7); // 7 days
+} else {
+  endDate.setMonth(endDate.getMonth() + 1); // 1 month
+}
+
+const payload = {
+  user_id: user?.id,
+  subscription_id: selectedSubscription?.id,
+  start_date: start_date.toISOString(),
+  end_date: endDate.toISOString(),
+  status: "payment_pending",
+  amount: selectedSubscription?.amount,
+};
+
 
     const { data, error } = await supabaseBrowser
       .from("user_subscription")

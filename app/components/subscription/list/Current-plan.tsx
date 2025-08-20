@@ -2,8 +2,8 @@
 import { useRouter } from "next/navigation";
 import React from "react";
 import moment from "moment";
+import { Check, X } from "lucide-react";
 
-// ✅ bring in the featuresMap (you can import it if you keep it in a separate file)
 type Feature = { text: string; included: boolean };
 
 const featuresMap: Record<string, { features: Feature[] }> = {
@@ -60,10 +60,8 @@ export default function CurrentPlan({
 }) {
   const router = useRouter();
 
-  // ✅ get current plan benefits dynamically
   const planName = subscriptionData?.subscription?.plan_name;
-  const benefits =
-    featuresMap[planName]?.features.filter((f) => f.included) || [];
+  const features = featuresMap[planName]?.features || [];
 
   return (
     <section className="bg-white rounded-lg border border-gray-200 p-6">
@@ -77,6 +75,7 @@ export default function CurrentPlan({
         </h3>
       </div>
 
+      {/* Plan Info */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-y-4 gap-x-8 mb-6 text-sm text-gray-700">
         <InfoItem
           label="Plan Name"
@@ -100,16 +99,31 @@ export default function CurrentPlan({
         />
       </div>
 
+      {/* Plan Benefits */}
       <div className="text-sm text-gray-700 mb-6">
         <p className="font-semibold mb-2">Plan Benefits</p>
-        <ul className="space-y-1">
-          {benefits.map((benefit) => (
-            <li key={benefit.text} className="flex items-center space-x-2">
-              <span className="w-2 h-2 bg-blue-600 rounded-sm inline-block" />
-              <span>{benefit.text}</span>
+        <ul className="space-y-2">
+          {features.map((feature) => (
+            <li key={feature.text} className="flex items-center space-x-2">
+              {feature.included ? (
+                <Check className="text-green-600 w-4 h-4" />
+              ) : (
+                <X className="text-red-500 w-4 h-4" />
+              )}
+              <span>{feature.text}</span>
             </li>
           ))}
         </ul>
+      </div>
+
+      {/* Upgrade Button */}
+      <div className="flex">
+        <button
+          onClick={() => router.push("/dashboard/subscription-buy")}
+          className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg text-sm font-medium transition"
+        >
+          Upgrade Plan
+        </button>
       </div>
     </section>
   );

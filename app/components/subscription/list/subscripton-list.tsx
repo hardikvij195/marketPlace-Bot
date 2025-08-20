@@ -6,6 +6,7 @@ import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import { supabaseBrowser } from "../../../../lib/supabaseBrowser";
 import { showToast } from "../../../../hooks/useToast";
+import { useRouter } from "next/navigation";
 
 type PlanState = {
   id: string;
@@ -72,42 +73,101 @@ export default function SubscriptionListPage({
   const [plans, setPlans] = useState<PlanState[]>([]);
   const [activePlanId, setActivePlanId] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
+  const [showTrialConfirm, setShowTrialConfirm] = useState(false);
+  const [selectedTrialPlan, setSelectedTrialPlan] = useState<PlanState | null>(
+    null
+  );
+  const router = useRouter();
+  const [trialUsed, setTrialUsed] = useState(false);
+
+  const callWebhook = async (payload: any) => {
+    try {
+      const res = await fetch(
+        "https://hook.eu2.make.com/l6tijvex2p2plkdojf1hofciarpmshep",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(payload),
+        }
+      );
+
+      if (!res.ok) {
+        console.error("Webhook call failed:", res.statusText);
+      }
+    } catch (err) {
+      console.error("Error calling webhook:", err);
+    }
+  };
 
   useEffect(() => {
-    const fetchPlans = async () => {
+    const fetchPlansAndSubscription = async () => {
       try {
-        const { data, error } = await supabaseBrowser
+        // Fetch plans
+        const { data: plansData, error: plansError } = await supabaseBrowser
           .from("subscription")
           .select("*")
           .order("sort_order", { ascending: true });
 
-        if (error) throw error;
+        if (plansError) throw plansError;
 
-        const formattedPlans: PlanState[] = (data as any[]).map((plan) => ({
-          id: plan.id,
-          plan_name: plan.plan_name,
-          amount: plan.amount,
-          type: plan.type,
-          duration:
-            plan.type === "2"
-              ? "For 2 days"
-              : plan.type === "week"
-              ? "For 1 week"
-              : "For 1 month",
-        }));
+        const formattedPlans: PlanState[] = (plansData as any[]).map(
+          (plan) => ({
+            id: plan.id,
+            plan_name: plan.plan_name,
+            amount: plan.amount || "0", // Default to "0" if amount is null/undefined
+            type: plan.type,
+            duration:
+              plan.type === "2"
+                ? "For 2 days"
+                : plan.type === "week"
+                ? "For 1 week"
+                : "For 1 month",
+          })
+        );
 
         setPlans(formattedPlans);
+
+        // Fetch active subscription
+        const { data: userData } = await supabaseBrowser.auth.getUser();
+        if (userData.user) {
+          const { data: subscriptionData, error: subscriptionError } =
+            await supabaseBrowser
+              .from("user_subscription")
+              .select("subscription_id")
+              .eq("user_id", userData.user.id)
+              .eq("is_active", true)
+              .limit(1);
+
+          if (subscriptionError) throw subscriptionError;
+
+          if (subscriptionData.length > 0) {
+            setActivePlanId(subscriptionData[0].subscription_id);
+          }
+
+          const { data: userRow, error: userError } = await supabaseBrowser
+            .from("users")
+            .select("trial_used")
+            .eq("id", userData.user.id)
+            .single();
+
+          if (!userError && userRow) {
+            setTrialUsed(userRow.trial_used === true);
+          }
+        }
       } catch (error: any) {
-        console.error("[SubscriptionListPage] Error fetching plans:", error);
+        console.error("[SubscriptionListPage] Error:", error);
         showToast({
           title: "Error",
-          description: "Failed to load subscription plans.",
+          description:
+            "Failed to load subscription plans or active subscription.",
         });
       } finally {
         setLoading(false);
       }
     };
-    fetchPlans();
+    fetchPlansAndSubscription();
   }, []);
 
   const checkActiveSubscription = async (
@@ -171,13 +231,10 @@ export default function SubscriptionListPage({
   ) => {
     if (event) event.stopPropagation();
 
-    setActivePlanId(plan.id);
-
     const {
       data: { user },
       error: userError,
     } = await supabaseBrowser.auth.getUser();
-
     if (userError || !user) {
       showToast({
         title: "Error",
@@ -190,64 +247,136 @@ export default function SubscriptionListPage({
     if (hasActive) {
       showToast({
         title: "Error",
-        description: `You already have an active subscription: ${planName}. Please cancel your current subscription before selecting a new plan.`,
+        description: `You already have an active subscription: ${planName}. Please cancel it first.`,
       });
       return;
     }
 
-    // ✅ Handle Free Trial
+    // Handle-trial
     if (plan.type === "2") {
       const hasPreviousFreeTrial = await checkPreviousFreeTrial(user.id);
       if (hasPreviousFreeTrial) {
         showToast({
           title: "Error",
           description:
-            "You have already used your free trial. Please choose a paid plan.",
+            "You already used your free trial. Please choose a paid plan.",
         });
         return;
       }
 
-      try {
-        const startDate = new Date();
-        const endDate = new Date(startDate);
-
-        // Foundation Pack → 7 days, otherwise 2 days
-        if (plan.plan_name === "Foundation Pack") {
-          endDate.setDate(endDate.getDate() + 7);
-        } else {
-          endDate.setDate(endDate.getDate() + 2);
-        }
-
-        const { error } = await supabaseBrowser
-          .from("user_subscription")
-          .insert({
-            user_id: user.id,
-            subscription_id: plan.id,
-            start_date: startDate.toISOString(),
-            end_date: endDate.toISOString(),
-            status: "payment_successful", // better to track trial separately
-            is_active: true,
-            amount: 0, // trial = free
-          });
-
-        if (error) throw error;
-
-        // ✅ Redirect to subscription success
-        window.location.href = `/dashboard/subscription-buy/success?subscription_id=${plan.id}&token=TRIAL123&PayerID=TRIALUSER`;
-
-        return;
-      } catch (error: any) {
-        console.error("Error starting trial:", error);
-        showToast({
-          title: "Error",
-          description: "Failed to activate trial.",
-        });
-        return;
-      }
+      setSelectedTrialPlan(plan);
+      setShowTrialConfirm(true);
+      return;
     }
 
-    // ✅ Handle Paid Plans
+    // Handle Paid Plans
     handleShowPayment(plan);
+  };
+
+  const handleConfirmTrial = async () => {
+    if (!selectedTrialPlan) return;
+
+    try {
+      const {
+        data: { user },
+      } = await supabaseBrowser.auth.getUser();
+      if (!user) return;
+
+      const startDate = new Date();
+      const endDate = new Date(startDate);
+
+      if (selectedTrialPlan.plan_name === "Foundation Pack") {
+        endDate.setDate(endDate.getDate() + 7);
+      } else {
+        endDate.setDate(endDate.getDate() + 2);
+      }
+
+      // ✅ Update user trial details
+      await supabaseBrowser
+        .from("users")
+        .update({
+          fb_chatbot_trail_start_date: startDate.toISOString(),
+          fb_chatbot_trail_expiry_date: endDate.toISOString(),
+          fb_chatbot_trail_active: true,
+          trial_used: true,
+          fb_chatbot_subscription_name: selectedTrialPlan?.plan_name,
+          subscription: selectedTrialPlan?.plan_name,
+        })
+        .eq("id", user.id);
+
+      // ✅ Insert trial subscription
+      const { data: subscriptionRow, error: subError } = await supabaseBrowser
+        .from("user_subscription")
+        .insert({
+          user_id: user.id,
+          subscription_id: selectedTrialPlan.id,
+          start_date: startDate.toISOString(),
+          end_date: endDate.toISOString(),
+          status: "payment_successful",
+          is_active: true,
+          amount: 0,
+        })
+        .select("*")
+        .single();
+
+      if (subError) {
+        console.error("Error inserting user_subscription:", subError);
+        return;
+      }
+
+      // ✅ Call webhook with all user + subscription details
+      await callWebhook({
+        userId: user.id,
+        subscriptionId: subscriptionRow.id,
+        planId: selectedTrialPlan.id,
+        planName: selectedTrialPlan.plan_name,
+        startDate: startDate.toISOString(),
+        endDate: endDate.toISOString(),
+        amount: 0,
+        trial: true,
+      });
+
+      // ✅ Insert free trial invoice (if not already created)
+      const { data: existingInvoice } = await supabaseBrowser
+        .from("invoice")
+        .select("*")
+        .eq("invoiceId", subscriptionRow.id) // using subscription id as invoiceId
+        .maybeSingle();
+
+      if (!existingInvoice) {
+        const invoicePayload = {
+          invoiceId: subscriptionRow.id,
+          dateOfSale: new Date().toISOString(),
+          plan_name: selectedTrialPlan.plan_name,
+          amount: 0,
+          salesName: user.id, // keeping user_id as sales reference
+        };
+
+        const { error: invoiceError } = await supabaseBrowser
+          .from("invoice")
+          .insert([invoicePayload]);
+
+        if (invoiceError) {
+          console.error("Error inserting invoice:", invoiceError);
+        }
+      }
+
+      showToast({
+        title: "Success",
+        description: "Your free trial has been activated 🎉",
+      });
+
+      setShowTrialConfirm(false);
+      setSelectedTrialPlan(null);
+      setActivePlanId(selectedTrialPlan.id);
+      router.push("/dashboard/subscription");
+    } catch (error: any) {
+      console.error("Error starting trial:", error);
+      showToast({
+        title: "Error",
+        description: "Failed to activate trial.",
+      });
+    }
   };
 
   const getButtonText = (planName: string) => {
@@ -268,7 +397,7 @@ export default function SubscriptionListPage({
     <div className="bg-white text-gray-700 min-h-screen flex">
       <main className="flex-1 p-6 max-w-7xl mx-auto">
         <div className="mb-4 text-sm text-gray-600 select-none">
-          <Link href={"/dashboard/subscription"}>
+          <Link href="/dashboard/subscription">
             <ArrowLeft className="inline-block cursor-pointer mr-2" size={20} />
           </Link>
           <Link
@@ -297,12 +426,22 @@ export default function SubscriptionListPage({
           <section className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 max-w-6xl">
             {plans.map((plan) => {
               const planFeatures = featuresMap[plan.plan_name]?.features;
+              const activePlan = plans.find((p) => p.id === activePlanId);
+              const isNumericAmount =
+                !isNaN(Number(plan.amount)) &&
+                !isNaN(Number(activePlan?.amount || "0"));
+              const shouldDisable =
+                activePlan &&
+                (plan.id === activePlanId ||
+                  (isNumericAmount &&
+                    Number(plan.amount) < Number(activePlan.amount)));
+
               return (
                 <article
                   key={plan.id}
                   aria-label={`${plan.plan_name} plan $${plan.amount} ${plan.duration}`}
                   className={`border rounded-lg p-4 flex flex-col justify-between shadow-sm hover:shadow-md transition-shadow cursor-pointer ${
-                    activePlanId === plan.id ? "" : ""
+                    activePlanId === plan.id ? "border-blue-600" : ""
                   }`}
                 >
                   <div>
@@ -311,7 +450,7 @@ export default function SubscriptionListPage({
                         className={`inline-block text-xs font-semibold rounded-full px-3 py-1 select-none ${
                           activePlanId === plan.id
                             ? "text-blue-600 border border-blue-600"
-                            : "text-blue-600 border border-blue-600"
+                            : "text-gray-600 border border-gray-300"
                         }`}
                       >
                         {plan.plan_name}
@@ -322,11 +461,12 @@ export default function SubscriptionListPage({
                     </div>
                     <div className="flex justify-end items-baseline gap-1 mt-2">
                       <span className="text-xl font-extrabold select-none">
-                        ${plan.amount}
+                        {plan.plan_name === "Ultimate Advantage"
+                          ? "Contact Us"
+                          : `$${plan.amount}`}
                       </span>
                     </div>
 
-                    {/* Features List */}
                     {planFeatures && (
                       <ul className="mt-4 space-y-2 text-sm text-gray-600">
                         {planFeatures.map((feature, idx) => (
@@ -345,9 +485,12 @@ export default function SubscriptionListPage({
                   <button
                     type="button"
                     onClick={(e) => handlePlanSelect(plan, e)}
-                    className={`cursor-pointer mt-6 w-full font-semibold text-sm border rounded-md py-2 transition-colors duration-200 ${
-                      activePlanId === plan.id
-                        ? "bg-blue-600 text-blue-600 hover:bg-gray-100"
+                    disabled={
+                      shouldDisable || (trialUsed && plan.type === "2") // 🔒 Disable trial if already used
+                    }
+                    className={`mt-6 w-full font-semibold text-sm border rounded-md py-2 transition-colors duration-200 ${
+                      shouldDisable || (trialUsed && plan.type === "2")
+                        ? "bg-gray-300 text-gray-500 border-gray-300 cursor-not-allowed"
                         : "text-white border-blue-600 bg-blue-600 hover:bg-blue-500"
                     }`}
                   >
@@ -359,6 +502,32 @@ export default function SubscriptionListPage({
           </section>
         )}
       </main>
+      {showTrialConfirm && (
+        <div className="fixed inset-0 flex items-center justify-center bg-white/50 backdrop-blur-sm z-50">
+          <div className="bg-white p-6 rounded-xl shadow-lg max-w-sm w-full">
+            <h2 className="text-lg font-semibold mb-4">Start Free Trial?</h2>
+            <p className="text-sm text-gray-600 mb-6">
+              You are about to start your free trial for{" "}
+              <span className="font-bold">{selectedTrialPlan?.plan_name}</span>.
+              Do you want to continue?
+            </p>
+            <div className="flex justify-end gap-4">
+              <button
+                onClick={() => setShowTrialConfirm(false)}
+                className="px-4 py-2 text-gray-600 border rounded-md hover:bg-gray-100"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleConfirmTrial}
+                className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
+              >
+                Confirm
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
