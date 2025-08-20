@@ -41,3 +41,113 @@
 
    We'd love to learn from you. Express your interest in helping us shape the future of Firebase Hosting: https://goo.gle/41enW5X
 
+[debug] [2025-08-20T22:36:31.136Z] Checked if tokens are valid: true, expires at: 1755732979417
+[debug] [2025-08-20T22:36:31.137Z] Checked if tokens are valid: true, expires at: 1755732979417
+[debug] [2025-08-20T22:36:31.137Z] >>> [apiv2][query] GET https://firebasehosting.googleapis.com/v1beta1/projects/fb-marketplace-bot/sites/fb-marketplace-bot [none]
+[debug] [2025-08-20T22:36:32.226Z] <<< [apiv2][status] GET https://firebasehosting.googleapis.com/v1beta1/projects/fb-marketplace-bot/sites/fb-marketplace-bot 200
+[debug] [2025-08-20T22:36:32.227Z] <<< [apiv2][body] GET https://firebasehosting.googleapis.com/v1beta1/projects/fb-marketplace-bot/sites/fb-marketplace-bot {"name":"projects/fb-marketplace-bot/sites/fb-marketplace-bot","defaultUrl":"https://fb-marketplace-bot.web.app","type":"DEFAULT_SITE"}
+[info]    ▲ Next.js 15.4.5
+
+[info]    - Environments: .env
+
+
+[info]    Creating an optimized production build ...
+
+[info]  ✓ Compiled successfully in 13.0s
+
+[info]    Skipping validation of types
+
+[info]    Skipping linting
+
+[info]    Collecting page data ...
+
+[info]    Generating static pages (0/23) ...
+
+[info]    Generating static pages (5/23) 
+
+[info]    Generating static pages (11/23) 
+
+[info]    Generating static pages (17/23) 
+
+[info]  ✓ Generating static pages (23/23)
+
+[info]    Finalizing page optimization ...
+   Collecting build traces ...
+
+[info] 
+
+[info] Route (app)                                     Size  First Load JS
+┌ ○ /                                        40.3 kB         200 kB
+├ ○ /_not-found                                998 B         101 kB
+├ ƒ /api/create-checkout-session               145 B         100 kB
+├ ƒ /api/deal/addDeal                          145 B         100 kB
+├ ƒ /api/deal/getDeal                          145 B         100 kB
+├ ƒ /api/paypal/payment                        145 B         100 kB
+├ ○ /callback                                 2.7 kB         166 kB
+├ ○ /dashboard                               5.42 kB         178 kB
+├ ○ /dashboard/invoices                       153 kB         305 kB
+├ ○ /dashboard/leads                         14.5 kB         178 kB
+├ ○ /dashboard/profile                       48.4 kB         249 kB
+├ ○ /dashboard/prompt                        2.36 kB         153 kB
+├ ○ /dashboard/subscription                  5.57 kB         188 kB
+├ ○ /dashboard/subscription-buy              3.41 kB         162 kB
+├ ○ /dashboard/subscription-buy/cancel       1.48 kB         147 kB
+├ ○ /dashboard/subscription-buy/success      2.15 kB         147 kB
+├ ○ /dashboard/support                       3.02 kB         163 kB
+├ ○ /dashboard/tutorials                       145 B         100 kB
+├ ƒ /forgot-password/[[...forgot-password]]   2.7 kB         153 kB
+├ ○ /privacy-policy                          4.61 kB         152 kB
+├ ƒ /sign-in/[[...sign-in]]                  3.56 kB         154 kB
+├ ƒ /sign-up/[[...sign-up]]                    18 kB         187 kB
+└ ○ /terms-of-use                            6.25 kB         154 kB
++ First Load JS shared by all                 100 kB
+  ├ chunks/4bd1b696-cc729d47eba2cee4.js      54.1 kB
+  ├ chunks/5964-40978821a2ce41e4.js          43.9 kB
+  └ other shared chunks (total)              2.18 kB
+
+
+
+[info] ○  (Static)   prerendered as static content
+ƒ  (Dynamic)  server-rendered on demand
+
+
+[info] Building a Cloud Function to run this application. This is needed due to:
+[info]  • non-static component /api/create-checkout-session/route
+[info]  • non-static component /api/deal/addDeal/route
+[info]  • non-static component /api/paypal/payment/route
+[info]  • non-static component /api/deal/getDeal/route
+[info]  • non-static component /(auth)/sign-in/[[...sign-in]]/page
+[debug] [2025-08-20T22:36:56.380Z]  • non-static component /(auth)/forgot-password/[[...forgot-password]]/page
+[debug] [2025-08-20T22:36:56.380Z]  • non-static component /(auth)/sign-up/[[...sign-up]]/page
+[debug] [2025-08-20T22:36:56.380Z]  • route with server action /callback
+[debug] [2025-08-20T22:36:56.380Z]  • route with server action /dashboard
+[debug] [2025-08-20T22:36:56.380Z]  • route with server action /dashboard/profile
+[debug] [2025-08-20T22:36:56.380Z]  • route with server action /dashboard/invoices
+[debug] [2025-08-20T22:36:56.380Z]  • route with server action /dashboard/prompt
+[debug] [2025-08-20T22:36:56.380Z]  • route with server action /dashboard/subscription-buy
+[debug] [2025-08-20T22:36:56.380Z]  • route with server action /dashboard/leads
+[debug] [2025-08-20T22:36:56.380Z]  • route with server action /dashboard/subscription-buy/cancel
+[debug] [2025-08-20T22:36:56.380Z]  • route with server action /dashboard/tutorials
+[debug] [2025-08-20T22:36:56.380Z]  • route with server action /dashboard/subscription-buy/success
+[debug] [2025-08-20T22:36:56.380Z]  • route with server action /dashboard/support
+[debug] [2025-08-20T22:36:56.380Z]  • route with server action /dashboard/subscription
+[info]  • and 14 other reasons, use --debug to see more
+[info] 
+[debug] [2025-08-20T22:36:56.465Z] skipping /dashboard/subscription-buy/cancel due to server action
+[debug] [2025-08-20T22:36:56.465Z] skipping /dashboard/prompt due to server action
+[debug] [2025-08-20T22:36:56.465Z] skipping /dashboard/support due to server action
+[debug] [2025-08-20T22:36:56.465Z] skipping /dashboard/tutorials due to server action
+[debug] [2025-08-20T22:36:56.465Z] skipping /dashboard/subscription-buy due to server action
+[debug] [2025-08-20T22:36:56.465Z] skipping /dashboard/subscription-buy/success due to server action
+[debug] [2025-08-20T22:36:56.465Z] skipping /dashboard/profile due to server action
+[debug] [2025-08-20T22:36:56.465Z] skipping /dashboard/leads due to server action
+[debug] [2025-08-20T22:36:56.465Z] skipping /callback due to server action
+[debug] [2025-08-20T22:36:56.465Z] skipping /dashboard/subscription due to server action
+[debug] [2025-08-20T22:36:56.465Z] skipping /dashboard due to server action
+[debug] [2025-08-20T22:36:56.465Z] skipping /dashboard/invoices due to server action
+[debug] [2025-08-20T22:36:56.483Z] Checked if tokens are valid: true, expires at: 1755732979417
+[debug] [2025-08-20T22:36:56.483Z] Checked if tokens are valid: true, expires at: 1755732979417
+[debug] [2025-08-20T22:36:56.483Z] >>> [apiv2][query] GET https://firebasehosting.googleapis.com/v1beta1/projects/fb-marketplace-bot/sites/fb-marketplace-bot [none]
+[debug] [2025-08-20T22:36:57.482Z] <<< [apiv2][status] GET https://firebasehosting.googleapis.com/v1beta1/projects/fb-marketplace-bot/sites/fb-marketplace-bot 200
+[debug] [2025-08-20T22:36:57.482Z] <<< [apiv2][body] GET https://firebasehosting.googleapis.com/v1beta1/projects/fb-marketplace-bot/sites/fb-marketplace-bot {"name":"projects/fb-marketplace-bot/sites/fb-marketplace-bot","defaultUrl":"https://fb-marketplace-bot.web.app","type":"DEFAULT_SITE"}
+[warn] !  This integration expects Node version 16, 18, or 20. You're running version 22, problems may be encountered. 
