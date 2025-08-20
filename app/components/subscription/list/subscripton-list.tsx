@@ -387,7 +387,7 @@ export default function SubscriptionListPage({
       case "Growth Engine":
         return "Buy Now";
       case "Ultimate Advantage":
-        return "Contact Us";
+        return "Buy Now";
       default:
         return "Subscribe";
     }
@@ -461,9 +461,10 @@ export default function SubscriptionListPage({
                     </div>
                     <div className="flex justify-end items-baseline gap-1 mt-2">
                       <span className="text-xl font-extrabold select-none">
-                        {plan.plan_name === "Ultimate Advantage"
+                        {plan.amount}
+                        {/* {plan.plan_name === "Ultimate Advantage"
                           ? "Contact Us"
-                          : `$${plan.amount}`}
+                          : `$${plan.amount}`} */}
                       </span>
                     </div>
 

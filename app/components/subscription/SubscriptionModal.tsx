@@ -123,7 +123,7 @@ export const SubscriptionDialog = ({
       case "Growth Engine":
         return "Buy Now";
       case "Ultimate Advantage":
-        return "Contact Us";
+        return "Buy Now";
       default:
         return "Subscribe";
     }
