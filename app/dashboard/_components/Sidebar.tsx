@@ -113,7 +113,7 @@ export default function Sidebar({ collapsed, setCollapsed }: SidebarProps) {
             {/* Show text only when not collapsed (desktop or mobile) */}
             {!collapsed && (
               <span className="ml-3 text-md font-semibold text-gray-800">
-                MarketPlaceBot
+                FB Marketplace Chatbot
               </span>
             )}
           </div>

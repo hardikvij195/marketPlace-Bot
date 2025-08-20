@@ -32,7 +32,7 @@ export default function Header() {
             className="flex items-center gap-2 text-xl font-bold text-gray-800"
           >
             <Image src='/LOGO.png' alt="No Logo Found" height={28} width={28} />
-            MarketPlaceBot
+           FB Marketplace Chatbot
           </Link>
 
           {/* Desktop Navigation Menu and CTA Button */}

@@ -18,17 +18,21 @@ export default function Footer() {
           {/* Get In Touch Section */}
           <div className="space-y-6">
             <h2 className="text-3xl font-bold">Get In Touch With us</h2>
-            <div className="flex items-center gap-4 ">
+            {/* <div className="flex items-center gap-4 ">
               <MapPin size={24} />
-              <span>140301, Sunny Enclave, India</span>
-            </div>
+              <span>1, India</span>
+            </div> */}
             <div className="flex items-center gap-4 ">
               <Phone size={24} />
-              <span>+603 4784 273 12</span>
+              <span>+1 (469) 214-6349</span>
+              <span>+91 9773603818</span>
+              <span>+91 8588099741</span>
             </div>
             <div className="flex items-center gap-4 ">
               <Mail size={24} />
-              <span>Marketplaces@gmail.com</span>
+              <span>fbmarketplacebots@gmail.com</span>
+              <span>info@fbmarketplacebots.com</span>
+              <span>info@hvtechnologies.app</span>
             </div>
             <div className="flex flex-col sm:flex-row gap-6 mt-8">
               <a href="/terms-of-use" className=" transition-colors duration-200">
@@ -64,7 +68,7 @@ export default function Footer() {
 
         {/* Copyright Section */}
         <div className="text-center text-gray-500">
-          <p>Copyright 2025 • Marketplace. All Rights Reserved.</p>
+          <p>Copyright 2025 • Hv Technologies. All Rights Reserved.</p>
         </div>
       </div>
     </footer>

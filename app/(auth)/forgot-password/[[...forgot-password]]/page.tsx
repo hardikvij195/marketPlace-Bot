@@ -78,7 +78,7 @@ const ForgotPassword = () => {
       <div className="w-full lg:w-auto px-4 py-8 lg:p-0">
         <div className="flex flex-col md:flex-row justify-center text-center items-center gap-2 text-xl font-bold text-gray-800 py-10">
                     <Bot className="text-blue-600" size={28} />
-                    MarketPlaceBot
+                    FB Marketplace Chatbot
                   </div>
         <div className="max-w-md mx-auto space-y-6">
           <h2 className="text-2xl font-bold text-center">

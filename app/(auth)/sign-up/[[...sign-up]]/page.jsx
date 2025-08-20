@@ -161,7 +161,7 @@ const Signup = () => {
       <div className="w-full max-w-md">
         <div className="flex flex-col md:flex-row justify-center text-center items-center gap-2 text-xl font-bold text-gray-800 py-10">
           <Image src='/LOGO.png' alt="No Logo Found" width={28} height={28} />
-          MarketPlaceBot
+          FB Marketplace Chatbot
         </div>
         {verificationStep === "signup" ? (
           <div className="max-w-md w-full space-y-6">

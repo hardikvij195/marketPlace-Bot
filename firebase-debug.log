@@ -1,0 +1,43 @@
+[debug] [2025-08-20T22:36:19.959Z] ----------------------------------------------------------------------
+[debug] [2025-08-20T22:36:19.960Z] Command:       C:\nvm4w\nodejs\node.exe C:\Users\Hardik\AppData\Roaming\npm\node_modules\firebase-tools\lib\bin\firebase.js deploy
+[debug] [2025-08-20T22:36:19.960Z] CLI Version:   14.12.1
+[debug] [2025-08-20T22:36:19.960Z] Platform:      win32
+[debug] [2025-08-20T22:36:19.960Z] Node Version:  v22.18.0
+[debug] [2025-08-20T22:36:19.961Z] Time:          Thu Aug 21 2025 04:06:19 GMT+0530 (India Standard Time)
+[debug] [2025-08-20T22:36:19.961Z] ----------------------------------------------------------------------
+[debug] 
+[debug] [2025-08-20T22:36:19.962Z] >>> [apiv2][query] GET https://firebase-public.firebaseio.com/cli.json [none]
+[debug] [2025-08-20T22:36:20.078Z] > command requires scopes: ["email","openid","https://www.googleapis.com/auth/cloudplatformprojects.readonly","https://www.googleapis.com/auth/firebase","https://www.googleapis.com/auth/cloud-platform"]
+[debug] [2025-08-20T22:36:20.078Z] > authorizing via signed-in user (hardikvij195@gmail.com)
+[debug] [2025-08-20T22:36:20.078Z] [iam] checking project fb-marketplace-bot for permissions ["firebase.projects.get","firebasehosting.sites.update"]
+[debug] [2025-08-20T22:36:20.078Z] Checked if tokens are valid: false, expires at: 1755599917367
+[debug] [2025-08-20T22:36:20.078Z] Checked if tokens are valid: false, expires at: 1755599917367
+[debug] [2025-08-20T22:36:20.078Z] > refreshing access token with scopes: []
+[debug] [2025-08-20T22:36:20.079Z] >>> [apiv2][query] POST https://www.googleapis.com/oauth2/v3/token [none]
+[debug] [2025-08-20T22:36:20.079Z] >>> [apiv2][body] POST https://www.googleapis.com/oauth2/v3/token [omitted]
+[debug] [2025-08-20T22:36:20.417Z] <<< [apiv2][status] POST https://www.googleapis.com/oauth2/v3/token 200
+[debug] [2025-08-20T22:36:20.417Z] <<< [apiv2][body] POST https://www.googleapis.com/oauth2/v3/token [omitted]
+[debug] [2025-08-20T22:36:20.431Z] >>> [apiv2][query] POST https://cloudresourcemanager.googleapis.com/v1/projects/fb-marketplace-bot:testIamPermissions [none]
+[debug] [2025-08-20T22:36:20.432Z] >>> [apiv2][(partial)header] POST https://cloudresourcemanager.googleapis.com/v1/projects/fb-marketplace-bot:testIamPermissions x-goog-quota-user=projects/fb-marketplace-bot
+[debug] [2025-08-20T22:36:20.432Z] >>> [apiv2][body] POST https://cloudresourcemanager.googleapis.com/v1/projects/fb-marketplace-bot:testIamPermissions {"permissions":["firebase.projects.get","firebasehosting.sites.update"]}
+[debug] [2025-08-20T22:36:20.733Z] <<< [apiv2][status] GET https://firebase-public.firebaseio.com/cli.json 200
+[debug] [2025-08-20T22:36:20.734Z] <<< [apiv2][body] GET https://firebase-public.firebaseio.com/cli.json {"cloudBuildErrorAfter":1594252800000,"cloudBuildWarnAfter":1590019200000,"defaultNode10After":1594252800000,"minVersion":"3.0.5","node8DeploysDisabledAfter":1613390400000,"node8RuntimeDisabledAfter":1615809600000,"node8WarnAfter":1600128000000}
+[debug] [2025-08-20T22:36:21.914Z] <<< [apiv2][status] POST https://cloudresourcemanager.googleapis.com/v1/projects/fb-marketplace-bot:testIamPermissions 200
+[debug] [2025-08-20T22:36:21.914Z] <<< [apiv2][body] POST https://cloudresourcemanager.googleapis.com/v1/projects/fb-marketplace-bot:testIamPermissions {"permissions":["firebase.projects.get","firebasehosting.sites.update"]}
+[debug] [2025-08-20T22:36:21.915Z] Checked if tokens are valid: true, expires at: 1755732979417
+[debug] [2025-08-20T22:36:21.915Z] Checked if tokens are valid: true, expires at: 1755732979417
+[debug] [2025-08-20T22:36:21.915Z] >>> [apiv2][query] GET https://firebase.googleapis.com/v1beta1/projects/fb-marketplace-bot [none]
+[debug] [2025-08-20T22:36:22.713Z] <<< [apiv2][status] GET https://firebase.googleapis.com/v1beta1/projects/fb-marketplace-bot 200
+[debug] [2025-08-20T22:36:22.713Z] <<< [apiv2][body] GET https://firebase.googleapis.com/v1beta1/projects/fb-marketplace-bot {"projectId":"fb-marketplace-bot","projectNumber":"227747844655","displayName":"FB Marketplace Bot","name":"projects/fb-marketplace-bot","resources":{"hostingSite":"fb-marketplace-bot"},"state":"ACTIVE","etag":"1_f8f0e563-1006-4da0-98e8-04527d5e0ec9"}
+[debug] [2025-08-20T22:36:28.814Z] defaultcredentials: writing to file C:\Users\Hardik\AppData\Roaming\firebase\hardikvij195_gmail_com_application_default_credentials.json
+[info] 
+   Thank you for trying our early preview of Next.js support on Firebase Hosting.
+   During the preview, support is best-effort and breaking changes can be expected. Proceed with caution.
+   The integration is known to work with Next.js version 12 - 15.0. You may encounter errors.
+
+   Documentation: https://firebase.google.com/docs/hosting/frameworks/nextjs
+   File a bug: https://github.com/firebase/firebase-tools/issues/new?template=bug_report.md
+   Submit a feature request: https://github.com/firebase/firebase-tools/issues/new?template=feature_request.md
+
+   We'd love to learn from you. Express your interest in helping us shape the future of Firebase Hosting: https://goo.gle/41enW5X
+

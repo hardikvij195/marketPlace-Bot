@@ -49,15 +49,6 @@ export const getSubscriptionDetails = (plan: SubscriptionTier) => {
   return SUBSCRIPTION_TIERS[plan] || SUBSCRIPTION_TIERS["basic"];
 };
 
-export const user = {
-  id: "1",
-  email: "waleed09ahmad42@gmail.com",
-  firstName: "John",
-  lastName: "Doe",
-  subscriptionTier: "premium",
-  commissionRate: SUBSCRIPTION_TIERS.premium.rate,
-  subscriptionPrice: SUBSCRIPTION_TIERS.premium.price,
-};
 
 export interface DealData {
   // Client and Vehicle Info

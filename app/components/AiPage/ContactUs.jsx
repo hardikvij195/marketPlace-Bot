@@ -203,7 +203,9 @@ const ContactUs = () => {
                 </div>
                 <div>
                   <h3 className="font-semibold text-lg">E-Mail Support</h3>
-                  <p className="text-gray-600">Marketplaces@gmail.com</p>
+                  <p className="text-gray-600">fbmarketplacebots@gmail.com</p>
+                  <p className="text-gray-600">info@fbmarketplacebots.com</p>
+                  <p className="text-gray-600">info@hvtechnologies.app</p>
                   <p className="text-gray-500 text-sm">we reply within 24 hours</p>
                 </div>
               </div>
@@ -214,8 +216,10 @@ const ContactUs = () => {
                 </div>
                 <div>
                   <h3 className="font-semibold text-lg">Phone Support</h3>
-                  <p className="text-gray-600">+603 4784 273 12</p>
-                  <p className="text-gray-500 text-sm">Mon-Fri, 09:00am-06:00am</p>
+                  <p className="text-gray-600">+1 (469) 214-6349</p>
+                  <p className="text-gray-600">+91 9773603818</p>
+                  <p className="text-gray-600">+91 8588099741</p>
+                  <p className="text-gray-500 text-sm">Mon-Sat, 09:00am-10:00pm IST</p>
                 </div>
               </div>
               {/* Live Chat */}
