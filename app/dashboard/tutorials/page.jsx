@@ -22,7 +22,7 @@ const HowToUsePage = () => {
           Video Tutorial
         </h2>
         <video
-          className="w-full h-[50vh] rounded-xl shadow-lg mt-10 border"
+          className="w-full h-[50vh] rounded-xl shadow-lg mt-10 border border-gray-200"
           controls
           src="/tutorial.mp4" // Place your video inside /public folder
           poster="/video-poster.png" // Optional thumbnail image

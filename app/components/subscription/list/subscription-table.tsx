@@ -87,7 +87,7 @@ export default function SubscriptionTable() {
                 setSearch(e.target.value);
                 setPage(1);
               }}
-              className="block w-full rounded-md border border-gray-300 bg-white py-2 pl-10 pr-3 text-sm placeholder-gray-400 focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
+              className="block w-full rounded-md border border-gray-200 bg-white py-2 pl-10 pr-3 text-sm placeholder-gray-400 focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
             />
           </div>
           <div className="relative">
@@ -98,7 +98,7 @@ export default function SubscriptionTable() {
                 setStatus(e.target.value);
                 setPage(1);
               }}
-              className="border border-gray-300 rounded-md py-2 px-3 pr-10 text-sm text-gray-700 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 appearance-none w-full"
+              className="border border-gray-200 rounded-md py-2 px-3 pr-10 text-sm text-gray-700 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 appearance-none w-full"
             >
               <option value="">All</option>
               <option value="payment_successful">Successful</option>

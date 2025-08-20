@@ -86,7 +86,7 @@ const handleSave = async () => {
                       {key.replace(/_/g, ' ')}
                     </label>
                     <textarea
-                      className="mt-1 px-3 py-2 border border-gray-300 rounded-md text-sm font-mono"
+                      className="mt-1 px-3 py-2 border border-gray-200 rounded-md text-sm font-mono"
                       rows={5}
                       defaultValue={display}
                       onChange={(e) => handleJsonChange(key, e.target.value)}
@@ -115,7 +115,7 @@ const handleSave = async () => {
                         : String(value)
                     }
                     onChange={(e) => handlePrimitiveChange(key, e.target.value)}
-                    className="mt-1 px-3 py-2 border border-gray-300 rounded-md text-sm"
+                    className="mt-1 px-3 py-2 border border-gray-200 rounded-md text-sm"
                   />
                 </div>
               );

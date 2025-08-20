@@ -1,12 +1,13 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { supabaseBrowser } from "../../../lib/supabaseBrowser"; // adjust your path
+import { supabaseBrowser } from "../../../lib/supabaseBrowser"; 
 import { Input } from "../../components/ui/input";
 import { Textarea } from "../../components/ui/textarea";
 import { Button } from "../../components/ui/button";
-import { showToast } from "../../../hooks/useToast"; // your custom hook
+import { showToast } from "../../../hooks/useToast";
 import FloatingActionButton from "../../components/FloatingActionButton";
+import { Loader } from "lucide-react";
 
 export default function ContactUsPage() {
   const [form, setForm] = useState({
@@ -15,14 +16,14 @@ export default function ContactUsPage() {
     phone: "",
     message: "",
   });
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(false); // For form submission
+  const [fetchingUser, setFetchingUser] = useState(true); // For initial user fetch
 
   // Fetch logged-in user profile
   useEffect(() => {
     const fetchUser = async () => {
-      const {
-        data: { user },
-      } = await supabaseBrowser.auth.getUser();
+      setFetchingUser(true);
+      const { data: { user } } = await supabaseBrowser.auth.getUser();
 
       if (user) {
         const { data: profile } = await supabaseBrowser
@@ -40,6 +41,7 @@ export default function ContactUsPage() {
           }));
         }
       }
+      setFetchingUser(false);
     };
 
     fetchUser();
@@ -64,60 +66,70 @@ export default function ContactUsPage() {
 
     setLoading(false);
 
-
     if (error) {
       showToast({
         title: "Error",
-        description: "Something went wrong while Sending Meeting Request!",
+        description: "Something went wrong while sending the message!",
       });
     } else {
       showToast({
         title: "Success",
-        description: "Meeting Request Sent successfully!",
+        description: "Message sent successfully!",
       });
+      setForm({ name: "", email: "", phone: "", message: "" });
     }
+  };
+
+  // Fullscreen loader while fetching user data
+  if (fetchingUser) {
+    return (
+      <div className="flex justify-center items-center h-screen">
+        <Loader className="h-10 w-10 animate-spin text-blue-500" />
+      </div>
+    );
   }
 
-
   return (
-    <div className="w-full bg-white min-h-screen pt-10 ">
-    <div className="max-w-lg mx-auto  p-6 bg-white shadow rounded-xl">
-      <h2 className="text-2xl font-semibold mb-6 text-center">Contact Us</h2>
-      <form onSubmit={handleSubmit} className="space-y-4">
-        <Input
-          name="name"
-          placeholder="Name"
-          value={form.name}
-          onChange={handleChange}
-          
-        />
-        <Input
-          name="email"
-          placeholder="Email"
-          value={form.email}
-          onChange={handleChange}
-          
-        />
-        <Input
-          name="phone"
-          placeholder="Phone"
-          value={form.phone}
-          onChange={handleChange}
-          
-        />
-        <Textarea
-          name="message"
-          placeholder="Your message..."
-          value={form.message}
-          onChange={handleChange}
-          required
-        />
-        <Button type="submit" className="w-full bg-blue-600 text-white" disabled={loading}>
-          {loading ? "Meeting Requesting..." : "Request Meeting"}
-        </Button>
-      </form>
-    </div>
-    <FloatingActionButton />
+    <div className="w-full bg-white min-h-screen pt-10">
+      <div className="max-w-lg mx-auto p-6 bg-white shadow rounded-xl">
+        <h2 className="text-2xl font-semibold mb-6 text-center">Contact Us</h2>
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <Input
+            name="name"
+            placeholder="Name"
+            value={form.name}
+            onChange={handleChange}
+          />
+          <Input
+            name="email"
+            placeholder="Email"
+            value={form.email}
+            onChange={handleChange}
+          />
+          <Input
+            name="phone"
+            placeholder="Phone"
+            value={form.phone}
+            onChange={handleChange}
+          />
+          <Textarea
+            name="message"
+            placeholder="Your message..."
+            value={form.message}
+            onChange={handleChange}
+            required
+          />
+          <Button
+            type="submit"
+            className="w-full bg-blue-600 text-white flex justify-center items-center"
+            disabled={loading}
+          >
+            {loading && <Loader className="h-5 w-5 mr-2 animate-spin text-white" />}
+            {loading ? "Sending..." : "Request Meeting"}
+          </Button>
+        </form>
+      </div>
+      <FloatingActionButton />
     </div>
   );
 }

@@ -406,47 +406,7 @@ const ProfileManagement = () => {
               </div>
             </div>
           </div>
-          <div>
-            <h3 className="text-lg font-semibold mb-4">Account Statistics</h3>
-            {subscriptionPlan ? (
-              <div className="space-y-3 text-sm md:text-base">
-                <div className="flex justify-between">
-                  <span className="text-gray-600">Date:</span>
-                  <span className="font-medium text-gray-900">
-                    {new Date(
-                      subscriptionPlan?.created_at
-                    ).toLocaleDateString("en-US", {
-                      month: "short",
-                      day: "numeric",
-                      year: "numeric",
-                    })}
-                  </span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-gray-600">Plan:</span>
-                  <span className="font-medium text-gray-900">
-                    {subscriptionPlan?.subscription?.plan_name}/Monthly
-                  </span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-gray-600">Price:</span>
-                  <span className="font-medium text-gray-900">
-                    {subscriptionPlan?.subscription?.amount}
-                  </span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-gray-600">Status:</span>
-                  <span className="px-2 py-1 rounded-full font-semibold">
-                    {statusEnum[subscriptionPlan?.status]}
-                  </span>
-                </div>
-              </div>
-            ) : (
-              <div className="text-center justify-center border p-8 rounded-lg">
-                No Active Subscription
-              </div>
-            )}
-          </div>
+          
         </CardContent>
       </Card>
       <Card>

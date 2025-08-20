@@ -103,7 +103,7 @@ export default function Sidebar({ collapsed, setCollapsed }: SidebarProps) {
       >
         <div className="flex flex-col h-full">
           {/* Logo */}
-          <div className="px-3 py-3 border-b border-gray-300 flex items-center justify-start">
+          <div className="px-3 py-3 border-b border-gray-200 flex items-center justify-start">
             <Image src='/LOGO.png' alt="No Logo Found"
               // Show smaller logo when collapsed (desktop or mobile)
               width={collapsed ? 40 : 40}
@@ -165,7 +165,7 @@ export default function Sidebar({ collapsed, setCollapsed }: SidebarProps) {
           </nav>
 
           {/* Logout */}
-          <div className="px-2 py-2 border-t border-gray-300">
+          <div className="px-2 py-2 border-t border-gray-200">
             {collapsed ? (
               <Tooltip delayDuration={0}>
                 <TooltipTrigger asChild>

@@ -272,7 +272,7 @@ export default function LeadsPage() {
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
           <Input
             placeholder="Search by Lead Name or Email..."
-            className="pl-9 border-gray-300" // Updated border color here
+            className="pl-9 border-gray-200" // Updated border color here
             value={searchTerm}
             disabled={loading}
             onChange={(e) => setSearchTerm(e.target.value)}

@@ -175,7 +175,7 @@ export const SubscriptionDialog = ({
                   className={`border rounded-lg p-4 flex flex-col justify-between shadow-sm hover:shadow-md transition-shadow cursor-pointer ${
                     activePlanId === plan.id
                       ? "bg-blue-600 text-white border-blue-600"
-                      : "bg-white text-gray-900 border-gray-300"
+                      : "bg-white text-gray-900 border-gray-200"
                   }`}
                 >
                   <div>

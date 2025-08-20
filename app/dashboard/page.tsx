@@ -16,7 +16,7 @@ import {
   TableHeader,
   TableRow,
 } from "../components/ui/table";
-import { Handshake, TicketPercent, CreditCard, Loader } from "lucide-react";
+import { Handshake, TicketPercent, Loader } from "lucide-react";
 import { useEffect, useState } from "react";
 import { supabaseBrowser } from "../../lib/supabaseBrowser";
 import { useSelector } from "react-redux";
@@ -37,13 +37,10 @@ type planState = {
 
 export default function DashboardPage() {
   const { user } = useSelector((state: any) => state?.user);
-
-  // 🔹 Removed totalCommission, added totalLeads
   const [stats, setStats] = useState({
     total: 0, // invoices count
     totalLeads: 0, // leads count
   });
-
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [dataInvoice, setInvoice] = useState<any[]>([]);
@@ -54,6 +51,7 @@ export default function DashboardPage() {
   const [paymentMethod, setPaymentMethod] = useState<boolean>(false);
   const [selectedSubscription, setSelectedSubscription] =
     useState<planState | null>(null);
+  const [userId, setUserId] = useState<string | null>(null); // New state for user ID
 
   const getFilterDate = (
     filter: "6months" | "3months" | "12months" | "all"
@@ -74,31 +72,49 @@ export default function DashboardPage() {
     return date.toISOString();
   };
 
-  const handleShowPopModal = async () => {
+  const handleShowPopModal = async (userId: string) => {
     const modalShown = sessionStorage.getItem("modal_shown");
     const { data } = await supabaseBrowser
       .from("user_subscription")
       .select(`*, subscription(*)`)
-      .eq("user_id", user.id)
+      .eq("user_id", userId)
       .eq("is_active", true)
       .single();
 
-    if (!data) {
-      if (!modalShown) {
-        setShowModal(true);
-        sessionStorage.setItem("modal_shown", "true");
-      }
+    if (!data && !modalShown) {
+      setShowModal(true);
+      sessionStorage.setItem("modal_shown", "true");
     }
   };
 
-  const handleFetchInvoice = async () => {
+  const handleFetchData = async () => {
     setLoading(true);
     try {
-      await handleShowPopModal();
+      // Fetch user ID from Supabase
+      const { data: { user: authUser }, error: authError } = await supabaseBrowser.auth.getUser();
+      if (authError) {
+        console.error("Error fetching user ID:", authError);
+        setError("Failed to fetch user ID");
+        return;
+      }
+      if (authUser) {
+        setUserId(authUser.id);
+      } else {
+        setError("No authenticated user found");
+        return;
+      }
+
+      // Use user.id from Redux if available, otherwise use authUser.id
+      const effectiveUserId = user?.id || authUser.id;
+
+      // Fetch subscription modal data
+      await handleShowPopModal(effectiveUserId);
+
+      // Fetch invoices
       let query = supabaseBrowser
         .from("invoice")
         .select("*, users!inner(*)", { count: "exact" })
-        .eq("salesName", user?.id)
+        .eq("salesName", effectiveUserId)
         .order("created_at", { ascending: false });
 
       const filterDate = getFilterDate(filter);
@@ -109,24 +125,28 @@ export default function DashboardPage() {
       const { data, error } = await query;
 
       if (error) {
-        console.error(error);
+        console.error("Error fetching invoices:", error);
         setError(error.message);
       } else {
         setInvoice(data.slice(0, 4));
 
-        // 🔹 Get total leads count from leads table
-        const { count: leadsCount } = await supabaseBrowser
+        // Fetch leads count
+        const { count: leadsCount, error: leadsError } = await supabaseBrowser
           .from("leads")
           .select("*", { count: "exact", head: true });
-        // adjust filter if needed
 
-        setStats({
-          total: data?.length || 0,
-          totalLeads: leadsCount || 0,
-        });
+        if (leadsError) {
+          console.error("Error fetching leads:", leadsError);
+          setError(leadsError.message);
+        } else {
+          setStats({
+            total: data?.length || 0,
+            totalLeads: leadsCount || 0,
+          });
+        }
       }
     } catch (error) {
-      console.error(error);
+      console.error("Error fetching data:", error);
       setError("Failed to fetch data");
     } finally {
       setLoading(false);
@@ -134,9 +154,7 @@ export default function DashboardPage() {
   };
 
   useEffect(() => {
-    if (user?.id) {
-      handleFetchInvoice();
-    }
+    handleFetchData();
   }, [filter, user]);
 
   useEffect(() => {
@@ -158,15 +176,16 @@ export default function DashboardPage() {
       )}
 
       {loading ? (
-        <div className="space-y-6 animate-pulse flex justify-center items-center h-screen"><Loader className="h-10 w-10 animate-spin text-blue-500"/></div>
+        <div className="space-y-6 animate-pulse flex justify-center items-center h-screen">
+          <Loader className="h-10 w-10 animate-spin text-blue-500" />
+        </div>
       ) : !paymentMethod ? (
         <div className="space-y-6 p-6 bg-white min-h-screen">
-          <ShowUserId />
+          <ShowUserId userId={userId} />
           <GoogleSheet />
           {/* Stats Cards */}
           <div className="grid gap-4 md:grid-cols-2">
-            {/* 🔹 Total Invoice */}
-            <Card className="border-gray-300">
+            <Card className="border-gray-200">
               <CardHeader className="flex flex-row items-center justify-between pb-2">
                 <CardTitle className="text-sm font-medium">
                   Total Invoice
@@ -185,9 +204,7 @@ export default function DashboardPage() {
                 </Link>
               </CardContent>
             </Card>
-
-            {/* 🔹 Total Leads */}
-            <Card className="border-gray-300">
+            <Card className="border-gray-200">
               <CardHeader className="flex flex-row items-center justify-between pb-2">
                 <CardTitle className="text-sm font-medium">
                   Total Leads
@@ -207,9 +224,7 @@ export default function DashboardPage() {
               </CardContent>
             </Card>
           </div>
-
-          {/* Recent Invoices Table */}
-          <Card className="w-full border-gray-300">
+          <Card className="w-full border-gray-200">
             <CardHeader>
               <div className="flex justify-between items-center">
                 <CardTitle>Recent Invoice Added</CardTitle>
@@ -251,7 +266,7 @@ export default function DashboardPage() {
                           "en-US",
                           {
                             day: "2-digit",
-                            month: "short", // e.g. Jan, Feb
+                            month: "short",
                             year: "numeric",
                           }
                         )}

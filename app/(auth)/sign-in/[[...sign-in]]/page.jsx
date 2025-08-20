@@ -21,7 +21,7 @@ const Signin = () => {
       const { data, error } = await supabaseBrowser.auth.getUser();
 
       if (error) {
-        console.error("Error fetching user:", error.message);
+        
         setLoading(false);
         return;
       }
@@ -134,7 +134,7 @@ const Signin = () => {
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full px-3 py-2 border border-gray-200 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
               required
             />
           </div>
@@ -149,7 +149,7 @@ const Signin = () => {
                 type={showPassword ? "text" : "password"}
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full px-3 py-2 border border-gray-200 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
                 required
               />
               <button
@@ -169,7 +169,7 @@ const Signin = () => {
                 type="checkbox"
                 checked={rememberMe}
                 onChange={(e) => setRememberMe(e.target.checked)}
-                className="h-4 w-4 text-blue-600 border-gray-300 rounded"
+                className="h-4 w-4 text-blue-600 border-gray-200 rounded"
               />
               Remember me
             </label>
@@ -192,7 +192,7 @@ const Signin = () => {
         {/* Divider */}
         <div className="mt-6 relative">
           <div className="absolute inset-0 flex items-center">
-            <div className="w-full border-t border-gray-300" />
+            <div className="w-full border-t border-gray-200" />
           </div>
           <div className="relative flex justify-center text-sm">
             <span className="px-2 bg-white text-gray-500">or</span>
@@ -203,7 +203,7 @@ const Signin = () => {
           <button
             onClick={handleGoogleSignIn}
             type="button"
-            className="w-full flex justify-center items-center gap-2 py-2 px-4 border rounded-md text-sm font-medium text-gray-700 bg-white hover:bg-gray-50"
+            className="w-full flex justify-center items-center gap-2 py-2 px-4 border border-gray-200 shadow rounded-md text-sm font-medium text-gray-700 bg-white hover:bg-gray-50"
           >
             <Image src="/google.svg" alt="google" width={25} height={25} />
             Log in with Google

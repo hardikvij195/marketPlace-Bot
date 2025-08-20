@@ -450,7 +450,7 @@ export default function SubscriptionListPage({
                         className={`inline-block text-xs font-semibold rounded-full px-3 py-1 select-none ${
                           activePlanId === plan.id
                             ? "text-blue-600 border border-blue-600"
-                            : "text-gray-600 border border-gray-300"
+                            : "text-gray-600 border border-gray-200"
                         }`}
                       >
                         {plan.plan_name}
@@ -490,7 +490,7 @@ export default function SubscriptionListPage({
                     }
                     className={`mt-6 w-full font-semibold text-sm border rounded-md py-2 transition-colors duration-200 ${
                       shouldDisable || (trialUsed && plan.type === "2")
-                        ? "bg-gray-300 text-gray-500 border-gray-300 cursor-not-allowed"
+                        ? "bg-gray-300 text-gray-500 border-gray-200 cursor-not-allowed"
                         : "text-white border-blue-600 bg-blue-600 hover:bg-blue-500"
                     }`}
                   >

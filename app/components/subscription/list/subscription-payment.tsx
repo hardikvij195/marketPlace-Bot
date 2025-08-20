@@ -248,7 +248,7 @@ const payload = {
               placeholder="Enter promo code"
               value={promoCode}
               onChange={(e) => setPromoCode(e.target.value)}
-              className="border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 w-full"
+              className="border border-gray-200 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 w-full"
             />
             <div
               onClick={() => {
@@ -297,7 +297,7 @@ const payload = {
                   name="payment"
                   checked={selected === option.id}
                   onChange={() => setSelected(option.id)}
-                  className="w-4 h-4 text-blue-600 border-gray-300 focus:ring-blue-600"
+                  className="w-4 h-4 text-blue-600 border-gray-200 focus:ring-blue-600"
                 />
                 <img
                   src={option.img}

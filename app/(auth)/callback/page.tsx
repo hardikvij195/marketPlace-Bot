@@ -18,14 +18,14 @@ export default function AuthCallbackPage() {
       const {
         data: { session },
       } = await supabaseBrowser.auth.getSession();
-      console.log("[callback] session:", session);
+   
 
       if (!session) {
         router.replace("/sign-in");
         return;
       }
       const result = await onAuthenticatedUser(session.access_token);
-      console.log("[callback] server result:", result);
+
 
       if (result.status === 200 && result.user) {
         const userId = result.user.id;
@@ -44,7 +44,8 @@ Use this message : "Hi {{name}}, please leave your number and my team will conta
 
 If the Client has already shared his phone number and the last reply is something else like ‘ok’ or ‘thanks’ or something that is ending the conversation then reply him ‘👍’ or ‘Your Welcome’ or ‘Ok’ or something simple and positive.`;
 
-        const aiId = `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`;
+        const aiId = process.env.NEXT_PUBLIC_OPEN_AI_ID;
+        
         const webHook =
           "https://hook.eu2.make.com/dx022ckz4pzpcnhdksgbn277fmf1ca7u";
 
@@ -92,7 +93,7 @@ If the Client has already shared his phone number and the last reply is somethin
                   }),
                 }
               );
-              console.log("✅ Webhook called successfully for new user");
+           
             } catch (err) {
               console.error("❌ Error calling webhook:", err);
             }
@@ -109,7 +110,7 @@ If the Client has already shared his phone number and the last reply is somethin
           .select("*")
           .eq("user_id", userId);
 
-        console.log(data);
+     
 
         dispatch(setUser({ ...result.user, subscriptionPlan: data }));
         router.replace("/dashboard");

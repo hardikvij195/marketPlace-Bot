@@ -43,14 +43,14 @@ export default function DashboardLayout({
       const {
         data: { session },
       } = await supabaseBrowser.auth.getSession();
-      console.log("[callback] session:", session);
+    
 
       if (!session) {
         router.replace("/");
         return;
       }
       const result = await onAuthenticatedUser(session.access_token);
-      console.log("[callback] server result:", result);
+    
 
       if (result.status === 200 && result.user) {
         const { data } = await supabaseBrowser

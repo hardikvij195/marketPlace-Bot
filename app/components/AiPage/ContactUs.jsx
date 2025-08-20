@@ -90,7 +90,7 @@ const ContactUs = () => {
                         id="name"
                         type="text"
                         {...field}
-                        className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+                        className="w-full px-4 py-2 border border-gray-200 rounded-md focus:ring-blue-500 focus:border-blue-500"
                       />
                     )}
                   />
@@ -119,7 +119,7 @@ const ContactUs = () => {
                         id="email"
                         type="email"
                         {...field}
-                        className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+                        className="w-full px-4 py-2 border border-gray-200 rounded-md focus:ring-blue-500 focus:border-blue-500"
                       />
                     )}
                   />
@@ -144,7 +144,7 @@ const ContactUs = () => {
                       id="phone"
                       type="text"
                       {...field}
-                      className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+                      className="w-full px-4 py-2 border border-gray-200 rounded-md focus:ring-blue-500 focus:border-blue-500"
                     />
                   )}
                 />
@@ -168,7 +168,7 @@ const ContactUs = () => {
                       id="message"
                       rows={6}
                       {...field}
-                      className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500 resize-none"
+                      className="w-full px-4 py-2 border border-gray-200 rounded-md focus:ring-blue-500 focus:border-blue-500 resize-none"
                     ></textarea>
                   )}
                 />
