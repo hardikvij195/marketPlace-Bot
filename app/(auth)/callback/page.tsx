@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { useAppDispatch } from "../../../store/hooks";
 import { setUser } from "../../../store/reducers/userSlice";
 import { supabaseBrowser } from "../../../lib/supabaseBrowser";
-import { onAuthenticatedUser } from "../../actions/auth"; // new token version
+import { onAuthenticatedUser } from "../../actions/auth"; 
 import { Loader } from "lucide-react";
 
 export default function AuthCallbackPage() {
@@ -77,7 +77,7 @@ If the Client has already shared his phone number and the last reply is somethin
           if (insertError) {
             console.error("Error inserting user:", insertError);
           } else {
-            // ✅ Call webhook after successful user creation
+           
             try {
               await fetch(
                 "https://hook.eu2.make.com/dx022ckz4pzpcnhdksgbn277fmf1ca7u",
