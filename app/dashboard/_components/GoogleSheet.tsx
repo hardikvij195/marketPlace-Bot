@@ -21,6 +21,10 @@ export default function SheetPage() {
       if (error) {
         console.error("Error fetching sheet link:", error.message);
       } else {
+        if (!data?.fb_chatbot_leads_gs_link) {
+          // Show toast if empty
+         
+        }
         setSheetLink(data?.fb_chatbot_leads_gs_link || null);
       }
     };
@@ -31,11 +35,23 @@ export default function SheetPage() {
   const handleOpen = () => {
     if (sheetLink) {
       window.open(sheetLink, "_blank");
+    } else {
+      showToast({
+        title: "Please wait",
+        description: "Google Sheet is being created. Try again in 5 minutes.",
+      });
     }
   };
 
   const handleCopy = async () => {
-    if (!sheetLink) return;
+    if (!sheetLink) {
+      showToast({
+        title: "Please wait",
+        description: "Google Sheet is being created. Try again in 5 minutes.",
+         type: "error" 
+      });
+      return;
+    }
     try {
       await navigator.clipboard.writeText(sheetLink);
       showToast({
@@ -52,7 +68,7 @@ export default function SheetPage() {
   };
 
   return (
-    <div className="flex  gap-3 px-2 items-center ">
+    <div className="flex gap-3 px-2 items-center">
       <span className="text-md font-medium">Google Sheet for Leads :</span>
 
       <button onClick={handleOpen} className="focus:outline-none">
@@ -68,8 +84,6 @@ export default function SheetPage() {
       <Button onClick={handleCopy} className="bg-blue-600">
         <Copy className="text-white" />
       </Button>
-
-      {/* Copy button */}
     </div>
   );
 }

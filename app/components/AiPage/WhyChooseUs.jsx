@@ -5,32 +5,32 @@ const features = [
   {
     icon: <MessageSquare className="text-[#2563EB] text-3xl" />,
     title: 'Intelligent Chat Responses',
-    desc: 'AI-powered responses that sound natural and help close deals faster',
+    desc: 'Our chatbot uses advanced AI to understand and respond to inquiries with human-like conversation. It can answer questions, qualify leads, and smoothly ask for contact details, ensuring every conversation is productive.',
   },
   {
     icon: <Clock className="text-[#2563EB] text-3xl" />,
     title: '24/7 Automation',
-    desc: 'AI-powered responses that sound natural and help close deals faster',
+    desc: 'Never miss a lead again! Our bot works around the clock, automatically engaging with potential buyers and collecting their data instantly, so you can focus on closing deals, not answering messages.',
   },
   {
     icon: <MoveUpRight className="text-[#2563EB] text-3xl" />,
     title: 'Increase Sales',
-    desc: 'AI-powered responses that sound natural and help close deals faster',
+    desc: 'By automatically capturing and organizing unlimited leads, our chatbot empowers you to scale your business. It allows you to focus on the hottest prospects, leading to more conversions and revenue.',
   },
   {
     icon: <Shield className="text-[#2563EB] text-3xl" />,
     title: 'Safe and secure',
-    desc: 'AI-powered responses that sound natural and help close deals faster',
+    desc: 'Your data is our top priority. We use secure systems to ensure all lead information collected by the chatbot, from phone numbers to personal details, is safely stored and protected.',
   },
   {
     icon: <FaBolt className="text-[#2563EB] text-3xl" />,
     title: 'Quick Setup',
-    desc: 'AI-powered responses that sound natural and help close deals faster',
+    desc: 'Get started in minutes! Our user-friendly platform allows you to set up and deploy your chatbot on Facebook Marketplace with no technical hassle.',
   },
   {
     icon: <FaUsers className="text-[#2563EB] text-3xl" />,
     title: 'Customer Management',
-    desc: 'AI-powered responses that sound natural and help close deals faster',
+    desc: 'All captured lead data is automatically added to a Google Sheet and your CRM. This centralized system provides a clear, organized view of all your leads, making follow-up and management effortless.',
   },
 ]
 

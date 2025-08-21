@@ -69,8 +69,11 @@ If the Client has already shared his phone number and the last reply is somethin
                 fb_chatbot_prompt: prompt,
                 fb_chatbot_open_ai_id: aiId,
                 fb_chatbot_webhook: webHook,
-                new_user: "TRUE",
-                is_anonymous: "False",
+                fb_chatbot_subscription_active:false,
+                fb_chatbot_trail_active:false,
+                new_user: true,
+                is_anonymous: false,
+                fb_chatbot_user_blocked:false,
               },
             ]);
 

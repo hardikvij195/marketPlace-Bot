@@ -11,6 +11,7 @@ import Header from "./components/AiPage/Header";
 import { useRouter } from "next/navigation";
 import { supabaseBrowser } from "../lib/supabaseBrowser";
 import { Loader } from "lucide-react";
+import HowToUsePage from "./components/AiPage/HowToUse";
 
 const AiPage = () => {
   const router = useRouter();
@@ -34,6 +35,9 @@ const AiPage = () => {
         </section>
         <section id="testimonials">
           <Testimonials />
+        </section>
+          <section id="how">
+          <HowToUsePage />
         </section>
         <section id="contact-us">
           <Contact />

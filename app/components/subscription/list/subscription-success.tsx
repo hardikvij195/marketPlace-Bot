@@ -69,9 +69,13 @@ export default function PaymentSuccess() {
           .update({
             subscription: subscriptionData.subscription?.plan_name,
             fb_chatbot_subscription_name:
-              subscriptionData.subscription?.plan_name,
+            subscriptionData.subscription?.plan_name,
             fb_chatbot_subscription_active: true,
             fb_chatbot_subscription_expiry_date: expiryDate.toISOString(),
+            fb_chatbot_trail_start_date:null,
+            fb_chatbot_trail_expiry_date:null,
+            fb_chatbot_trail_active:false,
+
           })
           .eq("id", subscriptionData.user_id);
 

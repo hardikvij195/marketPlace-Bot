@@ -6,16 +6,21 @@ import "react-phone-input-2/lib/style.css";
 import toast from "react-hot-toast";
 import { Mail, Phone, MessageSquare } from "lucide-react";
 import { supabaseBrowser } from "../../../lib/supabaseBrowser"; // make sure this exists
-
-
+import { showToast } from "../../../hooks/useToast";
+import PhoneInput from 'react-phone-input-2'
 
 const ContactUs = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const { control, handleSubmit, reset, formState: { errors } } = useForm();
+  const {
+    control,
+    handleSubmit,
+    reset,
+    formState: { errors },
+  } = useForm();
   const [success, setSuccess] = useState("");
 
   const clientWebhookOne =
-    "https://hook.us2.make.com/f4yiotb8dpbudk2gaqz4bw5x7bfk8vkg";
+    "https://hook.eu2.make.com/l6tijvex2p2plkdojf1hofciarpmshep";
 
   const onSubmit = async (data) => {
     setIsSubmitting(true);
@@ -24,12 +29,14 @@ const ContactUs = () => {
       // 1️⃣ Insert into Supabase
       const { error } = await supabaseBrowser
         .from("contact_us_messages")
-        .insert([{
-          name: data.name,
-          email: data.email,
-          phone: data.phone,
-          message: data.message,
-        }]);
+        .insert([
+          {
+            name: data.name,
+            email: data.email,
+            phone: data.phone,
+            message: data.message,
+          },
+        ]);
 
       if (error) throw new Error("Failed to save message in database");
 
@@ -49,11 +56,13 @@ const ContactUs = () => {
       if (!res.ok) {
         throw new Error("Webhook submission failed");
       }
-         setSuccess("Submitted successfully.");
-      toast.success("Message submitted successfully!");
+      showToast({
+        title: "Success",
+        description: "Message Submitted Successfully",
+      });
       reset();
     } catch (err) {
-      toast.error(err.message || "Something went wrong.");
+      showToast({ title: "Failed", description: "Error Sending The Message" });
     } finally {
       setIsSubmitting(false);
     }
@@ -64,7 +73,8 @@ const ContactUs = () => {
       <div className="max-w-4xl mx-auto text-center mb-12">
         <h1 className="text-4xl font-bold text-black mb-4">Contact Us</h1>
         <p className="text-gray-600 text-lg">
-          Have questions? Need support? We’re here to help you succeed <br /> with MarketplaceBot
+          Have questions? Need support? We’re here to help you succeed <br />{" "}
+          with MarketplaceBot
         </p>
       </div>
 
@@ -77,7 +87,10 @@ const ContactUs = () => {
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 {/* Name */}
                 <div>
-                  <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-1">
+                  <label
+                    htmlFor="name"
+                    className="block text-sm font-medium text-gray-700 mb-1"
+                  >
                     Name
                   </label>
                   <Controller
@@ -95,12 +108,17 @@ const ContactUs = () => {
                     )}
                   />
                   {errors.name && (
-                    <p className="text-red-500 text-sm mt-1">{errors.name.message}</p>
+                    <p className="text-red-500 text-sm mt-1">
+                      {errors.name.message}
+                    </p>
                   )}
                 </div>
                 {/* Email */}
                 <div>
-                  <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">
+                  <label
+                    htmlFor="email"
+                    className="block text-sm font-medium text-gray-700 mb-1"
+                  >
                     E-Mail
                   </label>
                   <Controller
@@ -124,38 +142,87 @@ const ContactUs = () => {
                     )}
                   />
                   {errors.email && (
-                    <p className="text-red-500 text-sm mt-1">{errors.email.message}</p>
+                    <p className="text-red-500 text-sm mt-1">
+                      {errors.email.message}
+                    </p>
                   )}
                 </div>
               </div>
 
-        
               <div>
-                <label htmlFor="phone" className="block text-sm font-medium text-gray-700 mb-1">
+                <label
+                  htmlFor="phone"
+                  className="block text-sm font-medium text-gray-700 mb-1"
+                >
                   Phone Number
                 </label>
                 <Controller
                   name="phone"
                   control={control}
                   defaultValue=""
-                  rules={{ required: "Phone Number is required" }}
-                  render={({ field }) => (
-                    <input
-                      id="phone"
-                      type="text"
-                      {...field}
-                      className="w-full px-4 py-2 border border-gray-200 rounded-md focus:ring-blue-500 focus:border-blue-500"
+                  rules={{ required: "Phone number is required" }}
+                  render={({ field: { onChange, value } }) => (
+                    <PhoneInput
+                      country="us"
+                      value={value}
+                      onChange={onChange} 
+                      enableSearch
+                      inputStyle={{
+                        width: "100%",
+                        height: "45px",
+                        backgroundColor: "#ffffff",
+                        color: "black",
+                        borderRadius: "6px",
+                       
+                        paddingLeft: "50px",
+                        fontSize: "15px",
+                      }}
+                      buttonStyle={{
+                        backgroundColor: "#fff",
+                        color: "#000",
+               
+                        marginRight: "5px",
+                        borderRadius: "6px",
+                      }}
+                      dropdownStyle={{
+                        backgroundColor: "#fff",
+                        color: "#000",
+                        borderRadius: "6px",
+                        border: "1px solid #555b75",
+                        overflow: "hidden",
+                      }}
+                      searchStyle={{
+                        backgroundColor: "#fff",
+                        color: "#000",
+                        borderRadius: "6px",
+                        border: "1px solid #555b75",
+                        marginBottom: "5px",
+                        padding: "5px",
+                      }}
+                      optionStyle={{
+                        backgroundColor: "#fff",
+                        color: "#000",
+                        padding: "10px",
+                        borderBottom: "1px solid #e0e0e0",
+                      }}
+                      dropdownClass="custom-phone-dropdown"
                     />
                   )}
                 />
+
                 {errors.phone && (
-                  <p className="text-red-500 text-sm mt-1">{errors.phone.message}</p>
+                  <p className="text-red-500 text-sm mt-1">
+                    {errors.phone.message}
+                  </p>
                 )}
               </div>
 
               {/* Message */}
               <div>
-                <label htmlFor="message" className="block text-sm font-medium text-gray-700 mb-1">
+                <label
+                  htmlFor="message"
+                  className="block text-sm font-medium text-gray-700 mb-1"
+                >
                   Message
                 </label>
                 <Controller
@@ -173,13 +240,15 @@ const ContactUs = () => {
                   )}
                 />
                 {errors.message && (
-                  <p className="text-red-500 text-sm mt-1">{errors.message.message}</p>
+                  <p className="text-red-500 text-sm mt-1">
+                    {errors.message.message}
+                  </p>
                 )}
                 {success && (
-            <p className="text-sm text-green-600 font-medium md:col-span-2">
-              {success}
-            </p>
-          )}
+                  <p className="text-sm text-green-600 font-medium md:col-span-2">
+                    {success}
+                  </p>
+                )}
               </div>
 
               <button
@@ -194,7 +263,9 @@ const ContactUs = () => {
 
           {/* Right Column: Other Ways */}
           <div>
-            <h2 className="text-2xl font-semibold mb-6">Other Ways to reach us</h2>
+            <h2 className="text-2xl font-semibold mb-6">
+              Other Ways to reach us
+            </h2>
             <div className="space-y-6">
               {/* E-mail Support */}
               <div className="flex items-start p-4 rounded-lg">
@@ -204,7 +275,9 @@ const ContactUs = () => {
                 <div>
                   <h3 className="font-semibold text-lg">E-Mail Support</h3>
                   <p className="text-gray-600">Marketplaces@gmail.com</p>
-                  <p className="text-gray-500 text-sm">we reply within 24 hours</p>
+                  <p className="text-gray-500 text-sm">
+                    we reply within 24 hours
+                  </p>
                 </div>
               </div>
               {/* Phone Support */}
@@ -215,7 +288,9 @@ const ContactUs = () => {
                 <div>
                   <h3 className="font-semibold text-lg">Phone Support</h3>
                   <p className="text-gray-600">+603 4784 273 12</p>
-                  <p className="text-gray-500 text-sm">Mon-Fri, 09:00am-06:00am</p>
+                  <p className="text-gray-500 text-sm">
+                    Mon-Fri, 09:00am-06:00am
+                  </p>
                 </div>
               </div>
               {/* Live Chat */}
