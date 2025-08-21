@@ -16,7 +16,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata = {
-  title: "FB MarketPlace Bot",
+  title: "FB Marketplace Chatbot",
   description: "Leads Platform to showcase the Leads",
 };
 

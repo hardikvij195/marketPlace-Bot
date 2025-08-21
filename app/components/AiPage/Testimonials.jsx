@@ -9,73 +9,48 @@ import React from 'react'
 import { Quote } from 'lucide-react';
 
 const testimonials2 = [
+    {
+    message: "This chatbot is a game-changer! I used to spend hours replying to 'Is this available?' messages and then trying to get a phone number. Now, the bot does it all for me, and the leads are automatically added to my CRM. I've tripled the number of qualified leads I get from Marketplace, and the 2-day trial was all I needed to be convinced.",
+    name: "Asim Namre, Realtor",
+    title: "Property Dictionary",
+    image: "testimonials/pd_app_icon_circle.png", 
+  },
   {
-    message: "Hardik's work is outstanding. He provided exactly what we needed and delivered ahead of schedule. Truly impressed by his dedication.",
-    name: "Darren",
+    message: "The unlimited lead generation from Facebook Marketplace is exactly what I needed to scale my business. The bot handles all the initial conversations, and I only have to follow up with people who are actually serious. The monthly plan is incredibly affordable for the value it provides, especially with the AI calling feature.",
+    name: "Jesicca, Realtor & Furniture Flipper",
     title: "Allure Firm",
     image: "testimonials/Allure_Firm_logo.png", 
   },  
   {
-    message: "Hardik consistently delivers top-notch work, blending creativity with technical expertise. Our project was completed on time and exceeded expectations. Can't recommend him highly enough!",
-    name: "Liam",
+    message: "I was skeptical at first, but the results speak for themselves. The chatbot engages with potential buyers, answers their initial questions, and seamlessly asks for their contact information. The Google Sheet integration is amazing for tracking everything. It’s like having an assistant who works 24/7 without a break",
+    name: "Mark, Car Salesman",
     title: "Credit Cars",
     image: "testimonials/credit_cars_logo.png", 
   },  
   {
-    message: "Hardik's attention to detail and commitment to quality propelled our project forward seamlessly. His full-stack proficiency made him an invaluable asset. Highly satisfied!",
-    name: "Ankur",
-    title: "Edlighten AI",
-    image: "testimonials/edlighten_circle.png", 
-  },  
-  {
-    message: "Trustworthy, knowledgeable, and responsive, Hardik transformed our ideas into a fully functional application. His work ethic and ability to solve challenges impressed us deeply.",
-    name: "Musa",
-    title: "Fortify Logic",
-    image: "testimonials/fortify.png", 
-  },
-  {
-    message: "Working with Hardik was a pleasure. He took the time to understand our needs and delivered a robust solution that exceeded expectations. Highly recommend",
-    name: "Musa",
+    message: "This chatbot is a lifesaver for managing rental inquiries. I used to spend my entire day answering 'Is this still available?' messages. Now, the bot handles it all, asking for contact info and pushing it directly to my CRM. The amount of time and effort it has saved me is immense.",
+    name: "Musa, Real Estate Agent",
     title: "Hola Home",
     image: "testimonials/holahome.png", 
   },
   {
     message: "An outstanding developer and manager, Hardik guided our project with precision and insight. His commitment to excellence ensured our ultimate satisfaction.",
-    name: "Jacob",
+    name: "Jacob, Used Car Dealer",
     title: "IDealer",
     image: "testimonials/iDealer_Logo.png", 
   },
   {
-    message: "Professional, efficient, and highly skilled, Hardik turned our project challenges into achievements. Our entire team is grateful for his outstanding work.",
-    name: "Asim Namre",
-    title: "Property Dictionary",
-    image: "testimonials/pd_app_icon_circle.png", 
-  },
-  {
-    message: "Collaborating with Hardik was a game-changer. His technical skills and problem-solving capabilities were exceptional. Delivered our project flawlessly!",
-    name: "Akbar",
+    message: "I've been using this chatbot for a few months, and the unlimited lead generation from Facebook Marketplace is exactly what I needed. It ensures every single lead is followed up with, and the data is captured perfectly. This bot has not only saved me time but also helped me fill vacancies much faster than before.",
+    name: "Akbar, Property Manager",
     title: "Renovation For U",
     image: "testimonials/renovation_for_u.jpg", 
   },
   {
-    message: "Great experience working with Hardik. His innovative solutions and solid management skills were instrumental in delivering our project on time.",
-    name: "Eric",
-    title: "Sustainability Ledger",
-    image: "testimonials/sl.png", 
-  },
-  {
-    message: "Hardik provided top-tier development and management support. His skilled execution and commitment to quality were vital in making our project successful.",
+    message: "The efficiency this chatbot provides is incredible. I used to miss out on leads because I couldn't respond quickly enough to every inquiry. Now, the bot replies instantly, qualifies the lead, and even asks for their phone number. The 2-day free trial was all it took for me to see the value, and I'm now closing more deals than ever.",
     name: "Ashiq Alli",
-    title: "Sign N Drive",
+    title: "Sign N Drive, Car Dealership",
     image: "testimonials/snd_circle.png", 
-  },
-  {
-    message: "Hardik's work ethic, skill, and attention to detail made our project a triumph. His technical brilliance and leadership were key to our satisfaction.",
-    name: "Rushab",
-    title: "Zambad Jewellers",
-    image: "testimonials/zambad.png", 
-  },
-  
+  },  
 ];
 
 

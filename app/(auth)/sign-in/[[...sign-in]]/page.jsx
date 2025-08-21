@@ -115,7 +115,7 @@ const Signin = () => {
       <div className="w-full max-w-md">
         <div className="flex flex-col md:flex-row justify-center text-center items-center gap-2 text-xl font-bold text-gray-800 py-10">
           <Image src="/LOGO.png" alt="Logo" width={28} height={28} />
-          MarketPlaceBot
+          FB Marketplace Chatbot
         </div>
         <h1 className="text-2xl font-bold mb-2">Login to Your Account</h1>
         <p className="text-gray-600 mb-6">

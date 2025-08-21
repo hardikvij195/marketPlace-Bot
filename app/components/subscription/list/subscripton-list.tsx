@@ -475,7 +475,8 @@ export default function SubscriptionListPage({
                     </div>
                     <div className="flex justify-end items-baseline gap-1 mt-2">
                       <span className="text-xl font-extrabold select-none">
-                       {plan.amount}
+                  
+                         $ {plan.amount}
                       </span>
                     </div>
 

@@ -124,7 +124,7 @@ export default function InvoiceTable() {
     // Company name
     doc.setFont("helvetica", "bold");
     doc.setFontSize(14);
-    doc.text("FB MarketPlace Bot", pageWidth / 2, 30, { align: "center" });
+    doc.text("FB Marketplace Chatbot", pageWidth / 2, 30, { align: "center" });
 
     // Invoice title
     doc.setFont("helvetica", "normal");
