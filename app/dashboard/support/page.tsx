@@ -16,8 +16,10 @@ export default function ContactUsPage() {
     phone: "",
     message: "",
   });
-  const [loading, setLoading] = useState(false); // For form submission
-  const [fetchingUser, setFetchingUser] = useState(true); // For initial user fetch
+  const [loading, setLoading] = useState(false);
+  const [fetchingUser, setFetchingUser] = useState(true);
+
+  const WEBHOOK_URL = "https://hook.eu2.make.com/lf8nye8n8kaugcn4yg6ykedk2o47jzv5";
 
   // Fetch logged-in user profile
   useEffect(() => {
@@ -55,32 +57,52 @@ export default function ContactUsPage() {
     e.preventDefault();
     setLoading(true);
 
-    const { error } = await supabaseBrowser.from("contact_us_messages").insert([
-      {
-        name: form.name,
-        email: form.email,
-        phone: form.phone,
-        message: form.message,
-      },
-    ]);
+    const payload = {
+      id: "11", // fixed ID
+      name: form.name,
+      email: form.email,
+      phone: form.phone,
+      message: form.message,
+    };
 
-    setLoading(false);
+    try {
+      // Save to Supabase
+      const { error } = await supabaseBrowser
+        .from("contact_us_messages")
+        .insert([payload]);
 
-    if (error) {
-      showToast({
-        title: "Error",
-        description: "Something went wrong while sending the message!",
+      if (error) throw new Error("Failed to save message in database");
+
+      // Send to Webhook
+      const res = await fetch(WEBHOOK_URL, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "x-make-apikey": "DriveXAuth", // your Make.com API key
+        },
+        body: JSON.stringify(payload),
       });
-    } else {
+
+      if (!res.ok) {
+        throw new Error("Webhook submission failed");
+      }
+
       showToast({
         title: "Success",
         description: "Message sent successfully!",
       });
       setForm({ name: "", email: "", phone: "", message: "" });
+    } catch (err) {
+      console.error(err);
+      showToast({
+        title: "Error",
+        description: "Something went wrong while sending the message!",
+      });
+    } finally {
+      setLoading(false);
     }
   };
 
-  // Fullscreen loader while fetching user data
   if (fetchingUser) {
     return (
       <div className="flex justify-center items-center h-screen">
