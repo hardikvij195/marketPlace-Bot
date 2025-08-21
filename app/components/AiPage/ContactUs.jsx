@@ -3,30 +3,30 @@
 import React, { useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import "react-phone-input-2/lib/style.css";
-import toast from "react-hot-toast";
 import { Mail, Phone, MessageSquare } from "lucide-react";
-import { supabaseBrowser } from "../../../lib/supabaseBrowser"; // make sure this exists
+import { supabaseBrowser } from "../../../lib/supabaseBrowser";
 import { showToast } from "../../../hooks/useToast";
-import PhoneInput from 'react-phone-input-2'
+import PhoneInput from "react-phone-input-2";
 
 const ContactUs = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
+
   const {
     control,
     handleSubmit,
     reset,
     formState: { errors },
   } = useForm();
-  const [success, setSuccess] = useState("");
 
   const clientWebhookOne =
-    "https://hook.eu2.make.com/l6tijvex2p2plkdojf1hofciarpmshep";
+    "https://hook.eu2.make.com/lf8nye8n8kaugcn4yg6ykedk2o47jzv5";
 
   const onSubmit = async (data) => {
+    console.log("FORM DATA:", data); // check form values
     setIsSubmitting(true);
 
     try {
-      // 1️⃣ Insert into Supabase
+      // 1️⃣ Save to Supabase
       const { error } = await supabaseBrowser
         .from("contact_us_messages")
         .insert([
@@ -38,7 +38,7 @@ const ContactUs = () => {
           },
         ]);
 
-      if (error) throw new Error("Failed to save message in database");
+      if (error) throw new Error(error.message);
 
       // 2️⃣ Send to webhook
       const res = await fetch(clientWebhookOne, {
@@ -56,13 +56,19 @@ const ContactUs = () => {
       if (!res.ok) {
         throw new Error("Webhook submission failed");
       }
+
       showToast({
         title: "Success",
-        description: "Message Submitted Successfully",
+        description: "Message submitted successfully",
       });
-      reset();
+
+      reset(); // clear form
     } catch (err) {
-      showToast({ title: "Failed", description: "Error Sending The Message" });
+      console.error(err);
+      showToast({
+        title: "Failed",
+        description: "Error sending the message",
+      });
     } finally {
       setIsSubmitting(false);
     }
@@ -71,9 +77,9 @@ const ContactUs = () => {
   return (
     <section className="py-10 px-4 md:px-12 lg:px-24 text-black bg-white">
       <div className="max-w-4xl mx-auto text-center mb-12">
-        <h1 className="text-4xl font-bold text-black mb-4">Contact Us</h1>
+        <h1 className="text-4xl font-bold mb-4">Contact Us</h1>
         <p className="text-gray-600 text-lg">
-          Have questions? Need support? We’re here to help you succeed <br />{" "}
+          Have questions? Need support? We’re here to help you succeed <br />
           with MarketplaceBot
         </p>
       </div>
@@ -87,12 +93,7 @@ const ContactUs = () => {
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 {/* Name */}
                 <div>
-                  <label
-                    htmlFor="name"
-                    className="block text-sm font-medium text-gray-700 mb-1"
-                  >
-                    Name
-                  </label>
+                  <label className="block text-sm font-medium mb-1">Name</label>
                   <Controller
                     name="name"
                     control={control}
@@ -100,8 +101,8 @@ const ContactUs = () => {
                     rules={{ required: "Name is required" }}
                     render={({ field }) => (
                       <input
-                        id="name"
                         type="text"
+                        placeholder="Your Name"
                         {...field}
                         className="w-full px-4 py-2 border border-gray-200 rounded-md focus:ring-blue-500 focus:border-blue-500"
                       />
@@ -113,14 +114,10 @@ const ContactUs = () => {
                     </p>
                   )}
                 </div>
+
                 {/* Email */}
                 <div>
-                  <label
-                    htmlFor="email"
-                    className="block text-sm font-medium text-gray-700 mb-1"
-                  >
-                    E-Mail
-                  </label>
+                  <label className="block text-sm font-medium mb-1">Email</label>
                   <Controller
                     name="email"
                     control={control}
@@ -134,8 +131,8 @@ const ContactUs = () => {
                     }}
                     render={({ field }) => (
                       <input
-                        id="email"
                         type="email"
+                        placeholder="Your Email"
                         {...field}
                         className="w-full px-4 py-2 border border-gray-200 rounded-md focus:ring-blue-500 focus:border-blue-500"
                       />
@@ -149,11 +146,9 @@ const ContactUs = () => {
                 </div>
               </div>
 
+              {/* Phone */}
               <div>
-                <label
-                  htmlFor="phone"
-                  className="block text-sm font-medium text-gray-700 mb-1"
-                >
+                <label className="block text-sm font-medium mb-1">
                   Phone Number
                 </label>
                 <Controller
@@ -161,26 +156,23 @@ const ContactUs = () => {
                   control={control}
                   defaultValue=""
                   rules={{ required: "Phone number is required" }}
-                  render={({ field: { onChange, value } }) => (
+                  render={({ field }) => (
                     <PhoneInput
                       country="us"
-                      value={value}
-                      onChange={onChange} 
+                      {...field}
                       enableSearch
                       inputStyle={{
                         width: "100%",
                         height: "45px",
-                        backgroundColor: "#ffffff",
-                        color: "black",
+                        backgroundColor: "#fff",
+                        color: "#000",
                         borderRadius: "6px",
-                       
                         paddingLeft: "50px",
                         fontSize: "15px",
                       }}
                       buttonStyle={{
                         backgroundColor: "#fff",
                         color: "#000",
-               
                         marginRight: "5px",
                         borderRadius: "6px",
                       }}
@@ -191,25 +183,9 @@ const ContactUs = () => {
                         border: "1px solid #555b75",
                         overflow: "hidden",
                       }}
-                      searchStyle={{
-                        backgroundColor: "#fff",
-                        color: "#000",
-                        borderRadius: "6px",
-                        border: "1px solid #555b75",
-                        marginBottom: "5px",
-                        padding: "5px",
-                      }}
-                      optionStyle={{
-                        backgroundColor: "#fff",
-                        color: "#000",
-                        padding: "10px",
-                        borderBottom: "1px solid #e0e0e0",
-                      }}
-                      dropdownClass="custom-phone-dropdown"
                     />
                   )}
                 />
-
                 {errors.phone && (
                   <p className="text-red-500 text-sm mt-1">
                     {errors.phone.message}
@@ -219,12 +195,7 @@ const ContactUs = () => {
 
               {/* Message */}
               <div>
-                <label
-                  htmlFor="message"
-                  className="block text-sm font-medium text-gray-700 mb-1"
-                >
-                  Message
-                </label>
+                <label className="block text-sm font-medium mb-1">Message</label>
                 <Controller
                   name="message"
                   control={control}
@@ -232,11 +203,11 @@ const ContactUs = () => {
                   rules={{ required: "Message is required" }}
                   render={({ field }) => (
                     <textarea
-                      id="message"
                       rows={6}
+                      placeholder="Your Message"
                       {...field}
                       className="w-full px-4 py-2 border border-gray-200 rounded-md focus:ring-blue-500 focus:border-blue-500 resize-none"
-                    ></textarea>
+                    />
                   )}
                 />
                 {errors.message && (
@@ -244,17 +215,12 @@ const ContactUs = () => {
                     {errors.message.message}
                   </p>
                 )}
-                {success && (
-                  <p className="text-sm text-green-600 font-medium md:col-span-2">
-                    {success}
-                  </p>
-                )}
               </div>
 
               <button
                 type="submit"
-                className="w-full bg-blue-600 text-white py-3 px-4 rounded-md font-semibold hover:bg-blue-700 transition-colors duration-200"
                 disabled={isSubmitting}
+                className="w-full bg-blue-600 text-white py-3 px-4 rounded-md font-semibold hover:bg-blue-700 transition-colors duration-200"
               >
                 {isSubmitting ? "Sending..." : "Send Message"}
               </button>
@@ -264,40 +230,37 @@ const ContactUs = () => {
           {/* Right Column: Other Ways */}
           <div>
             <h2 className="text-2xl font-semibold mb-6">
-              Other Ways to reach us
+              Other Ways to Reach Us
             </h2>
             <div className="space-y-6">
-              {/* E-mail Support */}
               <div className="flex items-start p-4 rounded-lg">
-                <div className="bg-blue-100 p-2 rounded-full flex-shrink-0 mr-4">
+                <div className="bg-blue-100 p-2 rounded-full mr-4">
                   <Mail className="w-6 h-6 text-blue-600" />
                 </div>
                 <div>
                   <h3 className="font-semibold text-lg">E-Mail Support</h3>
                   <p className="text-gray-600">Marketplaces@gmail.com</p>
-                  <p className="text-gray-500 text-sm">we reply within 24 hours</p>
+                  <p className="text-gray-500 text-sm">We reply within 24 hours</p>
                 </div>
               </div>
-              {/* Phone Support */}
               <div className="flex items-start p-4 rounded-lg">
-                <div className="bg-blue-100 p-2 rounded-full flex-shrink-0 mr-4">
+                <div className="bg-blue-100 p-2 rounded-full mr-4">
                   <Phone className="w-6 h-6 text-blue-600" />
                 </div>
                 <div>
                   <h3 className="font-semibold text-lg">Phone Support</h3>
                   <p className="text-gray-600">+603 4784 273 12</p>
-                  <p className="text-gray-500 text-sm">Mon-Fri, 09:00am-06:00am</p>
+                  <p className="text-gray-500 text-sm">Mon-Fri, 09:00am-06:00pm</p>
                 </div>
               </div>
-              {/* Live Chat */}
               <div className="flex items-start p-4 rounded-lg">
-                <div className="bg-blue-100 p-2 rounded-full flex-shrink-0 mr-4">
+                <div className="bg-blue-100 p-2 rounded-full mr-4">
                   <MessageSquare className="w-6 h-6 text-blue-600" />
                 </div>
                 <div>
-                  <h3 className="font-semibold text-lg">Live Chat available</h3>
+                  <h3 className="font-semibold text-lg">Live Chat Available</h3>
                   <p className="text-gray-600">Available 24/7</p>
-                  <p className="text-gray-500 text-sm">live chat with bot</p>
+                  <p className="text-gray-500 text-sm">Chat with bot</p>
                 </div>
               </div>
             </div>

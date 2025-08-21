@@ -16,6 +16,7 @@ import {
   TicketPercent,
   MessageSquareCode,
   Headset,
+  Recycle,
   Bot,
 } from "lucide-react";
 import { Button } from "../../components/ui/button";
@@ -71,7 +72,9 @@ export default function Sidebar({ collapsed, setCollapsed }: SidebarProps) {
     { href: "/dashboard/prompt", icon: MessageSquareCode, label: "Prompt" },
     { href: "/dashboard/support", icon: Headset, label: "Support" },
     { href: "/dashboard/tutorials", icon: Video, label: "Tutorials" },
+    { href: "/dashboard/recycle", icon: Recycle, label: "Recycle" },
     { href: "/dashboard/profile", icon: User, label: "Profile" },
+     
   ];
 
   const handleLogout = async () => {
