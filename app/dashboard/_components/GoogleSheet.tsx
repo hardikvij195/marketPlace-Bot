@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { supabaseBrowser } from "../../../lib/supabaseBrowser";
 import { Button } from "../../components/ui/button";
 import { Copy } from "lucide-react";
@@ -10,63 +10,65 @@ import { showToast } from "../../../hooks/useToast";
 export default function SheetPage() {
   const [sheetLink, setSheetLink] = useState<string | null>(null);
 
-  useEffect(() => {
-    const fetchLink = async () => {
-      const {
-        data: { user },
-        error: userError,
-      } = await supabaseBrowser.auth.getUser();
 
-      if (userError || !user) {
-        console.error("No user found:", userError);
-        return;
-      }
 
-      const { data, error } = await supabaseBrowser
-        .from("users")
-        .select("fb_chatbot_leads_gs_link")
-        .eq("id", user.id) // ✅ only fetch for current user
-        .single();
+const toastShown = useRef(false);
 
-      if (error) {
-        console.error("Error fetching sheet link:", error.message);
-        return;
-      }
+useEffect(() => {
+  const fetchLink = async () => {
+    const {
+      data: { user },
+      error: userError,
+    } = await supabaseBrowser.auth.getUser();
 
-      if (!data?.fb_chatbot_leads_gs_link) {
+    if (userError || !user) {
+      console.error("No user found:", userError);
+      return;
+    }
+
+    const { data, error } = await supabaseBrowser
+      .from("users")
+      .select("fb_chatbot_leads_gs_link")
+      .eq("id", user.id)
+      .single();
+
+    if (error) {
+      console.error("Error fetching sheet link:", error.message);
+      return;
+    }
+
+    if (!data?.fb_chatbot_leads_gs_link) {
+      if (!toastShown.current) {
         showToast({
           title: "Please wait",
-          description: "Google Sheet is being created. Try again in 5 minutes.",
+          description:
+            "Please wait for 2 mins or Refresh the page and click on the Google Sheet icon to check again",
           type: "info",
         });
+        toastShown.current = true; 
       }
 
-      setSheetLink(data?.fb_chatbot_leads_gs_link || null);
-    };
+    
+      setTimeout(fetchLink, 1000);
+      return;
+    }
 
-    fetchLink();
-  }, []);
+    setSheetLink(data?.fb_chatbot_leads_gs_link || null);
+  };
+
+  fetchLink();
+}, []);
+
 
   const handleOpen = () => {
     if (sheetLink) {
       window.open(sheetLink, "_blank");
     } else {
-      showToast({
-        title: "Please wait",
-        description: "Google Sheet is being created. Try again in 5 minutes.",
-      });
+     
     }
   };
 
   const handleCopy = async () => {
-    if (!sheetLink) {
-      showToast({
-        title: "Please wait",
-        description: "Google Sheet is being created. Try again in 5 minutes.",
-        type: "error",
-      });
-      return;
-    }
     try {
       await navigator.clipboard.writeText(sheetLink);
       showToast({

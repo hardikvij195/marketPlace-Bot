@@ -165,6 +165,31 @@ export default function DashboardPage() {
     return () => window.removeEventListener("beforeunload", clearModalShown);
   }, []);
 
+
+useEffect(() => {
+  const updateWebsiteLastOpened = async () => {
+    const {
+      data: { user },
+    } = await supabaseBrowser.auth.getUser();
+
+    if (!user) return;
+
+    const { error } = await supabaseBrowser
+      .from("users")
+      .update({ website_last_opened: new Date().toISOString() })
+      .eq("id", user.id);
+
+    if (error) {
+      console.error("Error updating website_last_opened:", error);
+    }
+  };
+
+  updateWebsiteLastOpened();
+}, []); // runs every time Dashboard mounts
+
+
+
+
   return (
     <>
       {showModal && (
