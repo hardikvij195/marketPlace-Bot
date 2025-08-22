@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { useAppDispatch } from "../../../store/hooks";
 import { setUser } from "../../../store/reducers/userSlice";
 import { supabaseBrowser } from "../../../lib/supabaseBrowser";
-import { onAuthenticatedUser } from "../../actions/auth"; 
+import { onAuthenticatedUser } from "../../actions/auth";
 import { Loader } from "lucide-react";
 
 export default function AuthCallbackPage() {
@@ -18,14 +18,12 @@ export default function AuthCallbackPage() {
       const {
         data: { session },
       } = await supabaseBrowser.auth.getSession();
-   
 
       if (!session) {
         router.replace("/sign-in");
         return;
       }
       const result = await onAuthenticatedUser(session.access_token);
-
 
       if (result.status === 200 && result.user) {
         const userId = result.user.id;
@@ -45,11 +43,11 @@ Use this message : "Hi {{name}}, please leave your number and my team will conta
 If the Client has already shared his phone number and the last reply is something else like ‘ok’ or ‘thanks’ or something that is ending the conversation then reply him ‘👍’ or ‘Your Welcome’ or ‘Ok’ or something simple and positive.`;
 
         const aiId = process.env.NEXT_PUBLIC_OPEN_AI_ID;
-        
+
         const webHook =
           "https://hook.eu2.make.com/dx022ckz4pzpcnhdksgbn277fmf1ca7u";
 
-        const { data: existingUser,  } = await supabaseBrowser
+        const { data: existingUser } = await supabaseBrowser
           .from("users")
           .select("id")
           .eq("id", userId)
@@ -69,34 +67,42 @@ If the Client has already shared his phone number and the last reply is somethin
                 fb_chatbot_prompt: prompt,
                 fb_chatbot_open_ai_id: aiId,
                 fb_chatbot_webhook: webHook,
-                fb_chatbot_subscription_active:false,
-                fb_chatbot_trail_active:false,
+                fb_chatbot_subscription_active: false,
+                fb_chatbot_trail_active: false,
                 new_user: true,
                 is_anonymous: false,
-                fb_chatbot_user_blocked:false,
+                fb_chatbot_user_blocked: false,
               },
             ]);
 
           if (insertError) {
             console.error("Error inserting user:", insertError);
           } else {
-           
             try {
-              await fetch(
+              const payload = {
+                id: userId,
+                email,
+              };
+
+              console.log("📤 Sending to webhook:", payload);
+
+              const response = await fetch(
                 "https://hook.eu2.make.com/dx022ckz4pzpcnhdksgbn277fmf1ca7u",
                 {
                   method: "POST",
                   headers: {
                     "Content-Type": "application/json",
                   },
-                  body: JSON.stringify({
-                    id: userId,
-                    email,
-                   
-                  }),
+                  body: JSON.stringify(payload),
                 }
               );
-           
+
+              const responseText = await response.text();
+              console.log(
+                "✅ Webhook response:",
+                response.status,
+                responseText
+              );
             } catch (err) {
               console.error("❌ Error calling webhook:", err);
             }
@@ -112,8 +118,6 @@ If the Client has already shared his phone number and the last reply is somethin
           .from("user_subscription")
           .select("*")
           .eq("user_id", userId);
-
-     
 
         dispatch(setUser({ ...result.user, subscriptionPlan: data }));
         router.replace("/dashboard");

@@ -1,13 +1,14 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { supabaseBrowser } from "../../../lib/supabaseBrowser"; 
+import { supabaseBrowser } from "../../../lib/supabaseBrowser";
 import { Input } from "../../components/ui/input";
 import { Textarea } from "../../components/ui/textarea";
 import { Button } from "../../components/ui/button";
 import { showToast } from "../../../hooks/useToast";
 import FloatingActionButton from "../../components/FloatingActionButton";
 import { Loader } from "lucide-react";
+import ReCAPTCHA from "react-google-recaptcha";
 
 export default function ContactUsPage() {
   const [form, setForm] = useState({
@@ -18,14 +19,18 @@ export default function ContactUsPage() {
   });
   const [loading, setLoading] = useState(false);
   const [fetchingUser, setFetchingUser] = useState(true);
+  const [isVerified, setIsVerified] = useState(false);
 
-  const WEBHOOK_URL = "https://hook.eu2.make.com/lf8nye8n8kaugcn4yg6ykedk2o47jzv5";
+  const WEBHOOK_URL =
+    "https://hook.eu2.make.com/lf8nye8n8kaugcn4yg6ykedk2o47jzv5";
 
   // Fetch logged-in user profile
   useEffect(() => {
     const fetchUser = async () => {
       setFetchingUser(true);
-      const { data: { user } } = await supabaseBrowser.auth.getUser();
+      const {
+        data: { user },
+      } = await supabaseBrowser.auth.getUser();
 
       if (user) {
         const { data: profile } = await supabaseBrowser
@@ -55,32 +60,59 @@ export default function ContactUsPage() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    if (!isVerified) {
+      showToast({
+        title: "Verification required",
+        description: "Please complete the reCAPTCHA before submitting.",
+      });
+      return; // 🚫 Stop here if not verified
+    }
+
     setLoading(true);
 
-    const payload = {
-      id: "11", // fixed ID
-      name: form.name,
-      email: form.email,
-      phone: form.phone,
-      message: form.message,
-    };
-
     try {
+      // ✅ Get logged-in user
+      const {
+        data: { user },
+      } = await supabaseBrowser.auth.getUser();
+
+      if (!user) {
+        throw new Error("User not logged in");
+      }
+
+      // Supabase payload
+      const supabasePayload = {
+        name: form.name,
+        email: form.email,
+        phone: form.phone,
+        message: form.message,
+      };
+
+      // Webhook payload
+      const webhookPayload = {
+        userId: user.id,
+        ...supabasePayload,
+      };
+
       // Save to Supabase
       const { error } = await supabaseBrowser
         .from("contact_us_messages")
-        .insert([payload]);
+        .insert([supabasePayload]);
 
-      if (error) throw new Error("Failed to save message in database");
+      if (error) {
+        console.error("❌ Supabase insert error:", error);
+        throw new Error("Failed to save message in database");
+      }
 
       // Send to Webhook
       const res = await fetch(WEBHOOK_URL, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          "x-make-apikey": "DriveXAuth", // your Make.com API key
+          "x-make-apikey": "DriveXAuth",
         },
-        body: JSON.stringify(payload),
+        body: JSON.stringify(webhookPayload),
       });
 
       if (!res.ok) {
@@ -91,9 +123,10 @@ export default function ContactUsPage() {
         title: "Success",
         description: "Message sent successfully!",
       });
+
       setForm({ name: "", email: "", phone: "", message: "" });
     } catch (err) {
-      console.error(err);
+      console.error("❌ Contact form error:", err);
       showToast({
         title: "Error",
         description: "Something went wrong while sending the message!",
@@ -101,6 +134,10 @@ export default function ContactUsPage() {
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleCaptchaChange = (value) => {
+    setIsVerified(!!value);
   };
 
   if (fetchingUser) {
@@ -141,12 +178,21 @@ export default function ContactUsPage() {
             onChange={handleChange}
             required
           />
+          <div className="flex items-center justify-center">
+            <ReCAPTCHA
+              sitekey="6LfItq4rAAAAAAP1IvwkPtr6cVcW88uWoWj_oFMz"
+              onChange={handleCaptchaChange}
+            />
+          </div>
+
           <Button
             type="submit"
             className="w-full bg-blue-600 text-white flex justify-center items-center"
-            disabled={loading}
+            disabled={loading || !isVerified}
           >
-            {loading && <Loader className="h-5 w-5 mr-2 animate-spin text-white" />}
+            {loading && (
+              <Loader className="h-5 w-5 mr-2 animate-spin text-white" />
+            )}
             {loading ? "Sending..." : "Request Meeting"}
           </Button>
         </form>

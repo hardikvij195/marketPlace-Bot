@@ -93,6 +93,9 @@ export default function SubscriptionListPage({
         }
       );
 
+        const responseText = await res.text(); // or res.json() if webhook returns JSON
+    console.log("🔎 Webhook response:", res.status, responseText);
+
       if (!res.ok) {
         console.error("Webhook call failed:", res.statusText);
       }
@@ -349,6 +352,8 @@ export default function SubscriptionListPage({
         amount: 0,
         trial: true,
       });
+
+      
 
       // ✅ Insert free trial invoice (if not already created)
       const { data: existingInvoice } = await supabaseBrowser

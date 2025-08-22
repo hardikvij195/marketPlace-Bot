@@ -12,21 +12,36 @@ export default function SheetPage() {
 
   useEffect(() => {
     const fetchLink = async () => {
+      const {
+        data: { user },
+        error: userError,
+      } = await supabaseBrowser.auth.getUser();
+
+      if (userError || !user) {
+        console.error("No user found:", userError);
+        return;
+      }
+
       const { data, error } = await supabaseBrowser
         .from("users")
         .select("fb_chatbot_leads_gs_link")
-        .limit(1)
+        .eq("id", user.id) // ✅ only fetch for current user
         .single();
 
       if (error) {
         console.error("Error fetching sheet link:", error.message);
-      } else {
-        if (!data?.fb_chatbot_leads_gs_link) {
-          // Show toast if empty
-         
-        }
-        setSheetLink(data?.fb_chatbot_leads_gs_link || null);
+        return;
       }
+
+      if (!data?.fb_chatbot_leads_gs_link) {
+        showToast({
+          title: "Please wait",
+          description: "Google Sheet is being created. Try again in 5 minutes.",
+          type: "info",
+        });
+      }
+
+      setSheetLink(data?.fb_chatbot_leads_gs_link || null);
     };
 
     fetchLink();
@@ -48,7 +63,7 @@ export default function SheetPage() {
       showToast({
         title: "Please wait",
         description: "Google Sheet is being created. Try again in 5 minutes.",
-         type: "error" 
+        type: "error",
       });
       return;
     }

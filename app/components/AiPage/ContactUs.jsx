@@ -7,9 +7,11 @@ import { Mail, Phone, MessageSquare } from "lucide-react";
 import { supabaseBrowser } from "../../../lib/supabaseBrowser";
 import { showToast } from "../../../hooks/useToast";
 import PhoneInput from "react-phone-input-2";
+import ReCAPTCHA from 'react-google-recaptcha'
 
 const ContactUs = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
+      const [isVerified, setIsVerified] = useState(false)
 
   const {
     control,
@@ -22,57 +24,75 @@ const ContactUs = () => {
     "https://hook.eu2.make.com/lf8nye8n8kaugcn4yg6ykedk2o47jzv5";
 
   const onSubmit = async (data) => {
-    console.log("FORM DATA:", data); // check form values
-    setIsSubmitting(true);
+        if (!isVerified) return;
+        setIsSubmitting(true)
+  setIsSubmitting(true);
 
-    try {
-      // 1️⃣ Save to Supabase
-      const { error } = await supabaseBrowser
-        .from("contact_us_messages")
-        .insert([
-          {
-            name: data.name,
-            email: data.email,
-            phone: data.phone,
-            message: data.message,
-          },
-        ]);
 
-      if (error) throw new Error(error.message);
-
-      // 2️⃣ Send to webhook
-      const res = await fetch(clientWebhookOne, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "x-make-apikey": "DriveXAuth",
+  try {
+    // 1️⃣ Save to Supabase
+    const { error } = await supabaseBrowser
+      .from("contact_us_messages")
+      .insert([
+        {
+          name: data.name,
+          email: data.email,
+          phone: data.phone,
+          message: data.message,
         },
-        body: JSON.stringify({
-          ...data,
-          createdAt: new Date().toISOString(),
-        }),
-      });
+      ]);
 
-      if (!res.ok) {
-        throw new Error("Webhook submission failed");
-      }
+    if (error) throw new Error(error.message);
 
-      showToast({
-        title: "Success",
-        description: "Message submitted successfully",
-      });
+    // 2️⃣ Prepare webhook payload (with empty id)
+    const payload = {
+      id: "", // 👈 empty id
+      ...data,
+      createdAt: new Date().toISOString(),
+    };
 
-      reset(); // clear form
-    } catch (err) {
-      console.error(err);
-      showToast({
-        title: "Failed",
-        description: "Error sending the message",
-      });
-    } finally {
-      setIsSubmitting(false);
+
+    // 3️⃣ Send to webhook
+    const res = await fetch(clientWebhookOne, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "x-make-apikey": "DriveXAuth",
+      },
+      body: JSON.stringify(payload),
+    });
+
+    const responseText = await res.text();
+  
+
+    if (!res.ok) {
+      throw new Error("Webhook submission failed");
     }
-  };
+
+    // ✅ Success toast
+    showToast({
+      title: "Success",
+      description: "Message submitted successfully",
+    });
+
+    reset(); // clear form
+  } catch (err) {
+    console.error("❌ Contact form error:", err);
+    showToast({
+      title: "Failed",
+      description: "Error sending the message",
+    });
+  } finally {
+    setIsSubmitting(false);
+  }
+};
+
+
+ const handleCaptchaChange = (value) => {
+        setIsVerified(!!value)
+    }
+
+
 
   return (
     <section className="py-10 px-4 md:px-12 lg:px-24 text-black bg-white">
@@ -216,6 +236,13 @@ const ContactUs = () => {
                   </p>
                 )}
               </div>
+
+                <div className="flex items-center justify-center">
+                                        <ReCAPTCHA
+                                            sitekey=" 6LfItq4rAAAAAAP1IvwkPtr6cVcW88uWoWj_oFMz"
+                                            onChange={handleCaptchaChange}
+                                        />
+                                    </div>
 
               <button
                 type="submit"

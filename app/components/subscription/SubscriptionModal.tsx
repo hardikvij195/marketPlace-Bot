@@ -8,14 +8,16 @@ import { Check, X } from "lucide-react";
 type planState = {
   plan_name: string;
   id: string;
-  type: string;
+  type: string;      // "2" = trial
   amount: string;
   duration: string;
   basic_amount?: string;
 };
 
+type Feature = { text: string; included: boolean };
+
 // Static features mapped to plan names
-const featuresMap = {
+const featuresMap: Record<string, { features: Feature[] }> = {
   "Trial Run": {
     features: [
       { text: "Simple Reply To ask for Phone Number", included: true },
@@ -74,6 +76,33 @@ export const SubscriptionDialog = ({
   const [plans, setPlans] = useState<planState[]>([]);
   const [activePlanId, setActivePlanId] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
+  const [trialUsed, setTrialUsed] = useState(false);
+
+  // 🔔 New: local confirmation modal state
+  const [showTrialConfirm, setShowTrialConfirm] = useState(false);
+  const [selectedTrialPlan, setSelectedTrialPlan] = useState<planState | null>(null);
+
+  // 🔔 New: webhook helper (same as your page.tsx)
+  const callWebhook = async (payload: any) => {
+    try {
+    
+      const res = await fetch(
+        "https://hook.eu2.make.com/l6tijvex2p2plkdojf1hofciarpmshep",
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload),
+        }
+      );
+      const responseText = await res.text();
+   
+      if (!res.ok) {
+        console.error("Webhook call failed:", res.statusText);
+      }
+    } catch (err) {
+      console.error("❌ Error calling webhook:", err);
+    }
+  };
 
   useEffect(() => {
     const fetchPlans = async () => {
@@ -108,11 +137,130 @@ export const SubscriptionDialog = ({
     fetchPlans();
   }, []);
 
-  const handlePlanSelect = (plan: planState) => {
-    setActivePlanId(plan.id);
-    setSelectedSubscription(plan);
-    setShowModal(false);
-    setPaymentMethod(true);
+  useEffect(() => {
+    const checkTrial = async () => {
+      const {
+        data: { user },
+      } = await supabaseBrowser.auth.getUser();
+      if (!user) return;
+      const { data } = await supabaseBrowser
+        .from("users")
+        .select("trial_used")
+        .eq("id", user.id)
+        .single();
+      if (data?.trial_used) setTrialUsed(true);
+    };
+    checkTrial();
+  }, []);
+
+  // 🔔 New: confirm trial logic (same as your page.tsx)
+  const handleConfirmTrial = async () => {
+    if (!selectedTrialPlan) return;
+
+    try {
+      const {
+        data: { user },
+      } = await supabaseBrowser.auth.getUser();
+      if (!user) return;
+
+      const startDate = new Date();
+      const endDate = new Date(startDate);
+      // "Trial Run" = 2 days here. If you also support 7-day trial in modal, adjust accordingly.
+      endDate.setDate(endDate.getDate() + 2);
+
+      // ✅ Update user row
+      await supabaseBrowser
+        .from("users")
+        .update({
+          fb_chatbot_trail_start_date: startDate.toISOString(),
+          fb_chatbot_trail_expiry_date: endDate.toISOString(),
+          fb_chatbot_trail_active: true,
+          trial_used: true,
+          fb_chatbot_subscription_name: selectedTrialPlan.plan_name,
+          subscription: selectedTrialPlan.plan_name,
+        })
+        .eq("id", user.id);
+
+      // ✅ Insert trial subscription
+      const { data: subscriptionRow, error: subError } = await supabaseBrowser
+        .from("user_subscription")
+        .insert({
+          user_id: user.id,
+          subscription_id: selectedTrialPlan.id,
+          start_date: startDate.toISOString(),
+          end_date: endDate.toISOString(),
+          status: "payment_successful",
+          is_active: true,
+          amount: 0,
+        })
+        .select("*")
+        .single();
+
+      if (subError) {
+        console.error("Error inserting user_subscription:", subError);
+        return;
+      }
+
+
+
+      // ✅ Call webhook (same payload shape)
+      await callWebhook({
+        userId: user.id,
+        subscriptionId: subscriptionRow.id,
+        planId: selectedTrialPlan.id,
+        planName: selectedTrialPlan.plan_name,
+        startDate: startDate.toISOString(),
+        endDate: endDate.toISOString(),
+        amount: 0,
+        trial: true,
+      });
+
+      // ✅ Insert free trial invoice (if not already created)
+      const { data: existingInvoice } = await supabaseBrowser
+        .from("invoice")
+        .select("*")
+        .eq("invoiceId", subscriptionRow.id)
+        .maybeSingle();
+
+      if (!existingInvoice) {
+        await supabaseBrowser.from("invoice").insert([
+          {
+            invoiceId: subscriptionRow.id,
+            dateOfSale: new Date().toISOString(),
+            plan_name: selectedTrialPlan.plan_name,
+            amount: 0,
+            salesName: user.id,
+          },
+        ]);
+      }
+
+   
+
+      setShowTrialConfirm(false);
+      setSelectedTrialPlan(null);
+      setActivePlanId(selectedTrialPlan.id);
+      setTrialUsed(true);
+      setShowModal(false);
+    } catch (error) {
+      console.error("❌ Error starting trial:", error);
+    }
+  };
+
+  const handlePlanSelect = async (plan: planState) => {
+    if (plan.type === "2") {
+      if (trialUsed) {
+       
+        return;
+      }
+      // Open confirmation first (don’t start immediately)
+      setSelectedTrialPlan(plan);
+      setShowTrialConfirm(true);
+    } else {
+      setActivePlanId(plan.id);
+      setSelectedSubscription(plan);
+      setShowModal(false);
+      setPaymentMethod(true);
+    }
   };
 
   const getButtonText = (planName: string) => {
@@ -121,7 +269,6 @@ export const SubscriptionDialog = ({
         return "Start Trial";
       case "Foundation Pack":
       case "Growth Engine":
-        return "Buy Now";
       case "Ultimate Advantage":
         return "Buy Now";
       default:
@@ -214,7 +361,13 @@ export const SubscriptionDialog = ({
                   <button
                     type="button"
                     onClick={() => handlePlanSelect(plan)}
-                    className="cursor-pointer mt-6 w-full font-semibold text-sm border rounded-md py-2 transition-colors duration-200 text-white border-blue-600 bg-blue-600 hover:bg-blue-500"
+                    disabled={plan.type === "2" && trialUsed}
+                    className={`cursor-pointer mt-6 w-full font-semibold text-sm border rounded-md py-2 transition-colors duration-200
+                      ${
+                        plan.type === "2" && trialUsed
+                          ? "bg-gray-400 border-gray-400 text-white cursor-not-allowed"
+                          : "text-white border-blue-600 bg-blue-600 hover:bg-blue-500"
+                      }`}
                   >
                     {getButtonText(plan.plan_name)}
                   </button>
@@ -224,6 +377,37 @@ export const SubscriptionDialog = ({
           )}
         </main>
       </div>
+
+      {/* 🔔 New: Trial confirmation modal */}
+      {showTrialConfirm && selectedTrialPlan && (
+        <div className="fixed inset-0 flex items-center justify-center bg-black/30 z-[60]">
+          <div className="bg-white p-6 rounded-xl shadow-lg max-w-sm w-full">
+            <h2 className="text-lg font-semibold mb-4">Start Free Trial?</h2>
+            <p className="text-sm text-gray-600 mb-6">
+              You are about to start your free trial for{" "}
+              <span className="font-bold">{selectedTrialPlan.plan_name}</span>.
+              Do you want to continue?
+            </p>
+            <div className="flex justify-end gap-4">
+              <button
+                onClick={() => {
+                  setShowTrialConfirm(false);
+                  setSelectedTrialPlan(null);
+                }}
+                className="px-4 py-2 text-gray-600 border rounded-md hover:bg-gray-100"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleConfirmTrial}
+                className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
+              >
+                Confirm
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
