@@ -4,6 +4,7 @@ import { Providers } from "./providers";
 import { ToastProvider } from "./components/toast-provider";
 import "react-phone-input-2/lib/style.css";
 import "react-datepicker/dist/react-datepicker.css";
+import Script from 'next/script';
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -14,6 +15,8 @@ const geistMono = Geist_Mono({
   variable: "--font-geist-mono",
   subsets: ["latin"],
 });
+
+<Script src="https://www.google.com/recaptcha/api.js" />
 
 export const metadata = {
   title: "FB Marketplace Chatbot",
