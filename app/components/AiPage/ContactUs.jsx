@@ -9,10 +9,9 @@ import { showToast } from "../../../hooks/useToast";
 import PhoneInput from "react-phone-input-2";
 import ReCAPTCHA from "react-google-recaptcha";
 
-
 const ContactUs = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
-    const [isVerified, setIsVerified] = useState(false);
+  const [isVerified, setIsVerified] = useState(false);
 
   const {
     control,
@@ -25,71 +24,70 @@ const ContactUs = () => {
     "https://hook.eu2.make.com/lf8nye8n8kaugcn4yg6ykedk2o47jzv5";
 
   const onSubmit = async (data) => {
-  if (!isVerified) {
-    showToast({
-      title: "Verification required",
-      description: "Please complete the reCAPTCHA before submitting.",
-    });
-    return;
-  }
-
-  setIsSubmitting(true);
-
-  try {
-    // 1️⃣ Save to Supabase
-    const { error } = await supabaseBrowser
-      .from("contact_us_messages")
-      .insert([
-        {
-          name: data.name,
-          email: data.email,
-          phone: data.phone,
-          message: data.message,
-        },
-      ]);
-
-    if (error) throw new Error(error.message);
-
-    // 2️⃣ Send to webhook
-    const payload = {
-      id: "",
-      ...data,
-      createdAt: new Date().toISOString(),
-    };
-
-    const res = await fetch(clientWebhookOne, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "x-make-apikey": "DriveXAuth",
-      },
-      body: JSON.stringify(payload),
-    });
-
-    if (!res.ok) {
-      throw new Error("Webhook submission failed");
+    if (!isVerified) {
+      showToast({
+        title: "Verification required",
+        description: "Please complete the reCAPTCHA before submitting.",
+      });
+      return;
     }
 
-    // ✅ Success toast
-    showToast({
-      title: "Success",
-      description: "Message submitted successfully",
-    });
+    setIsSubmitting(true);
 
-    reset();
-  } catch (err) {
-    console.error("❌ Contact form error:", err);
-    showToast({
-      title: "Failed",
-      description: "Error sending the message",
-    });
-  } finally {
-    setIsSubmitting(false);
-  }
-};
+    try {
+      // 1️⃣ Save to Supabase
+      const { error } = await supabaseBrowser
+        .from("contact_us_messages")
+        .insert([
+          {
+            name: data.name,
+            email: data.email,
+            phone: data.phone,
+            message: data.message,
+          },
+        ]);
 
+      if (error) throw new Error(error.message);
 
-   const handleCaptchaChange = (value) => {
+      // 2️⃣ Send to webhook
+      const payload = {
+        id: "",
+        ...data,
+        createdAt: new Date().toISOString(),
+      };
+
+      const res = await fetch(clientWebhookOne, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "x-make-apikey": "DriveXAuth",
+        },
+        body: JSON.stringify(payload),
+      });
+
+      if (!res.ok) {
+        throw new Error("Webhook submission failed");
+      }
+
+      // ✅ Success toast
+      showToast({
+        title: "Success",
+        description: "Message submitted successfully",
+      });
+
+      reset();
+    } catch (err) {
+      console.error("❌ Contact form error:", err);
+      showToast({
+        title: "Failed",
+        description: "Error sending the message",
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const handleCaptchaChange = (value) => {
     setIsVerified(!!value);
   };
 
@@ -241,20 +239,19 @@ const ContactUs = () => {
               </div>
 
               <div className="flex items-center justify-center">
-            <ReCAPTCHA
-              sitekey="6LeKvK4rAAAAAFcZTubCktMqh3yywQ-67DE_sJqc"
-              onChange={handleCaptchaChange}
-            />
-          </div>
+                <ReCAPTCHA
+                  sitekey="6LeKvK4rAAAAAFcZTubCktMqh3yywQ-67DE_sJqc"
+                  onChange={handleCaptchaChange}
+                />
+              </div>
 
-             <button
-  type="submit"
-  disabled={isSubmitting || !isVerified}
-  className="w-full bg-blue-600 text-white py-3 px-4 rounded-md font-semibold hover:bg-blue-700 transition-colors duration-200"
->
-  {isSubmitting ? "Sending..." : "Send Message"}
-</button>
-
+              <button
+                type="submit"
+                disabled={isSubmitting || !isVerified}
+                className="w-full bg-blue-600 text-white py-3 px-4 rounded-md font-semibold hover:bg-blue-700 transition-colors duration-200"
+              >
+                {isSubmitting ? "Sending..." : "Send Message"}
+              </button>
             </form>
           </div>
 

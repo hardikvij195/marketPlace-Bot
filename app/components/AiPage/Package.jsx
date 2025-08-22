@@ -67,9 +67,8 @@ const plans = [
       { text: "AI Calling Setup (Extra 1000 USD)", available: true },
       { text: "Lead Nurturing Automations (Extra 1,000 USD)", available: true },
     ],
-    buttonText: "Contact Us",
-    type: "contact",
-    link: "/#contact-us",
+    buttonText: "Buy Now",
+    type: "ultimate",
   },
 ];
 
