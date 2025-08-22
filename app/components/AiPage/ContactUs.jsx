@@ -239,7 +239,7 @@ const ContactUs = () => {
 
                 <div className="flex items-center justify-center">
                                         <ReCAPTCHA
-                                            sitekey=" 6LfItq4rAAAAAAP1IvwkPtr6cVcW88uWoWj_oFMz"
+                                            sitekey="6LeKvK4rAAAAAFcZTubCktMqh3yywQ-67DE_sJqc"
                                             onChange={handleCaptchaChange}
                                         />
                                     </div>
