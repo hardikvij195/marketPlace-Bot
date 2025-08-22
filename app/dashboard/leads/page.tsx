@@ -92,33 +92,47 @@ export default function LeadsPage() {
 
   // Function to fetch leads from Supabase
   const handleFetchLeads = async () => {
-    setLoading(true);
-    try {
-      let query = supabaseBrowser
-        .from("leads")
-        .select("*", { count: "exact" })
-        .order("created_date", { ascending: false });
+  setLoading(true);
+  try {
+    const {
+      data: { user },
+      error: userError,
+    } = await supabaseBrowser.auth.getUser();
 
-      const from = (page - 1) * limit;
-      const to = from + limit - 1;
-      query = query.range(from, to);
-
-      const { data, error, count } = await query;
-
-      if (error) {
-        console.error(error);
-        setError(error.message);
-      } else {
-        setLeads(data || []);
-        setTotal(count || 0);
-      }
-    } catch (error) {
-      console.error(error);
-      setError("Failed to fetch lead data");
-    } finally {
+    if (userError || !user) {
+      console.error("No user found:", userError);
+      setError("No authenticated user");
       setLoading(false);
+      return;
     }
-  };
+
+    let query = supabaseBrowser
+      .from("leads")
+      .select("*", { count: "exact" })
+       .eq("id", user.id)
+      .order("created_date", { ascending: false });
+
+    const from = (page - 1) * limit;
+    const to = from + limit - 1;
+    query = query.range(from, to);
+
+    const { data, error, count } = await query;
+
+    if (error) {
+      console.error(error);
+      setError(error.message);
+    } else {
+      setLeads(data || []);
+      setTotal(count || 0);
+    }
+  } catch (error) {
+    console.error(error);
+    setError("Failed to fetch lead data");
+  } finally {
+    setLoading(false);
+  }
+};
+
 
   // Fetch leads whenever the page, limit, or a refresh signal changes
   useEffect(() => {
@@ -188,9 +202,13 @@ export default function LeadsPage() {
   // Handle adding a new lead
   const handleAddLead = async () => {
     setSaving(true);
+     const {
+    data: { user },
+  } = await supabaseBrowser.auth.getUser();
     const now = new Date().toISOString();
     const payload = {
       ...newLead,
+      id: user.id,
       created_date: now,
       updated_date: now,
     };
