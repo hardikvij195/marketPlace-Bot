@@ -109,7 +109,7 @@ export default function LeadsPage() {
     let query = supabaseBrowser
       .from("leads")
       .select("*", { count: "exact" })
-       .eq("id", user.id)
+       .eq("user_id", user.id)
       .order("created_date", { ascending: false });
 
     const from = (page - 1) * limit;
@@ -208,7 +208,7 @@ export default function LeadsPage() {
     const now = new Date().toISOString();
     const payload = {
       ...newLead,
-      id: user.id,
+      user_id: user.id,
       created_date: now,
       updated_date: now,
     };
