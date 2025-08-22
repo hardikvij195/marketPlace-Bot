@@ -7,11 +7,12 @@ import { Mail, Phone, MessageSquare } from "lucide-react";
 import { supabaseBrowser } from "../../../lib/supabaseBrowser";
 import { showToast } from "../../../hooks/useToast";
 import PhoneInput from "react-phone-input-2";
-import ReCAPTCHA from 'react-google-recaptcha'
+import ReCAPTCHA from "react-google-recaptcha";
+
 
 const ContactUs = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
-      const [isVerified, setIsVerified] = useState(false)
+    const [isVerified, setIsVerified] = useState(false);
 
   const {
     control,
@@ -24,10 +25,15 @@ const ContactUs = () => {
     "https://hook.eu2.make.com/lf8nye8n8kaugcn4yg6ykedk2o47jzv5";
 
   const onSubmit = async (data) => {
-        if (!isVerified) return;
-        setIsSubmitting(true)
-  setIsSubmitting(true);
+  if (!isVerified) {
+    showToast({
+      title: "Verification required",
+      description: "Please complete the reCAPTCHA before submitting.",
+    });
+    return;
+  }
 
+  setIsSubmitting(true);
 
   try {
     // 1️⃣ Save to Supabase
@@ -44,15 +50,13 @@ const ContactUs = () => {
 
     if (error) throw new Error(error.message);
 
-    // 2️⃣ Prepare webhook payload (with empty id)
+    // 2️⃣ Send to webhook
     const payload = {
-      id: "", // 👈 empty id
+      id: "",
       ...data,
       createdAt: new Date().toISOString(),
     };
 
-
-    // 3️⃣ Send to webhook
     const res = await fetch(clientWebhookOne, {
       method: "POST",
       headers: {
@@ -61,9 +65,6 @@ const ContactUs = () => {
       },
       body: JSON.stringify(payload),
     });
-
-    const responseText = await res.text();
-  
 
     if (!res.ok) {
       throw new Error("Webhook submission failed");
@@ -75,7 +76,7 @@ const ContactUs = () => {
       description: "Message submitted successfully",
     });
 
-    reset(); // clear form
+    reset();
   } catch (err) {
     console.error("❌ Contact form error:", err);
     showToast({
@@ -88,11 +89,9 @@ const ContactUs = () => {
 };
 
 
- const handleCaptchaChange = (value) => {
-        setIsVerified(!!value)
-    }
-
-
+   const handleCaptchaChange = (value) => {
+    setIsVerified(!!value);
+  };
 
   return (
     <section className="py-10 px-4 md:px-12 lg:px-24 text-black bg-white">
@@ -137,7 +136,9 @@ const ContactUs = () => {
 
                 {/* Email */}
                 <div>
-                  <label className="block text-sm font-medium mb-1">Email</label>
+                  <label className="block text-sm font-medium mb-1">
+                    Email
+                  </label>
                   <Controller
                     name="email"
                     control={control}
@@ -215,7 +216,9 @@ const ContactUs = () => {
 
               {/* Message */}
               <div>
-                <label className="block text-sm font-medium mb-1">Message</label>
+                <label className="block text-sm font-medium mb-1">
+                  Message
+                </label>
                 <Controller
                   name="message"
                   control={control}
@@ -237,20 +240,21 @@ const ContactUs = () => {
                 )}
               </div>
 
-                <div className="flex items-center justify-center">
-                                        <ReCAPTCHA
-                                            sitekey="6LeKvK4rAAAAAFcZTubCktMqh3yywQ-67DE_sJqc"
-                                            onChange={handleCaptchaChange}
-                                        />
-                                    </div>
+              <div className="flex items-center justify-center">
+            <ReCAPTCHA
+              sitekey="6LeKvK4rAAAAAFcZTubCktMqh3yywQ-67DE_sJqc"
+              onChange={handleCaptchaChange}
+            />
+          </div>
 
-              <button
-                type="submit"
-                disabled={isSubmitting || !isVerified}
-                className="w-full bg-blue-600 text-white py-3 px-4 rounded-md font-semibold hover:bg-blue-700 transition-colors duration-200"
-              >
-                {isSubmitting ? "Sending..." : "Send Message"}
-              </button>
+             <button
+  type="submit"
+  disabled={isSubmitting || !isVerified}
+  className="w-full bg-blue-600 text-white py-3 px-4 rounded-md font-semibold hover:bg-blue-700 transition-colors duration-200"
+>
+  {isSubmitting ? "Sending..." : "Send Message"}
+</button>
+
             </form>
           </div>
 
@@ -267,7 +271,9 @@ const ContactUs = () => {
                 <div>
                   <h3 className="font-semibold text-lg">E-Mail Support</h3>
                   <p className="text-gray-600">Marketplaces@gmail.com</p>
-                  <p className="text-gray-500 text-sm">We reply within 24 hours</p>
+                  <p className="text-gray-500 text-sm">
+                    We reply within 24 hours
+                  </p>
                 </div>
               </div>
               <div className="flex items-start p-4 rounded-lg">
@@ -277,7 +283,9 @@ const ContactUs = () => {
                 <div>
                   <h3 className="font-semibold text-lg">Phone Support</h3>
                   <p className="text-gray-600">+603 4784 273 12</p>
-                  <p className="text-gray-500 text-sm">Mon-Fri, 09:00am-06:00pm</p>
+                  <p className="text-gray-500 text-sm">
+                    Mon-Fri, 09:00am-06:00pm
+                  </p>
                 </div>
               </div>
               <div className="flex items-start p-4 rounded-lg">

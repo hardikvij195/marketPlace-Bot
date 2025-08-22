@@ -66,13 +66,13 @@ export default function ContactUsPage() {
         title: "Verification required",
         description: "Please complete the reCAPTCHA before submitting.",
       });
-      return; // 🚫 Stop here if not verified
+      return;
     }
 
     setLoading(true);
 
     try {
-      // ✅ Get logged-in user
+     
       const {
         data: { user },
       } = await supabaseBrowser.auth.getUser();
