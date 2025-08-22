@@ -246,7 +246,7 @@ const ContactUs = () => {
 
               <button
                 type="submit"
-                disabled={isSubmitting}
+                disabled={isSubmitting || !isVerified}
                 className="w-full bg-blue-600 text-white py-3 px-4 rounded-md font-semibold hover:bg-blue-700 transition-colors duration-200"
               >
                 {isSubmitting ? "Sending..." : "Send Message"}
