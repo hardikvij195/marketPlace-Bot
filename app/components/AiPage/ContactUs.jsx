@@ -267,13 +267,13 @@ const ContactUs = () => {
                 </div>
                 <div>
                   <h3 className="font-semibold text-lg">E-Mail Support</h3>
-                  <p className="text-gray-600">Marketplaces@gmail.com</p>
+                  <p className="text-gray-600">info@fbmarketplacebots.com</p>
                   <p className="text-gray-500 text-sm">
                     We reply within 24 hours
                   </p>
                 </div>
               </div>
-              <div className="flex items-start p-4 rounded-lg">
+              {/* <div className="flex items-start p-4 rounded-lg">
                 <div className="bg-blue-100 p-2 rounded-full mr-4">
                   <Phone className="w-6 h-6 text-blue-600" />
                 </div>
@@ -284,8 +284,8 @@ const ContactUs = () => {
                     Mon-Fri, 09:00am-06:00pm
                   </p>
                 </div>
-              </div>
-              <div className="flex items-start p-4 rounded-lg">
+              </div> */}
+              {/* <div className="flex items-start p-4 rounded-lg">
                 <div className="bg-blue-100 p-2 rounded-full mr-4">
                   <MessageSquare className="w-6 h-6 text-blue-600" />
                 </div>
@@ -294,7 +294,7 @@ const ContactUs = () => {
                   <p className="text-gray-600">Available 24/7</p>
                   <p className="text-gray-500 text-sm">Chat with bot</p>
                 </div>
-              </div>
+              </div> */}
             </div>
           </div>
         </div>

@@ -22,17 +22,17 @@ export default function Footer() {
               <MapPin size={24} />
               <span>1, India</span>
             </div> */}
-            <div className="flex items-center gap-4 ">
+            {/* <div className="flex items-center gap-4 ">
               <Phone size={24} />
               <span>+1 (469) 214-6349</span>
               <span>+91 9773603818</span>
               <span>+91 8588099741</span>
-            </div>
+            </div> */}
             <div className="flex items-center gap-4 ">
               <Mail size={24} />
-              <span>fbmarketplacebots@gmail.com</span>
+              {/* <span>fbmarketplacebots@gmail.com</span> */}
               <span>info@fbmarketplacebots.com</span>
-              <span>info@hvtechnologies.app</span>
+              {/* <span>info@hvtechnologies.app</span> */}
             </div>
             <div className="flex flex-col sm:flex-row gap-6 mt-8">
               <a href="/terms-of-use" className=" transition-colors duration-200">
@@ -46,7 +46,7 @@ export default function Footer() {
 
           {/* Follow Us Section */}
           <div className="space-y-6 flex flex-col items-start lg:items-end">
-            <h2 className="text-3xl font-bold">Follow Us</h2>
+            {/* <h2 className="text-3xl font-bold">Follow Us</h2>
             <div className="flex items-center gap-4">
               <a href="#" className="border border-white rounded-md p-2">
                 <Facebook size={20} />
@@ -57,10 +57,11 @@ export default function Footer() {
               <a href="#" className="">
                 <Youtube size={44} />
               </a>
-            </div>
+            </div> */}
            
-         <FloatingActionButton />
+       
           </div>
+        <FloatingActionButton />
         </div>
 
         {/* Separator Line */}
