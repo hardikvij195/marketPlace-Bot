@@ -24,6 +24,7 @@ import { SubscriptionDialog } from "../components/subscription/SubscriptionModal
 import SubscriptionPayment from "../components/subscription/list/subscription-payment";
 import ShowUserId from "./_components/ShowUserId";
 import GoogleSheet from "./_components/GoogleSheet";
+import FbChatBotLink from "./_components/FbChatBotLink"
 
 type planState = {
   plan_name: string;
@@ -208,7 +209,10 @@ useEffect(() => {
         <div className="space-y-6 p-6 bg-white min-h-screen">
           <ShowUserId userId={userId} />
           <GoogleSheet />
-          {/* Stats Cards */}
+          <FbChatBotLink userId="" />
+        
+
+          
           <div className="grid gap-4 md:grid-cols-2">
             <Card className="border-gray-200">
               <CardHeader className="flex flex-row items-center justify-between pb-2">

@@ -69,12 +69,7 @@ export default function DashboardLayout({
 
   return (
     <>
-      {loading ? (
-        <div className="flex flex-col items-center justify-center gap-2 min-h-screen">
-          <Loader className="h-8 w-8 animate-spin text-primary text-blue-600" />
-          <p>Please wait…</p>
-        </div>
-      ) : (
+     
         <TooltipProvider>
           <div className="min-h-screen bg-gray-50 flex">
   
@@ -109,7 +104,6 @@ export default function DashboardLayout({
             </main>
           </div> 
         </TooltipProvider>
-      )}
     </>
   );
 }

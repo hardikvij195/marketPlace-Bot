@@ -89,44 +89,59 @@ export default function RecyclePage() {
   };
 
   useEffect(() => {
-    const handleFetchSeminar = async () => {
-      try {
-        let query = supabaseBrowser
-          .from("recycle_bin")
-          .select("*", {
-            count: "exact",
-          })
-          .order("created_at", { ascending: false })
-          .range((page - 1) * limit, page * limit - 1);
+  const handleFetchRecycle = async () => {
+    setLoading(true);
+    try {
+      // Get logged-in user
+      const {
+        data: { user: authUser },
+        error: authError,
+      } = await supabaseBrowser.auth.getUser();
 
-        if (status && status != "all") {
-          query = query.eq("status", status);
-        }
-
-        if (selectedDate) {
-          query = query
-            .gte("created_at", selectedDate + " 00:00:00")
-            .lte("created_at", selectedDate + " 23:59:59");
-        }
-
-        const { data, error, count } = await query;
-
-        if (error) {
-          console.log(error);
-          setError(error.message);
-        } else {
-          console.log(data, "dataRecycledataRecycledataRecycle");
-          setDataRecycle(data);
-          setTotal(count || 0); // Set total count of records
-        }
+      if (authError || !authUser) {
+        console.error("Failed to get logged-in user", authError);
+        setError("Failed to get user info");
         setLoading(false);
-      } catch (error) {
-        console.error(error);
-        setError("Failed to fetch seminar data");
+        return;
       }
-    };
-    handleFetchSeminar();
-  }, [page, status, selectedDate, deleteRefresh, limit]);
+
+      // Query recycle_bin for only this user
+      let query = supabaseBrowser
+        .from("recycle_bin")
+        .select("*", { count: "exact" })
+        .eq("user_id", authUser.id)
+        .order("created_at", { ascending: false })
+        .range((page - 1) * limit, page * limit - 1);
+
+      if (status && status !== "all") {
+        query = query.eq("status", status);
+      }
+
+      if (selectedDate) {
+        query = query
+          .gte("created_at", selectedDate + " 00:00:00")
+          .lte("created_at", selectedDate + " 23:59:59");
+      }
+
+      const { data, error, count } = await query;
+
+      if (error) {
+        console.error(error);
+        setError(error.message);
+      } else {
+        setDataRecycle(data);
+        setTotal(count || 0);
+      }
+    } catch (err) {
+      console.error(err);
+      setError("Failed to fetch recycle data");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  handleFetchRecycle();
+}, [page, status, selectedDate, deleteRefresh, limit]);
 
   // Around line 70, or after your `useEffect`
   const filteredRecycleData = useMemo(() => {
@@ -435,7 +450,7 @@ export default function RecyclePage() {
           <DialogContent className="sm:max-w-sm fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 bg-white border border-gray-200 shadow-xl rounded-2xl p-6 z-50 space-y-4">
             <DialogHeader>
               <DialogTitle className="text-lg font-semibold text-gray-800">
-                Delete seminar?
+                Delete Permanently?
               </DialogTitle>
             </DialogHeader>
 
@@ -454,7 +469,7 @@ export default function RecyclePage() {
               <Button
                 variant="destructive"
                 onClick={confirmDelete}
-                className="cursor-pointer px-4 py-2"
+                className="cursor-pointer px-4 py-2 bg-red-500 text-white"
               >
                 Delete
               </Button>

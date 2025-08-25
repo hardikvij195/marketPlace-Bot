@@ -22,32 +22,58 @@ export default function DeleteModal({
   handleRefresh,
 }: DeleteModalProps) {
   const [loading, setLoading] = useState(false);
-  const confirmDelete = async () => {
-    setLoading(true);
-    try {
-      const { error } = await supabaseBrowser
-        .from(name)
-        .delete()
-        .eq("id", rowData?.id);
-      if (error) {
-        throw new Error(error?.message);
-      }
-       await supabaseBrowser
-        .from("recycle_bin")
-        .insert([{ name, data: rowData }]);
-      setIsOpen(false);
-      setRowData(null);
-      handleRefresh();
-     
-    } catch (error) {
-      showToast({
-        title: "Error",
-        description: "Something went wrong.",
-      });
-    } finally {
-      setLoading(false);
+const confirmDelete = async () => {
+  setLoading(true);
+  try {
+    // Get logged-in user
+    const {
+      data: { user: authUser },
+      error: authError,
+    } = await supabaseBrowser.auth.getUser();
+
+    if (authError || !authUser) {
+      throw new Error("Failed to get logged-in user");
     }
-  };
+
+    // Delete the record from the main table
+    const { error } = await supabaseBrowser
+      .from(name)
+      .delete()
+      .eq("id", rowData?.id);
+
+    if (error) {
+      throw new Error(error?.message);
+    }
+
+    // Insert into recycle_bin with user_id
+    const { error: recycleError } = await supabaseBrowser
+      .from("recycle_bin")
+      .insert([
+        { 
+          name, 
+          data: rowData,
+          user_id: authUser.id  // <-- save logged-in user ID here
+        }
+      ]);
+
+    if (recycleError) {
+      throw new Error(recycleError.message);
+    }
+
+    setIsOpen(false);
+    setRowData(null);
+    handleRefresh();
+
+  } catch (error: any) {
+    showToast({
+      title: "Error",
+      description: error?.message || "Something went wrong.",
+    });
+  } finally {
+    setLoading(false);
+  }
+};
+
 
   if (!isOpen) return null;
 

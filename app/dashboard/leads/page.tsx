@@ -92,65 +92,74 @@ export default function LeadsPage() {
 
   // Function to fetch leads from Supabase
   const handleFetchLeads = async () => {
-  setLoading(true);
-  try {
-    const {
-      data: { user },
-      error: userError,
-    } = await supabaseBrowser.auth.getUser();
+    setLoading(true);
+    try {
+      const {
+        data: { user },
+        error: userError,
+      } = await supabaseBrowser.auth.getUser();
 
-    if (userError || !user) {
-      console.error("No user found:", userError);
-      setError("No authenticated user");
-      setLoading(false);
-      return;
-    }
+      if (userError || !user) {
+        console.error("No user found:", userError);
+        setError("No authenticated user");
+        setLoading(false);
+        return;
+      }
 
-    let query = supabaseBrowser
-      .from("leads")
-      .select("*", { count: "exact" })
-       .eq("user_id", user.id)
-      .order("created_date", { ascending: false });
+      let query = supabaseBrowser
+        .from("leads")
+        .select("*", { count: "exact" })
+        .eq("user_id", user.id)
+        .order("created_date", { ascending: false });
 
-    const from = (page - 1) * limit;
-    const to = from + limit - 1;
-    query = query.range(from, to);
+      const from = (page - 1) * limit;
+      const to = from + limit - 1;
+      query = query.range(from, to);
 
-    const { data, error, count } = await query;
+      const { data, error, count } = await query;
 
-    if (error) {
+      if (error) {
+        console.error(error);
+        setError(error.message);
+      } else {
+        setLeads(data || []);
+        setTotal(count || 0);
+      }
+    } catch (error) {
       console.error(error);
-      setError(error.message);
-    } else {
-      setLeads(data || []);
-      setTotal(count || 0);
+      setError("Failed to fetch lead data");
+    } finally {
+      setLoading(false);
     }
-  } catch (error) {
-    console.error(error);
-    setError("Failed to fetch lead data");
-  } finally {
-    setLoading(false);
-  }
-};
-
+  };
 
   // Fetch leads whenever the page, limit, or a refresh signal changes
   useEffect(() => {
     handleFetchLeads();
   }, [page, deleteRefresh, limit]);
 
-  // Filter leads based on the search term
   const filteredLeads = useMemo(() => {
-    if (!searchTerm.trim()) {
-      return leads;
-    }
-    const lowercasedSearchTerm = searchTerm.toLowerCase();
-    return leads.filter(
-      (lead) =>
-        lead.name.toLowerCase().includes(lowercasedSearchTerm) ||
-        lead.email.toLowerCase().includes(lowercasedSearchTerm)
+  if (!searchTerm.trim()) {
+    return leads;
+  }
+  const lowercasedSearchTerm = searchTerm.toLowerCase();
+  return leads.filter((lead) => {
+    const createdDate = lead.created_date
+      ? new Date(lead.created_date).toLocaleDateString("en-IN", {
+          day: "2-digit",
+          month: "short",
+          year: "numeric",
+        })
+      : "";
+
+    return (
+      (lead.name?.toLowerCase() ?? "").includes(lowercasedSearchTerm) ||
+      (lead.email?.toLowerCase() ?? "").includes(lowercasedSearchTerm) ||
+      (lead.phone?.toLowerCase() ?? "").includes(lowercasedSearchTerm) ||
+      createdDate.toLowerCase().includes(lowercasedSearchTerm)
     );
-  }, [leads, searchTerm]);
+  });
+}, [leads, searchTerm]);
 
   if (loading) {
     return (
@@ -202,9 +211,9 @@ export default function LeadsPage() {
   // Handle adding a new lead
   const handleAddLead = async () => {
     setSaving(true);
-     const {
-    data: { user },
-  } = await supabaseBrowser.auth.getUser();
+    const {
+      data: { user },
+    } = await supabaseBrowser.auth.getUser();
     const now = new Date().toISOString();
     const payload = {
       ...newLead,
@@ -289,8 +298,8 @@ export default function LeadsPage() {
         <div className="relative flex-1 mb-5">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
           <Input
-            placeholder="Search by Lead Name or Email..."
-            className="pl-9 border-gray-200" // Updated border color here
+            placeholder="Search by Lead Name, Email, Phone or Lead Date..."
+            className="pl-9 border-gray-200"
             value={searchTerm}
             disabled={loading}
             onChange={(e) => setSearchTerm(e.target.value)}
@@ -380,7 +389,17 @@ export default function LeadsPage() {
                       {lead?.convo}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                      {new Date(lead?.created_date).toLocaleDateString()}
+                      {new Date(lead?.created_date).toLocaleDateString(
+                        "en-IN",
+                        {
+                          day: "2-digit",
+                          month: "short",
+                          year: "numeric",
+                          hour: "2-digit",
+                          minute: "2-digit",
+                          hour12: true, // 24-hour format
+                        }
+                      )}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
                       <div className="flex items-center gap-4">
@@ -432,7 +451,7 @@ export default function LeadsPage() {
           </div>
         )}
         <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-          <DialogContent className="sm:max-w-lg bg-white">
+          <DialogContent className="sm:max-w-lg bg-white max-h-[80vh] overflow-y-auto">
             <DialogHeader>
               <DialogTitle className="flex items-center gap-2">
                 Create New Lead
@@ -552,8 +571,8 @@ export default function LeadsPage() {
         </Dialog>
         {/* Modal to view all details of a single lead */}
         <Modal isOpen={isOpen} onClose={() => setIsOpen(false)}>
-          <Card className="max-w-md w-full mx-auto shadow-md border mt-5 p-4 rounded-2xl bg-white">
-            <CardContent className="space-y-4">
+          <Card className="max-w-2xl w-full mx-auto shadow-md border mt-5 p-4 rounded-2xl bg-white max-h-[80vh] overflow-hidden">
+            <CardContent className="space-y-4 overflow-y-auto max-h-[70vh]">
               <h2 className="text-xl font-semibold text-gray-800">
                 Lead Details
               </h2>
@@ -567,26 +586,51 @@ export default function LeadsPage() {
                 <div className="font-medium">Created Date:</div>
                 <div>
                   {selectedData?.created_date
-                    ? new Date(selectedData.created_date).toLocaleString()
+                    ? new Date(selectedData.created_date).toLocaleString(
+                        "en-IN",
+                        {
+                          day: "2-digit",
+                          month: "short",
+                          year: "numeric",
+                          hour: "2-digit",
+                          minute: "2-digit",
+                          hour12: true,
+                        }
+                      )
                     : "N/A"}
                 </div>
                 <div className="font-medium">Updated Date:</div>
                 <div>
                   {selectedData?.updated_date
-                    ? new Date(selectedData.updated_date).toLocaleString()
+                    ? new Date(selectedData.updated_date).toLocaleString(
+                        "en-IN",
+                        {
+                          day: "2-digit",
+                          month: "short",
+                          year: "numeric",
+                          hour: "2-digit",
+                          minute: "2-digit",
+                          hour12: true,
+                        }
+                      )
                     : "N/A"}
                 </div>
                 <div className="font-medium">Conversation:</div>
-                <div>{selectedData?.convo}</div>
+                <div className="whitespace-pre-wrap break-words">
+                  {selectedData?.convo}
+                </div>
                 <div className="font-medium">Notes:</div>
-                <div>{selectedData?.notes}</div>
+                <div className="whitespace-pre-wrap break-words">
+                  {selectedData?.notes}
+                </div>
               </div>
             </CardContent>
           </Card>
         </Modal>
+
         {/* Dialog for editing an existing lead */}
         <Dialog open={isEditing} onOpenChange={setIsEditing}>
-          <DialogContent className="sm:max-w-lg bg-white">
+          <DialogContent className="sm:max-w-lg bg-white max-h-[80vh] overflow-y-auto">
             <DialogHeader>
               <DialogTitle className="flex items-center gap-2">
                 Edit Lead
