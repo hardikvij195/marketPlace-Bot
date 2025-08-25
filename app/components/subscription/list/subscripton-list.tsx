@@ -79,6 +79,7 @@ export default function SubscriptionListPage({
   );
   const router = useRouter();
   const [trialUsed, setTrialUsed] = useState(false);
+  const [processingTrial, setProcessingTrial] = useState(false);
 
   const callWebhook = async (payload: any) => {
     try {
@@ -93,8 +94,7 @@ export default function SubscriptionListPage({
         }
       );
 
-        const responseText = await res.text(); // or res.json() if webhook returns JSON
-    console.log("🔎 Webhook response:", res.status, responseText);
+      const responseText = await res.text();
 
       if (!res.ok) {
         console.error("Webhook call failed:", res.statusText);
@@ -228,68 +228,73 @@ export default function SubscriptionListPage({
     }
   };
 
-  const handlePlanSelect = async (plan: PlanState, event?: React.MouseEvent) => {
-  if (event) event.stopPropagation();
+  const handlePlanSelect = async (
+    plan: PlanState,
+    event?: React.MouseEvent
+  ) => {
+    if (event) event.stopPropagation();
 
-  const {
-    data: { user },
-    error: userError,
-  } = await supabaseBrowser.auth.getUser();
-  if (userError || !user) {
-    showToast({
-      title: "Error",
-      description: "You must be logged in to select a plan.",
-      type: "error",
-    });
-    return;
-  }
-
-  const { hasActive, planName: activePlanName } = await checkActiveSubscription(user.id);
-
-  // Find numeric amount of current plan and selected plan
-  const activePlan = plans.find((p) => p.plan_name === activePlanName);
-  const isNumericAmount =
-    !isNaN(Number(plan.amount)) &&
-    activePlan &&
-    !isNaN(Number(activePlan.amount));
-
-  // If user has active plan
-  if (hasActive && isNumericAmount) {
-    if (Number(plan.amount) <= Number(activePlan.amount)) {
+    const {
+      data: { user },
+      error: userError,
+    } = await supabaseBrowser.auth.getUser();
+    if (userError || !user) {
       showToast({
         title: "Error",
-        description: `You already have an active subscription: ${activePlanName}. Please cancel it first to select this plan.`,
-        type: "error",
-      });
-      return; // block lower or equal plan
-    }
-    // Otherwise, allow upgrading
-  }
-
-  // Handle-trial plan selection
-  if (plan.type === "2") {
-    const hasPreviousFreeTrial = await checkPreviousFreeTrial(user.id);
-    if (hasPreviousFreeTrial) {
-      showToast({
-        title: "Error",
-        description: "You already used your free trial. Please choose a paid plan.",
+        description: "You must be logged in to select a plan.",
         type: "error",
       });
       return;
     }
 
-    setSelectedTrialPlan(plan);
-    setShowTrialConfirm(true);
-    return;
-  }
+    const { hasActive, planName: activePlanName } =
+      await checkActiveSubscription(user.id);
 
-  // Paid plan (upgrade or new)
-  handleShowPayment(plan);
-};
+    // Find numeric amount of current plan and selected plan
+    const activePlan = plans.find((p) => p.plan_name === activePlanName);
+    const isNumericAmount =
+      !isNaN(Number(plan.amount)) &&
+      activePlan &&
+      !isNaN(Number(activePlan.amount));
 
+    // If user has active plan
+    if (hasActive && isNumericAmount) {
+      if (Number(plan.amount) <= Number(activePlan.amount)) {
+        showToast({
+          title: "Error",
+          description: `You already have an active subscription: ${activePlanName}. Please cancel it first to select this plan.`,
+          type: "error",
+        });
+        return; // block lower or equal plan
+      }
+      // Otherwise, allow upgrading
+    }
+
+    // Handle-trial plan selection
+    if (plan.type === "2") {
+      const hasPreviousFreeTrial = await checkPreviousFreeTrial(user.id);
+      if (hasPreviousFreeTrial) {
+        showToast({
+          title: "Error",
+          description:
+            "You already used your free trial. Please choose a paid plan.",
+          type: "error",
+        });
+        return;
+      }
+
+      setSelectedTrialPlan(plan);
+      setShowTrialConfirm(true);
+      return;
+    }
+
+    // Paid plan (upgrade or new)
+    handleShowPayment(plan);
+  };
 
   const handleConfirmTrial = async () => {
-    if (!selectedTrialPlan) return;
+    if (!selectedTrialPlan  || processingTrial) return;
+    setProcessingTrial(true);
 
     try {
       const {
@@ -334,7 +339,7 @@ export default function SubscriptionListPage({
         .select("*")
         .single();
 
-        showToast ({title: "Please Wait", description:"Please wait for 5 mins for the google sheet to be created", type: "error" })
+     
 
       if (subError) {
         console.error("Error inserting user_subscription:", subError);
@@ -352,8 +357,6 @@ export default function SubscriptionListPage({
         amount: 0,
         trial: true,
       });
-
-      
 
       // ✅ Insert free trial invoice (if not already created)
       const { data: existingInvoice } = await supabaseBrowser
@@ -384,6 +387,8 @@ export default function SubscriptionListPage({
         title: "Success",
         description: "Your free trial has been activated 🎉",
       });
+
+      
 
       setShowTrialConfirm(false);
       setSelectedTrialPlan(null);
@@ -480,8 +485,7 @@ export default function SubscriptionListPage({
                     </div>
                     <div className="flex justify-end items-baseline gap-1 mt-2">
                       <span className="text-xl font-extrabold select-none">
-                  
-                         $ {plan.amount}
+                        $ {plan.amount}
                       </span>
                     </div>
 
@@ -503,9 +507,7 @@ export default function SubscriptionListPage({
                   <button
                     type="button"
                     onClick={(e) => handlePlanSelect(plan, e)}
-                    disabled={
-                      shouldDisable || (trialUsed && plan.type === "2") 
-                    }
+                    disabled={shouldDisable || (trialUsed && plan.type === "2")}
                     className={`mt-6 w-full font-semibold text-sm border rounded-md py-2 transition-colors duration-200 ${
                       shouldDisable || (trialUsed && plan.type === "2")
                         ? "bg-gray-300 text-gray-500 border-gray-200 cursor-not-allowed"
@@ -538,9 +540,14 @@ export default function SubscriptionListPage({
               </button>
               <button
                 onClick={handleConfirmTrial}
-                className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
+                disabled={processingTrial}
+                className={`px-4 py-2 rounded-md ${
+                  processingTrial
+                    ? "bg-gray-300 text-gray-500 cursor-not-allowed"
+                    : "bg-blue-600 text-white hover:bg-blue-700"
+                }`}
               >
-                Confirm
+                {processingTrial ? "Processing..." : "Confirm"}
               </button>
             </div>
           </div>

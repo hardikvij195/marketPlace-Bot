@@ -330,10 +330,14 @@ const payload = {
               type="button"
               onClick={(event) => handlePayment(event)}
               disabled={loading}
-              className="cursor-pointer px-6 py-2 bg-blue-600 text-white rounded-md text-sm font-normal hover:bg-blue-700 flex items-center gap-2"
+              className={`cursor-pointer px-6 py-2 rounded-md text-sm font-normal flex items-center gap-2 ${loading
+                    ? "bg-gray-300 text-gray-500 cursor-not-allowed"
+                    : "bg-blue-600 text-white hover:bg-blue-700"
+                }`}
             >
-              {loading && <Loader2 className="w-4 h-4 animate-spin" />}
-              Proceed to Payment
+             
+
+              {loading ? "Processing..." : " Proceed to Payment" }
             </button>
           </div>
         </form>

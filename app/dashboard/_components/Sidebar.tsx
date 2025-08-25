@@ -106,7 +106,7 @@ export default function Sidebar({ collapsed, setCollapsed }: SidebarProps) {
       >
         <div className="flex flex-col h-full">
           {/* Logo */}
-          <div className="px-3 py-3 border-b border-gray-200 flex items-center justify-start">
+          <Link href='/dashboard' className="px-3 py-3 border-b border-gray-200 flex items-center justify-start">
             <Image src='/LOGO.png' alt="No Logo Found"
               // Show smaller logo when collapsed (desktop or mobile)
               width={collapsed ? 40 : 40}
@@ -119,7 +119,8 @@ export default function Sidebar({ collapsed, setCollapsed }: SidebarProps) {
                 FB Marketplace Chatbot
               </span>
             )}
-          </div>
+          </Link>
+          
 
           {/* Navigation */}
           <nav className="flex-1 mt-6">

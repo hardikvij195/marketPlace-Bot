@@ -4,11 +4,12 @@
 import React, { useState, useEffect } from "react";
 import { supabaseBrowser } from "../../../lib/supabaseBrowser";
 import { Check, X } from "lucide-react";
+import { useRouter } from "next/navigation";
 
 type planState = {
   plan_name: string;
   id: string;
-  type: string;      // "2" = trial
+  type: string; // "2" = trial
   amount: string;
   duration: string;
   basic_amount?: string;
@@ -80,12 +81,15 @@ export const SubscriptionDialog = ({
 
   // 🔔 New: local confirmation modal state
   const [showTrialConfirm, setShowTrialConfirm] = useState(false);
-  const [selectedTrialPlan, setSelectedTrialPlan] = useState<planState | null>(null);
+  const [selectedTrialPlan, setSelectedTrialPlan] = useState<planState | null>(
+    null
+  );
+  const [processingTrial, setProcessingTrial] = useState(false);
+    const router = useRouter();
 
   // 🔔 New: webhook helper (same as your page.tsx)
   const callWebhook = async (payload: any) => {
     try {
-    
       const res = await fetch(
         "https://hook.eu2.make.com/l6tijvex2p2plkdojf1hofciarpmshep",
         {
@@ -95,7 +99,7 @@ export const SubscriptionDialog = ({
         }
       );
       const responseText = await res.text();
-   
+
       if (!res.ok) {
         console.error("Webhook call failed:", res.statusText);
       }
@@ -155,7 +159,9 @@ export const SubscriptionDialog = ({
 
   // 🔔 New: confirm trial logic (same as your page.tsx)
   const handleConfirmTrial = async () => {
-    if (!selectedTrialPlan) return;
+    if (!selectedTrialPlan || processingTrial) return;
+
+    setProcessingTrial(true);
 
     try {
       const {
@@ -201,8 +207,6 @@ export const SubscriptionDialog = ({
         return;
       }
 
-
-
       // ✅ Call webhook (same payload shape)
       await callWebhook({
         userId: user.id,
@@ -234,13 +238,12 @@ export const SubscriptionDialog = ({
         ]);
       }
 
-   
-
       setShowTrialConfirm(false);
       setSelectedTrialPlan(null);
       setActivePlanId(selectedTrialPlan.id);
       setTrialUsed(true);
       setShowModal(false);
+       router.push("/dashboard/subscription");
     } catch (error) {
       console.error("❌ Error starting trial:", error);
     }
@@ -249,7 +252,6 @@ export const SubscriptionDialog = ({
   const handlePlanSelect = async (plan: planState) => {
     if (plan.type === "2") {
       if (trialUsed) {
-       
         return;
       }
       // Open confirmation first (don’t start immediately)
@@ -400,9 +402,14 @@ export const SubscriptionDialog = ({
               </button>
               <button
                 onClick={handleConfirmTrial}
-                className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
+                disabled={processingTrial}
+                className={`px-4 py-2 rounded-md ${
+                  processingTrial
+                    ? "bg-gray-300 text-gray-500 cursor-not-allowed"
+                    : "bg-blue-600 text-white hover:bg-blue-700"
+                }`}
               >
-                Confirm
+                {processingTrial ? "Processing..." : "Confirm"}
               </button>
             </div>
           </div>
