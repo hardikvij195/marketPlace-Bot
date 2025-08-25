@@ -33,10 +33,10 @@ const ProfileManagement = () => {
   const [loading, setLoading] = useState(true);
   const [resetButton, setResetButton] = useState(false);
   const [subscriptionPlan, setSubscriptionPlan] = useState<any>(null);
-  
+
   // State to hold the user data fetched directly from Supabase
   const [supabaseUser, setSupabaseUser] = useState<any>(null);
-  
+
   const [formData, setFormData] = useState({
     fullName: "",
     userId: "",
@@ -59,7 +59,7 @@ const ProfileManagement = () => {
       try {
         const { data, error } = await supabaseBrowser.auth.getUser();
         if (error) throw error;
-        
+
         const fetchedUser = data.user;
         setSupabaseUser(fetchedUser);
 
@@ -91,7 +91,7 @@ const ProfileManagement = () => {
   useEffect(() => {
     const fetchSubscriptionDetails = async () => {
       if (!user?.id) return;
-      
+
       try {
         const { data, error } = await supabaseBrowser
           .from("user_subscription")
@@ -107,7 +107,10 @@ const ProfileManagement = () => {
         }
         setSubscriptionPlan(data);
       } catch (error) {
-        console.error("[ProfileManagement] Error fetching subscription details:", error);
+        console.error(
+          "[ProfileManagement] Error fetching subscription details:",
+          error
+        );
         setSubscriptionPlan(null);
       }
     };
@@ -120,13 +123,20 @@ const ProfileManagement = () => {
       const currentUserMetadata = supabaseUser?.user_metadata || {};
 
       // Only include fields that have changed
-      if (formData.fullName !== currentUserMetadata.full_name) updateData.full_name = formData.fullName;
-      if (formData.displayNname !== currentUserMetadata.display_name) updateData.display_name = formData.displayNname;
-      if (formData.phone !== currentUserMetadata.phone) updateData.phone = formData.phone;
-      if (formData.address !== currentUserMetadata.address) updateData.address = formData.address;
-      if (formData.city !== currentUserMetadata.city) updateData.city = formData.city;
-      if (formData.state !== currentUserMetadata.state) updateData.state = formData.state;
-      if (formData.zipCode !== currentUserMetadata.zip_code) updateData.zip_code = formData.zipCode;
+      if (formData.fullName !== currentUserMetadata.full_name)
+        updateData.full_name = formData.fullName;
+      if (formData.displayNname !== currentUserMetadata.display_name)
+        updateData.display_name = formData.displayNname;
+      if (formData.phone !== currentUserMetadata.phone)
+        updateData.phone = formData.phone;
+      if (formData.address !== currentUserMetadata.address)
+        updateData.address = formData.address;
+      if (formData.city !== currentUserMetadata.city)
+        updateData.city = formData.city;
+      if (formData.state !== currentUserMetadata.state)
+        updateData.state = formData.state;
+      if (formData.zipCode !== currentUserMetadata.zip_code)
+        updateData.zip_code = formData.zipCode;
 
       if (Object.keys(updateData).length > 0) {
         // Use supabase.auth.updateUser to update the user's metadata
@@ -144,10 +154,9 @@ const ProfileManagement = () => {
           description: "Your profile information has been saved successfully",
           type: "success",
         });
-        
+
         // Update the local state with the new data
         setSupabaseUser(data.user);
-        
       } else {
         showToast({
           title: "No Changes",
@@ -232,10 +241,7 @@ const ProfileManagement = () => {
             <div className="flex justify-between items-center">
               <h1 className="text-xl font-semibold"></h1>
               {!isEditing ? (
-                <Button
-                  onClick={() => setIsEditing(true)}
-                  variant="outline"
-                >
+                <Button onClick={() => setIsEditing(true)} variant="outline">
                   Edit Profile
                 </Button>
               ) : (
@@ -331,10 +337,12 @@ const ProfileManagement = () => {
                 id="email"
                 type="email"
                 value={formData.email}
-                onChange={(e) =>
-                  setFormData({ ...formData, email: e.target.value })
+                readOnly={true} // keep it uneditable always
+                className={
+                  isEditing
+                    ? "bg-white text-black cursor-not-allowed" // when editing, show black
+                    : " text-gray-500 cursor-not-allowed" // when not editing, keep gray
                 }
-                disabled={true}
               />
             </div>
             <div className="space-y-4">
@@ -390,7 +398,7 @@ const ProfileManagement = () => {
               <div className="w-full px-3 py-2 border border-input border-gray-200 rounded-md bg-muted text-sm text-muted-foreground">
                 {formData.createdAt
                   ? moment(formData.createdAt)
-                      .tz("America/Toronto")
+                      .tz("Asia/kolkata")
                       .format("MMMM D, YYYY h:mm A z")
                   : "N/A"}{" "}
               </div>
@@ -400,13 +408,12 @@ const ProfileManagement = () => {
               <div className="w-full px-3 py-2 border border-input border-gray-200 rounded-md bg-muted text-sm text-muted-foreground">
                 {formData.updateAt
                   ? moment(formData.updateAt)
-                      .tz("America/Toronto")
+                      .tz("Asia/kolkata")
                       .format("MMMM D, YYYY h:mm A z")
                   : "N/A"}{" "}
               </div>
             </div>
           </div>
-          
         </CardContent>
       </Card>
       <Card>
