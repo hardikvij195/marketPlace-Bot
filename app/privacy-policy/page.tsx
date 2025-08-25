@@ -1,9 +1,8 @@
-"use client"
-import React from 'react'
-import { AnimatePresence, motion } from 'framer-motion'
-import Header from '../components/AiPage/Header'
-import Footer from '../components/AiPage/Footer'
-
+"use client";
+import React from "react";
+import { AnimatePresence, motion } from "framer-motion";
+import Header from "../components/AiPage/Header";
+import Footer from "../components/AiPage/Footer";
 
 const PrivacyPolicy = () => {
   return (
@@ -17,7 +16,7 @@ const PrivacyPolicy = () => {
             transition={{
               duration: 0.1,
               scale: {
-                type: 'spring',
+                type: "spring",
                 damping: 50,
                 stiffness: 200,
                 restDelta: 0.001,
@@ -26,12 +25,12 @@ const PrivacyPolicy = () => {
             className="py-20 poppins-text overflow-hidden"
           >
             <motion.p
-              initial={{ opacity: 0, x: '-40%' }}
+              initial={{ opacity: 0, x: "-40%" }}
               animate={{ opacity: 1, x: 0 }}
               transition={{
                 duration: 0.6,
                 scale: {
-                  type: 'spring',
+                  type: "spring",
                   damping: 50,
                   stiffness: 200,
                   restDelta: 0.001,
@@ -47,7 +46,7 @@ const PrivacyPolicy = () => {
               transition={{
                 duration: 0.6,
                 scale: {
-                  type: 'spring',
+                  type: "spring",
                   damping: 50,
                   stiffness: 200,
                   restDelta: 0.001,
@@ -56,24 +55,26 @@ const PrivacyPolicy = () => {
               className="w-[95%] md:w-[90%] lg:w-[70%] xl:w-[65%] mx-auto text-justify"
             >
               <motion.div
-                initial={{ opacity: 0, x: '-40%' }}
+                initial={{ opacity: 0, x: "-40%" }}
                 animate={{ opacity: 1, x: 0 }}
                 transition={{
                   duration: 0.6,
                   scale: {
-                    type: 'spring',
+                    type: "spring",
                     damping: 50,
                     stiffness: 200,
                     restDelta: 0.001,
                   },
                 }}
               >
-                <p className=" mb-3">Effective Date: March 1, 2023</p>
+                <p className=" mb-3">Effective Date: 25 August, 2025</p>
                 <p className="mb-5">
-                Hv Technologies allows the Members to express themselves and does
-                  its best to issue and support the most convenient Service as
-                  to that. We are keen on making Hv Technologies your most exciting
-                  experience in dating.
+                  This Privacy Policy describes how Fb Marketplace Chatbot ("the
+                  Bot," "we," "us," or "our") collects, uses, stores, and shares
+                  information from users ("you" or "your") who interact with our
+                  bot on the Facebook Messenger platform and/or Facebook
+                  Marketplace. We are committed to protecting your privacy and
+                  handling your data with transparency and care.
                 </p>
               </motion.div>
               <motion.p
@@ -82,224 +83,283 @@ const PrivacyPolicy = () => {
                 transition={{
                   duration: 0.2,
                   scale: {
-                    type: 'spring',
+                    type: "spring",
                     damping: 10,
                     stiffness: 200,
                     restDelta: 0.001,
                   },
                 }}
               >
-                Our favorite Hv Technologies feature is streaming tools. By using
-                them, you can stream your live videos and share your emotions
-                with the whole Hv Technologies community. You may stream everywhere
-                and whenever you want: in a café, at home, outside, while
-                listening to music or eating. You choose your decoration on your
-                own. Still, you must acknowledge and adhere to the following
-                rules while streaming:
+                By using the Bot, you agree to the terms of this Privacy Policy.
+                If you do not agree, please do not use the Bot.
               </motion.p>
-              <motion.div className="mt-2 ml-2">
-                <motion.div
-                  initial={{ opacity: 0, x: '40%' }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{
-                    duration: 0.6,
-                    scale: {
-                      type: 'spring',
-                      damping: 50,
-                      stiffness: 200,
-                      restDelta: 0.001,
-                    },
-                  }}
-                  className="ml-5"
-                >
-                  <ul className="list-disc mt-4">
-                    <li>
-                      since your streams fall within the “User Content”
-                      definition under the Hv Technologies Terms of Use, you may not
-                      create “lives” which, including but not limited to:
-                    </li>
-                  </ul>
-                  <motion.div
-                    initial={{ opacity: 0, x: '-40%' }}
-                    animate={{ opacity: 1, x: 0 }}
-                    transition={{
-                      duration: 0.6,
-                      scale: {
-                        type: 'spring',
-                        damping: 50,
-                        stiffness: 200,
-                        restDelta: 0.001,
-                      },
-                    }}
-                    className="ml-5 flex flex-col gap-3"
-                  >
-                    <ul className="list-disc">
-                      <li className="my-3">
-                        contain obscene, pornographic, profane, defamatory,
-                        abusive, offensive, indecent, threatening, harassing,
-                        inflammatory, inaccurate, misrepresentation, fraudulent
-                        or illegal content or actions;
-                      </li>
-                      <li className="mb-3">
-                        promotes racism, bigotry, hatred or physical harm of any
-                        kind against any group or individual;
-                      </li>
-                      <li className="mb-3">
-                        is intended to, or does, harass, or intimidate any other
-                        user or third party;
-                      </li>
-                      <li className="mb-3">
-                        may infringe or violate any patent, trademark, trade
-                        secret, copyright or other intellectual or proprietary
-                        right of any party, including User Content that contains
-                        others’ copyrighted content (e.g., photos, images,
-                        music, movies, videos, etc.) without obtaining proper
-                        permission first;
-                      </li>
-                    </ul>
-                  </motion.div>
-                  <ul className="list-disc">
-                    <li className="my-3">
-                    Hv Technologies is entitled to identify your streams as
-                      inappropriate on its sole discretion and delete/block them
-                      or make them unavailable otherwise at any time;
-                    </li>
-                    <li className="mb-3">
-                      you are prohibited to broadcast, record, stream or
-                      otherwise create your lives when it may present a danger
-                      to you, your friends or family or any other people (e.g.
-                      you have no rights to stream when driving, climbing,
-                      cooking food on an open fire, dancing with tigers, skiing
-                      or skating, etc.);
-                    </li>
-                    <li className="mb-3">
-                      we use reasonable security measures in order to protect
-                      your streams or their records against unauthorised copying
-                      and distribution. However, Hv Technologies does not guarantee
-                      that any unauthorised copying, use or distribution of your
-                      streams or their records by third parties will not take
-                      place.
-                    </li>
-                  </ul>
-                </motion.div>
-              </motion.div>
               <motion.div
-                initial={{ opacity: 0, x: '40%' }}
-                animate={{ opacity: 1, x: 0 }}
+                initial={{ opacity: 0, x: "-40%", scale: 0.7 }}
+                whileInView={{ opacity: 1, x: 0, scale: 1 }}
                 transition={{
                   duration: 0.6,
                   scale: {
-                    type: 'spring',
-                    damping: 50,
+                    type: "spring",
+                    damping: 14,
                     stiffness: 200,
                     restDelta: 0.001,
                   },
                 }}
-                className="my-8"
               >
-                <p>
-                  You hereby release and agree to defend, hold harmless, and
-                  indemnify us, and/or our subsidiaries, affiliates, directors,
-                  officers, employees, agents, successors and assigns from and
-                  against any allegation or claim based on, or any loss, damage,
-                  settlement, cost, expense and any other liability (including
-                  but not limited to reasonable attorneys’ fees incurred and/or
-                  those necessary to successfully establish the right to
-                  indemnification), arising from or related to: (a) any act or
-                  omission by you, including, without limitation any breach of
-                  the Agreement, including this Hv Technologies Streaming Policy or
-                  allegation or claim of negligence, strict liability, wilful
-                  misconduct or fraud of you; or (b) your streaming.
-                </p>
+                <motion.p className="font-semibold mb-2 mt-8">
+                  1. Data Collection
+                </motion.p>
+                <motion.p>
+                  We collect information to provide and improve the Bot's
+                  functionality and to manage our services. The types of data we
+                  collect include: <br />
+                  Information You Provide Directly: When you interact with the
+                  Bot, you may provide us with information directly. This may
+                  include: <br />
+                  User ID: We collect your unique Facebook User ID to identify
+                  you and link your conversations and requests to your account.{" "}
+                  <br />
+                  Conversational Data: The content of your messages and
+                  conversations with the Bot, including product inquiries,
+                  negotiation details, and any other text or images you send.{" "}
+                  <br />
+                  Listing Information: Information about items you are
+                  interested in buying or selling through the Bot, such as
+                  product descriptions, prices, and images. <br />
+                  Contact Information: If you provide it voluntarily for
+                  communication purposes (e.g., an email address for receiving
+                  notifications). <br />
+                  Information Collected Automatically: We may automatically
+                  collect certain technical information when you interact with
+                  the Bot. This may include: <br />
+                  Timestamp: The date and time of your interactions with the
+                  Bot.
+                  <br />
+                  Device Information: Information about the device and software
+                  you use to access Facebook Messenger, such as device type and
+                  operating system. <br />
+                  Usage Data: Details about how you use the Bot, such as the
+                  features you access, the commands you use, and the frequency
+                  and duration of your interactions. <br />
+                  Note: We do not collect or store sensitive personal
+                  information such as your full name, physical address, phone
+                  number, or payment details unless you explicitly provide it
+                  for a specific, aformentioned purpose, such as a negotiation
+                  or transaction facilitated by the Bot. We never collect or
+                  store your Facebook password. <br />
+                </motion.p>
               </motion.div>
               <motion.div
-                initial={{ opacity: 0, x: '-40%' }}
-                animate={{ opacity: 1, x: 0 }}
+                initial={{ opacity: 0, x: "-40%", scale: 0.7 }}
+                whileInView={{ opacity: 1, x: 0, scale: 1 }}
                 transition={{
                   duration: 0.6,
                   scale: {
-                    type: 'spring',
-                    damping: 50,
+                    type: "spring",
+                    damping: 14,
                     stiffness: 200,
                     restDelta: 0.001,
                   },
                 }}
-                className="mt-6"
               >
-                <p className="font-semibold mb-2">
-                  Cancellation and Refund Policy
-                </p>
-                <p>
-                  The terms hereof shall constitute AppSynergies Private
-                  Limited’s cancellation and refund policy in relation to the
-                  Solutions rendered on the Hv Technologies App.
-                </p>
+                <motion.p className="font-semibold mb-2 mt-8">
+                  2. Handling of User Data
+                </motion.p>
+                <motion.p>
+                  We handle your data responsibly and for specific, legitimate
+                  purposes. The data we collect is used to: <br />
+                  Provide and operate the Bot: To allow you to interact with the
+                  Bot, respond to your inquiries, facilitate transactions, and
+                  provide customer support.
+                  <br />
+                  Improve the Bot's functionality: To analyze user behavior and
+                  feedback to enhance the Bot's features, conversational
+                  abilities, and overall user experience. <br />
+                  Communicate with you: To send you messages related to your use
+                  of the Bot, such as transaction updates or responses to your
+                  queries. <br />
+                  Ensure compliance and security: To detect and prevent
+                  fraudulent or malicious activity, and to ensure compliance
+                  with the Facebook Platform Policies and all applicable laws.{" "}
+                  <br />
+                </motion.p>
               </motion.div>
               <motion.div
-                initial={{ opacity: 0, x: '40%' }}
-                animate={{ opacity: 1, x: 0 }}
+                initial={{ opacity: 0, x: "-40%", scale: 0.7 }}
+                whileInView={{ opacity: 1, x: 0, scale: 1 }}
                 transition={{
                   duration: 0.6,
                   scale: {
-                    type: 'spring',
-                    damping: 50,
+                    type: "spring",
+                    damping: 14,
                     stiffness: 200,
                     restDelta: 0.001,
                   },
                 }}
-                className="mt-6"
               >
-                <p className="font-semibold mb-2">
-                  Cancellation and Refunds by the Company
-                </p>
-                <p>
-                  Please note that there may be certain orders that we are
-                  unable to accept and must cancel. We reserve the right, at our
-                  sole discretion, to refuse or cancel any order for any reason,
-                  without any claims or liability to pay finance charges or
-                  interest on the amount. Some situations that may result in
-                  your order being canceled include but are not limited to
-                  inaccuracies or errors in Solutions or pricing information,
-                  technical or technological problems or problems identified in
-                  relation to credit / debit fraud. We may also require
-                  additional verifications or information before accepting any
-                  order. We will contact you if all or any portion of your order
-                  is canceled or if additional information is required to accept
-                  your order. If your order is cancelled by the Company after
-                  your credit / debit card has been charged, the said amount
-                  will be refunded to that credit / debit card account.
-                </p>
+                <motion.p className="font-semibold mb-2 mt-8">
+                  3. Data Storage
+                </motion.p>
+                <motion.p>
+                  We are committed to the secure storage of your data. <br />
+                  Data Security: We implement a variety of security measures to
+                  protect your information from unauthorized access, use, or
+                  disclosure. This includes technical and organizational
+                  safeguards such as data encryption, access controls, and
+                  secure servers. <br />
+                  Data Retention: We retain your personal data for as long as
+                  necessary to fulfill the purposes for which it was collected,
+                  as described in this Privacy Policy. Generally, we will retain
+                  your conversational data and related information for a limited
+                  period after your last interaction, to assist with future
+                  inquiries and to improve our service. We will delete or
+                  anonymize your data when it is no longer needed. <br />
+                </motion.p>
               </motion.div>
               <motion.div
-                initial={{ opacity: 0, x: '-40%' }}
-                animate={{ opacity: 1, x: 0 }}
+                initial={{ opacity: 0, x: "-40%", scale: 0.7 }}
+                whileInView={{ opacity: 1, x: 0, scale: 1 }}
                 transition={{
                   duration: 0.6,
                   scale: {
-                    type: 'spring',
-                    damping: 50,
+                    type: "spring",
+                    damping: 14,
                     stiffness: 200,
                     restDelta: 0.001,
                   },
                 }}
-                className="mt-6"
               >
-                <p className="font-semibold mb-2">Cancellation by you</p>
-                <p>
-                  You agree and acknowledge that unless stated otherwise you are
-                  not entitled to cancel any orders made by you on Hv Technologies
-                  App. In the event you subscribe to any Solutions, the same may
-                  be cancelled by you one month prior to the provision of the
-                  Solutions, in such a case you will be refunded in the entire
-                  amount after deducting any bank charges that may have been
-                  applicable. Further during a period between one month and 14
-                  days from when the Solutions are to be provided, if there is a
-                  cancellation request received, we may at our discretion refund
-                  50% of the amount, after deducting any bank charges that may
-                  have been applicable, to you. A period of 14 days before the
-                  Solutions to be provided no request for cancelation will not
-                  be entertained by the Company.
-                </p>
+                <motion.p className="font-semibold mb-2 mt-8">
+                  4. Data Sharing
+                </motion.p>
+                <motion.p>
+                  We do not sell your personal data to third parties. We may
+                  share your information in the following limited circumstances:{" "}
+                  <br />
+                  With Facebook/Meta: Your interaction with the Bot is through
+                  the Facebook Messenger platform, and as such, your data is
+                  processed in accordance with Facebook's own Data Policy. We
+                  share data with Facebook as required for the Bot to operate
+                  and to comply with their platform policies. <br />
+                  With Service Providers: We may use third-party services to
+                  assist us in operating the Bot, such as hosting providers or
+                  analytics services. These third parties are only granted
+                  access to the data necessary to perform their specific tasks
+                  and are contractually obligated to protect your data and
+                  handle it in accordance with this Privacy Policy. <br />
+                  In a Business Transfer: If we are involved in a merger,
+                  acquisition, or sale of assets, your information may be
+                  transferred as part of that transaction. We will notify you of
+                  any such change. <br />
+                  For Legal Reasons: We may disclose your information if
+                  required to do so by law, court order, or governmental
+                  request, or if we believe such action is necessary to protect
+                  our rights, the safety of our users, or to prevent illegal
+                  activity. <br />
+                </motion.p>
+              </motion.div>
+              <motion.div
+                initial={{ opacity: 0, x: "-40%", scale: 0.7 }}
+                whileInView={{ opacity: 1, x: 0, scale: 1 }}
+                transition={{
+                  duration: 0.6,
+                  scale: {
+                    type: "spring",
+                    damping: 14,
+                    stiffness: 200,
+                    restDelta: 0.001,
+                  },
+                }}
+              >
+                <motion.p className="font-semibold mb-2 mt-8">
+                  5. Your Rights and Control Over Your Data
+                </motion.p>
+                <motion.p>
+                  You have the right to access, correct, or delete your personal
+                  data. <br />
+                  Requesting Data Deletion: If you would like to have your data
+                  deleted from our systems, you can send us a request via email
+                  at info@fbmarketplacebots.com or by using the Bot command
+                  delete my data. Upon receiving a valid request, we will take
+                  all reasonable steps to delete your data from our active
+                  databases, in accordance with applicable legal obligations.{" "}
+                  <br />
+                  Accessing Your Data: To request access to the data we have
+                  collected about you, please send an email to
+                  info@fbmarketplacebots.com. <br />
+                  Facebook Controls: You also have control over your data
+                  through your Facebook account settings. Please refer to the
+                  Facebook Data Policy for information on how to manage your
+                  privacy settings and permissions on their platform.
+                </motion.p>
+              </motion.div>
+              <motion.div
+                initial={{ opacity: 0, x: "-40%", scale: 0.7 }}
+                whileInView={{ opacity: 1, x: 0, scale: 1 }}
+                transition={{
+                  duration: 0.6,
+                  scale: {
+                    type: "spring",
+                    damping: 14,
+                    stiffness: 200,
+                    restDelta: 0.001,
+                  },
+                }}
+              >
+                <motion.p className="font-semibold mb-2 mt-8">
+                  2. Children's Privacy
+                </motion.p>
+                <motion.p>
+                  The Bot is not intended for use by children under the age of
+                  13. We do not knowingly collect personal data from children
+                  under 13. If we become aware that we have collected
+                  information from a child under 13 without verifiable parental
+                  consent, we will take steps to delete that information.
+                </motion.p>
+              </motion.div>
+              <motion.div
+                initial={{ opacity: 0, x: "-40%", scale: 0.7 }}
+                whileInView={{ opacity: 1, x: 0, scale: 1 }}
+                transition={{
+                  duration: 0.6,
+                  scale: {
+                    type: "spring",
+                    damping: 14,
+                    stiffness: 200,
+                    restDelta: 0.001,
+                  },
+                }}
+              >
+                <motion.p className="font-semibold mb-2 mt-8">
+                  7. Changes to this Privacy Policy
+                </motion.p>
+                <motion.p>
+                  We may update this Privacy Policy from time to time. We will
+                  notify you of any significant changes by posting the new
+                  policy on this page and updating the "Last Updated" date. Your
+                  continued use of the Bot after any changes constitutes your
+                  acceptance of the new Privacy Policy.
+                </motion.p>
+              </motion.div>
+              <motion.div
+                initial={{ opacity: 0, x: "-40%", scale: 0.7 }}
+                whileInView={{ opacity: 1, x: 0, scale: 1 }}
+                transition={{
+                  duration: 0.6,
+                  scale: {
+                    type: "spring",
+                    damping: 14,
+                    stiffness: 200,
+                    restDelta: 0.001,
+                  },
+                }}
+              >
+                <motion.p className="font-semibold mb-2 mt-8">
+                  8. Contact Us
+                </motion.p>
+                <motion.p>
+                 If you have any questions or concerns about this Privacy Policy or our data practices, please contact us at: info@fbmarketplacebots.com
+                </motion.p>
               </motion.div>
             </motion.div>
           </motion.div>
@@ -307,7 +367,7 @@ const PrivacyPolicy = () => {
         <Footer />
       </div>
     </>
-  )
-}
+  );
+};
 
-export default PrivacyPolicy
+export default PrivacyPolicy;

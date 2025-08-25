@@ -139,7 +139,7 @@ export default function DashboardPage() {
       const { count: leadsCount, error: leadsError } = await supabaseBrowser
         .from("leads")
         .select("*", { count: "exact", head: true })
-        .eq("user_id", effectiveUserId); // ✅ filter by logged-in user
+        .eq("user_id", effectiveUserId); 
 
       if (leadsError) {
         console.error("Error fetching leads:", leadsError);
