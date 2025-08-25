@@ -307,7 +307,7 @@ const PrivacyPolicy = () => {
                 }}
               >
                 <motion.p className="font-semibold mb-2 mt-8">
-                  2. Children's Privacy
+                  6. Children's Privacy
                 </motion.p>
                 <motion.p>
                   The Bot is not intended for use by children under the age of
