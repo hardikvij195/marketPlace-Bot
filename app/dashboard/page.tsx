@@ -89,70 +89,76 @@ export default function DashboardPage() {
   };
 
   const handleFetchData = async () => {
-    setLoading(true);
-    try {
-      // Fetch user ID from Supabase
-      const { data: { user: authUser }, error: authError } = await supabaseBrowser.auth.getUser();
-      if (authError) {
-        console.error("Error fetching user ID:", authError);
-        setError("Failed to fetch user ID");
-        return;
-      }
-      if (authUser) {
-        setUserId(authUser.id);
-      } else {
-        setError("No authenticated user found");
-        return;
-      }
+  setLoading(true);
 
-      // Use user.id from Redux if available, otherwise use authUser.id
-      const effectiveUserId = user?.id || authUser.id;
+  let effectiveUserId: string | null = null;
 
-      // Fetch subscription modal data
-      await handleShowPopModal(effectiveUserId);
-
-      // Fetch invoices
-      let query = supabaseBrowser
-        .from("invoice")
-        .select("*, users!inner(*)", { count: "exact" })
-        .eq("salesName", effectiveUserId)
-        .order("created_at", { ascending: false });
-
-      const filterDate = getFilterDate(filter);
-      if (filterDate) {
-        query = query.gte("created_at", filterDate);
-      }
-
-      const { data, error } = await query;
-
-      if (error) {
-        console.error("Error fetching invoices:", error);
-        setError(error.message);
-      } else {
-        setInvoice(data.slice(0, 4));
-
-        // Fetch leads count
-        const { count: leadsCount, error: leadsError } = await supabaseBrowser
-          .from("leads")
-          .select("*", { count: "exact", head: true });
-
-        if (leadsError) {
-          console.error("Error fetching leads:", leadsError);
-          setError(leadsError.message);
-        } else {
-          setStats({
-            total: data?.length || 0,
-            totalLeads: leadsCount || 0,
-          });
-        }
-      }
-    } catch (error) {
-      console.error("Error fetching data:", error);
-      setError("Failed to fetch data");
-    } finally {
-      setLoading(false);
+  try {
+    // Fetch user ID from Supabase
+    const { data: { user: authUser }, error: authError } = await supabaseBrowser.auth.getUser();
+    if (authError) {
+      console.error("Error fetching user ID:", authError);
+      setError("Failed to fetch user ID");
+      return;
     }
-  };
+
+    if (authUser) {
+      setUserId(authUser.id);
+    } else {
+      setError("No authenticated user found");
+      return;
+    }
+
+    // Determine effective user ID
+    effectiveUserId = user?.id || authUser.id;
+
+    // Fetch subscription modal data
+    await handleShowPopModal(effectiveUserId);
+
+    // Fetch invoices
+    let query = supabaseBrowser
+      .from("invoice")
+      .select("*, users!inner(*)", { count: "exact" })
+      .eq("salesName", effectiveUserId)
+      .order("created_at", { ascending: false });
+
+    const filterDate = getFilterDate(filter);
+    if (filterDate) {
+      query = query.gte("created_at", filterDate);
+    }
+
+    const { data, error } = await query;
+
+    if (error) {
+      console.error("Error fetching invoices:", error);
+      setError(error.message);
+    } else {
+      setInvoice(data.slice(0, 4));
+
+      // Fetch leads count for this user
+      const { count: leadsCount, error: leadsError } = await supabaseBrowser
+        .from("leads")
+        .select("*", { count: "exact", head: true })
+        .eq("user_id", effectiveUserId); // ✅ filter by logged-in user
+
+      if (leadsError) {
+        console.error("Error fetching leads:", leadsError);
+        setError(leadsError.message);
+      } else {
+        setStats({
+          total: data?.length || 0,
+          totalLeads: leadsCount || 0,
+        });
+      }
+    }
+  } catch (error) {
+    console.error("Error fetching data:", error);
+    setError("Failed to fetch data");
+  } finally {
+    setLoading(false);
+  }
+};
+
 
   useEffect(() => {
     handleFetchData();
